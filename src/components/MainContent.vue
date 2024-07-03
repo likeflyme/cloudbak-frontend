@@ -4,10 +4,12 @@
       <p class="main-content-title">家天下限制群（499）</p>
     </div>
     <div class="main-content-info">
-      <div class="chat">
-        <div class="chat-header"></div>
+      <div class="chat" v-for="n in 20" :key="n">
+        <div class="chat-header">
+          <img src="https://static.raining.top/picgo/weixinhead.jpg" alt=""/>
+        </div>
         <div class="chat-info">
-          <div class="chat-nickname"></div>
+          <div class="chat-nickname">昵称</div>
           <div class="chat-text">这是文本消息！</div>
         </div>
       </div>
@@ -32,12 +34,55 @@
     }
   }
   .main-content-info {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
     overflow-y: scroll;
 
     .chat {
+      margin-top: 10px;
       display: flex;
+      .chat-header {
+        width: 35px;
+        height: 35px;
+        img {
+          width: 100%;
+          height: 100%;
+          border-radius: 3px;
+        }
+      }
+      .chat-info {
+        padding-left: 10px;
+        padding-right: 10px;
+        .chat-nickname {
+          font-size: 12px;
+          color: #BEBEBE;
+        }
+        .chat-text {
+          font-size: 14px;
+          margin-top: 5px;
+          padding: 5px 10px;
+          background-color: #FFFFFF;
+          border-radius: 5px;
+          display: inline-block;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          color: #232323;
+        }
+        .chat-text:hover {
+          background-color: #EBEBEB;
+        }
+      }
+    }
+    .chat.right {
+      flex-direction: row-reverse;
+      .chat-info {
+        .chat-nickname {
+          text-align: right;
+        }
+        .chat-text {
+          text-align: right;
+          background-color: #51C332;
+        }
+      }
     }
   }
 
