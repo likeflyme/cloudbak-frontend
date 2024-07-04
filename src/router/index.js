@@ -10,6 +10,20 @@ const routes = [
             loginRequire: true
         },
         component: () => import("../views/Home.vue"),
+        children:[
+            {
+                path: 'comment',
+                component: () => import("../views/MainComment.vue"),
+            },
+            {
+                path: 'address-book',
+                component: () => import("../views/MainAddressBook.vue"),
+            },
+            {
+                path: 'collect',
+                component: () => import("../views/MainCollect.vue"),
+            }
+        ]
     },
     {
         path: '/login',

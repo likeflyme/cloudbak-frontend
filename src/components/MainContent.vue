@@ -74,10 +74,11 @@ const load = () => {
   box-sizing: border-box;
 }
 .main-content {
-  flex-grow: 1; /* 让内容部分占据剩余的空间 */
   background-color: #F5F5F5; /* 示例背景色 */
   display: flex;
   flex-direction: column; // 垂直排列
+  overflow: hidden;
+  height: 100%;
   .main-content-top {
     padding-left: 15px;
     display: flex;
@@ -91,6 +92,7 @@ const load = () => {
     }
   }
   .main-content-info {
+    flex-grow: 1;
     // 聊天框需要调转180度
     transform: rotate(180deg) translateZ(0);
     direction: rtl;
