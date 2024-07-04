@@ -64,7 +64,7 @@ const load = () => {
         </div>
       </div>
       <div class="load-more">
-        <a href="javascript:void(0)" @click="load">查看更多信息</a>
+        <a href="javascript:void(0)" @click="load">查看更多消息</a>
       </div>
     </div>
   </div>
@@ -102,6 +102,7 @@ const load = () => {
       text-align: center;
       font-size: 12px;
       transform: rotate(180deg) translateZ(0);
+      color: #2C90FF
     }
     .chat {
       transform: rotate(180deg) translateZ(0);

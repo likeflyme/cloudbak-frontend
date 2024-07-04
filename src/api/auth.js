@@ -7,3 +7,6 @@ export const token = (data) => {
         }
     })
 };
+export const userinfo = () => {
+    return service.get("/api/auth/me")
+};

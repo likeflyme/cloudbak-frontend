@@ -1,18 +1,30 @@
 import {createStore} from 'vuex'
 
 const state = {
-    sessions: []
+    sessions: [],
+    userInfo: {
+        current_session: {}
+    }
 }
 
 const mutations = {
     setSessions (state, sessions) {
         state.sessions = sessions
+    },
+    setUserInfo (state, userInfo) {
+        state.userInfo = userInfo;
     }
 }
 
 const getters = {
     getSessions (state) {
         return state.sessions;
+    },
+    getUserInfo (state) {
+        return state.userInfo;
+    },
+    getHeadImgPath(state) {
+        return '/head/' + state.userInfo.current_session.name + '/' + state.userInfo.current_session.wx_id + '/';
     }
 }
 

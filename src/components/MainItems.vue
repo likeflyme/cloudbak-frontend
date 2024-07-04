@@ -5,7 +5,7 @@
       :class="{ 'item-active': selectedItem === session.strUsrName }"
       @click="selectItem(session)">
     <div class="item-header">
-      <img src="https://static.raining.top/picgo/weixinhead.jpg" alt="header">
+      <img :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" alt="header">
     </div>
     <div class="item-msg">
       <p class="item-msg-title">{{ shortenCharts(session.strNickName, '25', '...') }}</p>
@@ -19,8 +19,10 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import store from "../store/index.js";
+import {useStore} from "vuex";
 import {shortenCharts} from "../utils/common.js";
+
+const store = useStore();
 
 const selectedItem = ref(null)
 
@@ -37,7 +39,6 @@ const selectItem = (session) => {
   .item-header {
     width: 40px;
     height: 40px;
-    background-color: #07C160;
     img {
       width: 100%;
       height: 100%;
