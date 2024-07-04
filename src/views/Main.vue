@@ -1,7 +1,6 @@
 <template>
   <div class="main-container">
     <MainSidebar class="main-sidebar">
-
     </MainSidebar>
     <div class="main-session">
       <div class="session-search-container">

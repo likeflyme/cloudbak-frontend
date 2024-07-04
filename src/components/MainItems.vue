@@ -5,7 +5,9 @@
       :class="{ 'item-active': selectedItem === session.strUsrName }"
       @click="selectItem(session)">
     <div class="item-header">
-      <img :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" alt="header">
+      <!-- 订阅号的头像 -->
+      <img v-if="session.strUsrName === '@publicUser'" src="../images/wx/public_user.png" alt="header">
+      <img v-else :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" alt="header">
     </div>
     <div class="item-msg">
       <p class="item-msg-title">{{ shortenCharts(session.strNickName, '25', '...') }}</p>
