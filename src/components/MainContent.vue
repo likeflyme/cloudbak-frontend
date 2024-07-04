@@ -125,6 +125,7 @@ const load = () => {
           text-align: left;
         }
         .chat-text {
+          direction: ltr;
           font-size: 14px;
           margin-top: 5px;
           padding: 5px 10px;
@@ -148,7 +149,7 @@ const load = () => {
         }
         .chat-text {
           text-align: right;
-          background-color: #51C332;
+          background-color: #9DFF5C;
         }
       }
     }

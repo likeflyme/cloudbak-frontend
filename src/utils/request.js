@@ -43,16 +43,16 @@ service.interceptors.response.use(
 
         return response.data
     }
-    // ,
-    // error => {
-    //     if (error && error.response && error.response.status === 401) {
-    //         // 退出时清除数据
-    //         store.commit('clear');
-    //         router.push('/login');
-    //         return;
-    //     }
-    //     return Promise.reject(error)
-    // }
+    ,
+    error => {
+        if (error && error.response && error.response.status === 403) {
+            // 退出时清除数据
+            store.commit('clear');
+            router.push('/login');
+        } else {
+            return Promise.reject(error)
+        }
+    }
 )
 
 // 导出 axios 实例

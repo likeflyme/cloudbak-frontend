@@ -1,16 +1,15 @@
 <template>
 <ul class="items-ul">
   <li class="item"
-      v-for="n in 20"
-      :key="n"
-      :class="{ 'item-active': selectedItem === n }"
-      @click="selectItem(n)">
+      v-for="(session, idx) in store.state.sessions" :key="session.strUsrName"
+      :class="{ 'item-active': selectedItem === session.strUsrName }"
+      @click="selectItem(session)">
     <div class="item-header">
       <img src="https://static.raining.top/picgo/weixinhead.jpg" alt="header">
     </div>
     <div class="item-msg">
-      <p class="item-msg-title">家天下闲置群</p>
-      <p class="item-msg-desc">杨小杨 这是一个测试消息</p>
+      <p class="item-msg-title">{{ shortenCharts(session.strNickName, '25', '...') }}</p>
+      <p class="item-msg-desc">{{ shortenCharts(session.strContent, '25', '...') }}</p>
     </div>
     <div class="item-info">
       <p class="item-info-time">15:11</p>
@@ -20,11 +19,13 @@
 </template>
 <script setup>
 import { ref } from 'vue'
+import store from "../store/index.js";
+import {shortenCharts} from "../utils/common.js";
 
 const selectedItem = ref(null)
 
-const selectItem = (n) => {
-  selectedItem.value = n
+const selectItem = (session) => {
+  selectedItem.value = session.strUsrName
 }
 
 </script>
