@@ -25,7 +25,13 @@ const getters = {
     },
     getHeadImgPath(state) {
         return '/head/' + state.userInfo.current_session.name + '/' + state.userInfo.current_session.wx_id + '/';
-    }
+    },
+    getCurrentWxId(state) {
+        return state.userInfo.current_session.wx_id;
+    },
+    getCurrentWxHeadImgPath(state) {
+        return getters.getHeadImgPath(state) + getters.getCurrentWxId(state) + '.jpg'
+    },
 }
 
 // 创建一个新的 store 实例

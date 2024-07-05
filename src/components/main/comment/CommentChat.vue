@@ -1,15 +1,48 @@
 <script setup>
 import {reactive, ref} from "vue";
+import {useRoute} from "vue-router";
+import {msgs, session as getSession} from "../../../api/msg.js"
+import {useStore} from "vuex";
+
+const store = useStore();
+const route = useRoute();
+
+const id = route.params.id
+const noMoreMsg = ref(false);
+
+const query = reactive({
+  strUsrName: id,
+  page: 1,
+  size: 30
+});
+const session = reactive({})
 
 const number = ref(0);
 const isTop = ref(false);
 const msg_list = reactive([
 ])
-for (let i = 0; i < 50; i++) {
-  number.value = number.value + 1;
-  msg_list.push({"msg": number.value + ": 这是一个新文本消息，添加到头部！"});
+
+const loadSession = () => {
+  getSession(id).then(resp => {
+    Object.assign(session, resp);
+  })
+}
+loadSession();
+
+const loadData = () => {
+  if (!noMoreMsg.value) {
+    msgs(query).then(resp => {
+      if (resp.length > 0) {
+        msg_list.push(...resp);
+      } else {
+        noMoreMsg.value = true;
+      }
+    });
+  }
 }
 
+// 加载数据
+loadData();
 
 const chatContainer = ref(null);
 
@@ -25,7 +58,7 @@ const onWheel = (event) => {
   chatContainer.value.scrollTop -= delta;
   if (isTop.value === true) {
     // 只有在到达顶部的标记为 true 时才加载数据，加载完后将标记修改为 false;
-    load();
+    loadMore();
     isTop.value = false;
   }
 };
@@ -40,31 +73,57 @@ const onScroll = () => {
     }
   }
 };
-const load = () => {
-  for (let i = 0; i < 50; i++) {
-    number.value = number.value + 1;
-    // msg_list.unshift({"msg": number.value + ": 这是一个新文本消息，添加到头部！"});
-    msg_list.push({"msg": number.value + ": 这是一个新文本消息，添加到头部！"});
-  }
+const loadMore = () => {
+  query.page = query.page + 1;
+  loadData();
 };
+const formatDate = (timestamp) => {
+  const date = new Date(timestamp * 1000);
+
+  // 使用 Date 对象的方法获取年、月、日等信息
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  // const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  // 返回格式化后的字符串
+  return `${year}年${month}月${day}日 ${hours}:${minutes}`;
+}
 </script>
 <template>
   <div class="main-content">
     <div class="main-content-top">
-      <p class="main-content-title">家天下限制群（499）</p>
+      <p class="main-content-title">{{ session.strNickName }}</p>
     </div>
     <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer">
-      <div class="chat" :class="{'right': index === 10, 'left': index !== 10}" v-for="(n, index) in msg_list" :key="n">
-        <div class="chat-header">
-          <img src="https://static.raining.top/picgo/weixinhead.jpg" alt=""/>
+      <div v-for="(m, index) in msg_list" :key="m">
+        <div class="tips">
+          <p class="tips-content">
+            {{ formatDate(m.CreateTime) }}
+          </p>
         </div>
-        <div class="chat-info">
-          <div class="chat-nickname">昵称</div>
-          <div class="chat-text">{{ n.msg }}</div>
+        <div class="tips" v-if="m.Type === 10000 && m.SubType === 0">
+          <p class="tips-content">
+            {{ m.StrContent }}
+          </p>
+        </div>
+        <div v-else class="chat" :class="{'right': m.IsSender === 1, 'left': m.IsSender === 0}" >
+          <div class="chat-header">
+            <img v-if="m.IsSender === 1" :src="store.getters.getCurrentWxHeadImgPath" alt=""/>
+            <img v-else :src="store.getters.getHeadImgPath + m.WxId + '.jpg'" alt=""/>
+          </div>
+          <div class="chat-info">
+            <div class="chat-nickname">{{m.StrTalker}} {{ m.WxId }}</div>
+            <div class="chat-text">
+              {{ m.StrContent }}
+            </div>
+          </div>
         </div>
       </div>
       <div class="load-more">
-        <a href="javascript:void(0)" @click="load">查看更多消息</a>
+        <a v-if="!noMoreMsg" href="javascript:void(0)" @click="loadMore">查看更多消息</a>
       </div>
     </div>
   </div>
@@ -100,11 +159,26 @@ const load = () => {
     padding-right: 20px;
     overflow-y: scroll;
     flex-direction: column-reverse;
+    .tips {
+      font-size: 12px;
+      color: gray;
+      text-align: center;
+      transform: rotate(180deg) translateZ(0);
+      padding: 10px;
+      .tips-content {
+        max-width: 300px;
+        margin: 0 auto;
+      }
+    }
     .load-more {
       text-align: center;
       font-size: 12px;
       transform: rotate(180deg) translateZ(0);
-      color: #2C90FF
+      color: #2C90FF;
+      .no-more-msg {
+        font-size: 12px;
+        color: dimgray;
+      }
     }
     .chat {
       transform: rotate(180deg) translateZ(0);
@@ -134,8 +208,10 @@ const load = () => {
           padding: 5px 10px;
           border-radius: 5px;
           display: inline-block;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          //box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
           color: #232323;
+          word-wrap: break-word;
+          max-width: 400px;
         }
         .chat-text:hover {
           background-color: #EBEBEB;
@@ -151,7 +227,7 @@ const load = () => {
           text-align: right;
         }
         .chat-text {
-          text-align: right;
+          text-align: left;
           background-color: #9DFF5C;
         }
       }
@@ -159,6 +235,7 @@ const load = () => {
     .chat.left {
       flex-direction: row-reverse;
       .chat-info {
+        text-align: left;
         .chat-nickname {
           text-align: left;
         }

@@ -13,15 +13,21 @@ const routes = [
         children:[
             {
                 path: 'comment',
-                component: () => import("../views/MainComment.vue"),
+                component: () => import("../components/main/comment/Comment.vue"),
+                children: [
+                    {
+                        path: ':id',
+                        component: () => import("../components/main/comment/CommentChat.vue"),
+                    }
+                ]
             },
             {
                 path: 'address-book',
-                component: () => import("../views/MainAddressBook.vue"),
+                component: () => import("../components/main/addressbook/AddressBook.vue"),
             },
             {
                 path: 'collect',
-                component: () => import("../views/MainCollect.vue"),
+                component: () => import("../components/main/collect/Collect.vue"),
             }
         ]
     },

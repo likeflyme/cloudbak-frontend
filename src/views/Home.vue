@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import Sidebar from "../components/Sidebar.vue";
-import Main from "./Main.vue";
+import Main from "../components/main/Main.vue";
 import {onBeforeMount} from "vue";
 import {sessions} from "../api/msg.js";
 import {userinfo} from "../api/auth.js";

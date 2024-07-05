@@ -35,7 +35,11 @@
 </template>
 
 <script setup>
+import {useRouter} from "vue-router";
 
+const router = useRouter();
+
+router.push("/comment");
 </script>
 <style scoped lang="less">
   .main-container {
