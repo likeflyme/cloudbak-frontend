@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import path from 'path'
 
 
 // https://vitejs.dev/config/
@@ -7,7 +8,7 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': '/src'
+      '@': path.resolve(__dirname, './src')
     }
   },
   server: {
@@ -23,6 +24,12 @@ export default defineConfig({
       },
       ['/head']: {
         target: 'http://host.docker.internal:8000/',
+        // target: 'https://app.navkeeper.com/',
+        changeOrigin: true,
+        log: 'debug'
+      },
+      ['/image']: {
+        target: 'http://host.docker.internal:8000/api/msg',
         // target: 'https://app.navkeeper.com/',
         changeOrigin: true,
         log: 'debug'

@@ -3,12 +3,14 @@ import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
 import {msgs, session as getSession} from "../../../api/msg.js"
 import {useStore} from "vuex";
+import {getUserNameByWxId, isChatRoom, parseXml} from "../../../utils/common.js";
 
 const store = useStore();
 const route = useRoute();
 
 const id = route.params.id
 const noMoreMsg = ref(false);
+const images = reactive([]);
 
 const query = reactive({
   strUsrName: id,
@@ -17,10 +19,25 @@ const query = reactive({
 });
 const session = reactive({})
 
-const number = ref(0);
 const isTop = ref(false);
-const msg_list = reactive([
-])
+const msg_list = reactive([])
+
+const imageOptions = reactive({
+  // 配置选项
+  toolbar: true,
+      title: true,
+      tooltip: true,
+      movable: true,
+      zoomable: true,
+      rotatable: true,
+      scalable: true,
+      transition: false,
+      url: 'data-original',
+      filter(image) {
+        // 排除带有 exclude 类的 img 元素
+        return !image.classList.contains('exclude');
+      },
+});
 
 const loadSession = () => {
   getSession(id).then(resp => {
@@ -33,11 +50,41 @@ const loadData = () => {
   if (!noMoreMsg.value) {
     msgs(query).then(resp => {
       if (resp.length > 0) {
+        // 图片数据处理
+        parseImg(resp);
+        // 添加到数据列表
         msg_list.push(...resp);
       } else {
         noMoreMsg.value = true;
       }
     });
+  }
+}
+
+const parseImg = (data) => {
+  for (let i of data) {
+    // 图片信息处理
+    if (i.Type === 3 && i.SubType === 0) {
+      images.push({
+        thumbnail: data.Thumb,
+        source: data.Image
+      })
+      // data.StrContent
+      if (i.StrContent) {
+        const xmlDoc = parseXml(i.StrContent);
+        const imgTag = xmlDoc.querySelector('img');
+        if (imgTag) {
+          const cdnthumbheight = imgTag.getAttribute('cdnthumbheight');
+          i.cdnthumbheight = cdnthumbheight;
+
+          const cdnthumbwidth = imgTag.getAttribute('cdnthumbwidth');
+          i.cdnthumbwidth = cdnthumbwidth;
+
+          const md5 = imgTag.getAttribute('md5');
+          i.md5 = md5;
+        }
+      }
+    }
   }
 }
 
@@ -79,17 +126,40 @@ const loadMore = () => {
 };
 const formatDate = (timestamp) => {
   const date = new Date(timestamp * 1000);
+  const now = new Date();
 
-  // 使用 Date 对象的方法获取年、月、日等信息
+  // 获取今天的日期
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // 获取昨天的日期
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  // 获取年、月、日、小时、分钟
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
   const day = String(date.getDate()).padStart(2, '0');
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
-  // const seconds = String(date.getSeconds()).padStart(2, '0');
 
-  // 返回格式化后的字符串
-  return `${year}年${month}月${day}日 ${hours}:${minutes}`;
+  // 根据日期判断输出格式
+  if (date >= today) {
+    return `${hours}:${minutes}`;
+  } else if (date >= yesterday) {
+    return `昨天 ${hours}:${minutes}`;
+  } else {
+    return `${year}年${month}月${day}日 ${hours}:${minutes}`;
+  }
+};
+
+const shouldDisplayTimestamp = (currentTimestamp, index) => {
+  let nextIndex = index + 1;
+  // 最后一条消息输出时间
+  if (msg_list.length < nextIndex + 1) {
+    return true;
+  }
+  let last = msg_list[index + 1]
+  return (currentTimestamp - last.CreateTime) > 600;
 }
 </script>
 <template>
@@ -97,9 +167,9 @@ const formatDate = (timestamp) => {
     <div class="main-content-top">
       <p class="main-content-title">{{ session.strNickName }}</p>
     </div>
-    <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer">
-      <div v-for="(m, index) in msg_list" :key="m">
-        <div class="tips">
+    <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer" v-viewer="imageOptions">
+      <div class="chat-container" v-for="(m, index) in msg_list" :key="m">
+        <div class="tips" v-if="shouldDisplayTimestamp(m.CreateTime, index)">
           <p class="tips-content">
             {{ formatDate(m.CreateTime) }}
           </p>
@@ -111,12 +181,22 @@ const formatDate = (timestamp) => {
         </div>
         <div v-else class="chat" :class="{'right': m.IsSender === 1, 'left': m.IsSender === 0}" >
           <div class="chat-header">
-            <img v-if="m.IsSender === 1" :src="store.getters.getCurrentWxHeadImgPath" alt=""/>
-            <img v-else :src="store.getters.getHeadImgPath + m.WxId + '.jpg'" alt=""/>
+            <img v-if="m.IsSender === 1" :src="store.getters.getCurrentWxHeadImgPath" alt="" class="exclude"/>
+            <img v-else-if="isChatRoom(id)" :src="store.getters.getHeadImgPath + m.WxId + '.jpg'" alt="" class="exclude"/>
+            <img v-else :src="store.getters.getHeadImgPath + id + '.jpg'" alt="" class="exclude"/>
           </div>
           <div class="chat-info">
-            <div class="chat-nickname">{{m.StrTalker}} {{ m.WxId }}</div>
-            <div class="chat-text">
+            <div class="chat-nickname" v-if="isChatRoom(id)">
+              <p v-if="isChatRoom(id) && m.IsSender === 0">{{ getUserNameByWxId(store, m.WxId) }} {{m.Type}} {{m.SubType}}</p>
+            </div>
+            <div v-if="m.Type === 3 && m.SubType ===0" class="chat-img">
+              <img
+                  :src="'/image?img_path=' + m.Thumb + '&session_name=' + store.getters.getCurrentSessionName"
+                  :data-original="'/image?img_path=' + m.Image + '&session_name=' + store.getters.getCurrentSessionName"
+                  alt="" :width="m.cdnthumbwidth"
+                  :height="m.cdnthumbheight"/>
+            </div>
+            <div v-else class="chat-text">
               {{ m.StrContent }}
             </div>
           </div>
@@ -159,17 +239,101 @@ const formatDate = (timestamp) => {
     padding-right: 20px;
     overflow-y: scroll;
     flex-direction: column-reverse;
-    .tips {
-      font-size: 12px;
-      color: gray;
-      text-align: center;
+    .chat-container {
       transform: rotate(180deg) translateZ(0);
-      padding: 10px;
-      .tips-content {
-        max-width: 300px;
-        margin: 0 auto;
+      .tips {
+        font-size: 12px;
+        color: gray;
+        text-align: center;
+        padding: 10px;
+        .tips-content {
+          max-width: 300px;
+          margin: 0 auto;
+        }
+      }
+      .chat {
+        margin-top: 10px;
+        display: flex;
+        .chat-header {
+          width: 35px;
+          height: 35px;
+          img {
+            width: 100%;
+            height: 100%;
+            border-radius: 3px;
+          }
+        }
+        .chat-info {
+          padding-left: 10px;
+          padding-right: 10px;
+          .chat-nickname {
+            font-size: 12px;
+            color: #BEBEBE;
+            text-align: left;
+          }
+          .chat-text {
+            direction: ltr;
+            font-size: 14px;
+            margin-top: 3px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            //box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: #232323;
+            word-wrap: break-word;
+            max-width: 400px;
+          }
+          .chat-text:hover {
+            background-color: #EBEBEB;
+          }
+          .chat-img {
+            border-radius: 4px;
+            border: 1px solid lightgray;
+          }
+          .chat-img:hover {
+            cursor: pointer;
+          }
+        }
+      }
+      .chat:last-child {
+        margin-bottom: 20px;
+      }
+      .chat.right {
+        .chat-info {
+          .chat-nickname {
+            text-align: right;
+          }
+          .chat-text {
+            text-align: left;
+            background-color: #9DFF5C;
+          }
+        }
+      }
+      .chat.left {
+        flex-direction: row-reverse;
+        .chat-info {
+          text-align: left;
+          .chat-nickname {
+            text-align: left;
+          }
+          .chat-text {
+            text-align: left;
+            background-color: #FFFFFF;
+          }
+        }
+      }
+      .chat.right:hover {
+        .chat-text {
+          background-color: #89D961;
+        }
+      }
+      .chat.left:hover {
+        .chat-text {
+          background-color: #EBEBEB;
+        }
       }
     }
+
     .load-more {
       text-align: center;
       font-size: 12px;
@@ -180,81 +344,7 @@ const formatDate = (timestamp) => {
         color: dimgray;
       }
     }
-    .chat {
-      transform: rotate(180deg) translateZ(0);
-      margin-top: 10px;
-      display: flex;
-      .chat-header {
-        width: 35px;
-        height: 35px;
-        img {
-          width: 100%;
-          height: 100%;
-          border-radius: 3px;
-        }
-      }
-      .chat-info {
-        padding-left: 10px;
-        padding-right: 10px;
-        .chat-nickname {
-          font-size: 12px;
-          color: #BEBEBE;
-          text-align: left;
-        }
-        .chat-text {
-          direction: ltr;
-          font-size: 14px;
-          margin-top: 5px;
-          padding: 5px 10px;
-          border-radius: 5px;
-          display: inline-block;
-          //box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-          color: #232323;
-          word-wrap: break-word;
-          max-width: 400px;
-        }
-        .chat-text:hover {
-          background-color: #EBEBEB;
-        }
-      }
-    }
-    .chat:last-child {
-      margin-bottom: 20px;
-    }
-    .chat.right {
-      .chat-info {
-        .chat-nickname {
-          text-align: right;
-        }
-        .chat-text {
-          text-align: left;
-          background-color: #9DFF5C;
-        }
-      }
-    }
-    .chat.left {
-      flex-direction: row-reverse;
-      .chat-info {
-        text-align: left;
-        .chat-nickname {
-          text-align: left;
-        }
-        .chat-text {
-          text-align: left;
-          background-color: #FFFFFF;
-        }
-      }
-    }
-    .chat.right:hover {
-      .chat-text {
-        background-color: #89D961;
-      }
-    }
-    .chat.left:hover {
-      .chat-text {
-        background-color: #EBEBEB;
-      }
-    }
+
 
   }
 

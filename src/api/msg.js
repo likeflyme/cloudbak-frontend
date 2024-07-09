@@ -11,3 +11,8 @@ export const sessions = () => {
 export const msgs = (query) => {
     return service.get(`/api/msg/msgs?strUsrName=${query.strUsrName}&page=${query.page}&size=${query.size}`);
 };
+
+export const contact = () => {
+    return service.get('/api/msg/contact');
+};
+

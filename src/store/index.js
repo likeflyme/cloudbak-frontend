@@ -4,7 +4,8 @@ const state = {
     sessions: [],
     userInfo: {
         current_session: {}
-    }
+    },
+    mappedContact: {}
 }
 
 const mutations = {
@@ -13,6 +14,11 @@ const mutations = {
     },
     setUserInfo (state, userInfo) {
         state.userInfo = userInfo;
+    },
+    setContact(state, contact) {
+        for (let c of contact) {
+            state.mappedContact[c.UserName] = c;
+        }
     }
 }
 
@@ -29,9 +35,16 @@ const getters = {
     getCurrentWxId(state) {
         return state.userInfo.current_session.wx_id;
     },
+    getCurrentSessionName(state) {
+        return state.userInfo.current_session.name;
+    },
     getCurrentWxHeadImgPath(state) {
         return getters.getHeadImgPath(state) + getters.getCurrentWxId(state) + '.jpg'
     },
+    getMappedContact(state) {
+        return state.mappedContact;
+    }
+
 }
 
 // 创建一个新的 store 实例

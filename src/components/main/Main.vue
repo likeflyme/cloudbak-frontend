@@ -36,8 +36,17 @@
 
 <script setup>
 import {useRouter} from "vue-router";
+import {contact} from "../../api/msg.js";
+import {useStore} from "vuex";
 
+const store = useStore();
 const router = useRouter();
+
+// 加载联系人数据
+contact().then(resp => {
+  store.commit("setContact", resp)
+});
+
 
 router.push("/comment");
 </script>

@@ -19,12 +19,7 @@ const selectedItem = ref(null)
 const selectItem = (session) => {
   selectedItem.value = session.strUsrName;
   const targetPath = '/comment/' + session.strUsrName;
-  console.log(route.path);
-  console.log(targetPath);
-  if (route.path !== targetPath) {
-    console.log('path 不相同');
-    router.push(targetPath);
-  }
+  router.push(targetPath);
 }
 </script>
 
@@ -69,7 +64,7 @@ const selectItem = (session) => {
       </div>
     </div>
     <div class="main-msg">
-      <router-view/>
+      <router-view :key="$route.fullPath"/>
     </div>
   </div>
 </template>

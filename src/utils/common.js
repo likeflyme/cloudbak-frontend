@@ -71,3 +71,39 @@ export const shortenCharts = (str, max, suffix) => {
     return str_return;
 }
 
+// 根据微信号获取用户信息
+export const getUserByWxId = (store, name) => {
+    return store.getters.getMappedContact[name];
+}
+
+// 根据微信号获取用户备注或昵称
+export const getUserNameByWxId = (store, wxId) => {
+    let user = getUserByWxId(store, wxId);
+    if (user) {
+        if (user.Remark){
+            return user.Remark;
+        } else {
+            return user.NickName;
+        }
+    } else {
+        return '未知用户'
+    }
+}
+
+const chatType = (wxid) => {
+    if (wxid.includes('@')) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+export const isChatRoom = (wxid) => {
+    return chatType(wxid) === 0;
+}
+
+export const parseXml = (xmlString) => {
+    const parser = new DOMParser();
+    return parser.parseFromString(xmlString, 'application/xml');
+};
+

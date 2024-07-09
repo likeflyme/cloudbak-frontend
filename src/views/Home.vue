@@ -19,7 +19,6 @@ onBeforeMount(() => {
     store.commit("setSessions", resp);
   });
   userinfo().then(resp => {
-    console.log(resp);
     store.commit("setUserInfo", resp);
   });
 })
