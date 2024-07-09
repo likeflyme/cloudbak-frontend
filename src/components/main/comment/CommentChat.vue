@@ -3,7 +3,8 @@ import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
 import {msgs, session as getSession} from "../../../api/msg.js"
 import {useStore} from "vuex";
-import {getUserNameByWxId, isChatRoom, parseXml} from "../../../utils/common.js";
+import {getUserNameByWxId, isChatRoom, parseXml, getReferFileName} from "../../../utils/common.js";
+import {get_msg_desc} from "../../../utils/msgtp.js";
 
 const store = useStore();
 const route = useRoute();
@@ -161,6 +162,20 @@ const shouldDisplayTimestamp = (currentTimestamp, index) => {
   let last = msg_list[index + 1]
   return (currentTimestamp - last.CreateTime) > 600;
 }
+const fileSize = (bytes) => {
+  if (bytes < 1024) {
+    return bytes + ' B';
+  } else if (bytes < 1024 * 1024) {
+    return (bytes / 1024).toFixed(2) + ' KB';
+  } else if (bytes < 1024 * 1024 * 1024) {
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  } else if (bytes < 1024 * 1024 * 1024 * 1024) {
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+  } else {
+    return (bytes / (1024 * 1024 * 1024 * 1024)).toFixed(2) + ' TB';
+  }
+}
+
 </script>
 <template>
   <div class="main-content">
@@ -189,16 +204,60 @@ const shouldDisplayTimestamp = (currentTimestamp, index) => {
             <div class="chat-nickname" v-if="isChatRoom(id)">
               <p v-if="isChatRoom(id) && m.IsSender === 0">{{ getUserNameByWxId(store, m.WxId) }} {{m.Type}} {{m.SubType}}</p>
             </div>
-            <div v-if="m.Type === 3 && m.SubType ===0" class="chat-img">
+            <!-- 文本消息 -->
+            <div v-if="m.Type === 1" class="chat-text">
+              <p>
+                {{ m.StrContent }}
+              </p>
+            </div>
+            <!-- 图片消息 -->
+            <div v-else-if="m.Type === 3 && m.SubType ===0" class="chat-img">
               <img
                   :src="'/image?img_path=' + m.Thumb + '&session_name=' + store.getters.getCurrentSessionName"
-                  :data-original="'/image?img_path=' + m.Image + '&session_name=' + store.getters.getCurrentSessionName"
-                  alt="" :width="m.cdnthumbwidth"
-                  :height="m.cdnthumbheight"/>
+                  :data-original="'/image?img_path=' + (m.Image ? m.Image : m.Thumb) + '&session_name=' + store.getters.getCurrentSessionName"
+                  alt=""/>
             </div>
-            <div v-else class="chat-text">
-              {{ m.StrContent }}
+            <!-- 引用消息 -->
+            <div v-else-if="m.Type === 49 && m.SubType === 57" class="chat-text">
+              <p>
+                {{ m.compress_content.msg.appmsg.title }}
+              </p>
             </div>
+            <!-- 文件消息 -->
+            <div v-else-if="m.Type === 49 && m.SubType === 6" class="chat-file">
+              <div class="chat-file-top">
+                <div class="chat-file-left">
+                  <p class="chat-file-title">{{ m.compress_content.msg.appmsg.title }}</p>
+                  <p class="chat-file-content">{{ fileSize(m.compress_content.msg.appmsg.appattach.totallen)}}</p>
+                </div>
+                <div class="chat-file-icon">
+                  <font-awesome-icon class="item-icon" :icon="['far', 'file']" title="文件"/>
+                </div>
+              </div>
+              <div class="chat-file-bottom">
+                <p class="chat-file-app-info">{{ m.compress_content.msg.appinfo.appname }}</p>
+              </div>
+<!--              <p>-->
+<!--                {{ m.compress_content.msg.appmsg.title }}-->
+<!--              </p>-->
+            </div>
+            <div v-else class="refer-msg">
+              <p class="refer-text">
+                暂不支持的交易类型：{{ get_msg_desc(m.Type, m.SubType) }}
+              </p>
+            </div>
+            <!-- 引用消息 -->
+            <div class="refer-msg" v-if="m.Type === 49 && m.SubType === 57">
+
+              <p class="refer-text" v-if="m.compress_content.msg.appmsg.refermsg.type === '1'">
+                {{ m.compress_content.msg.appmsg.refermsg.displayname }}: {{ m.compress_content.msg.appmsg.refermsg.content }}
+              </p>
+              <p class="refer-text" v-else-if="m.compress_content.msg.appmsg.refermsg.type === '49'">
+                {{ m.compress_content.msg.appmsg.refermsg.displayname }}: {{ getReferFileName(m.compress_content.msg.appmsg.refermsg.content) }}
+                <font-awesome-icon class="icon-file" :icon="['fas', 'file']" title="文件"/>
+              </p>
+            </div>
+
           </div>
         </div>
       </div>
@@ -292,6 +351,62 @@ const shouldDisplayTimestamp = (currentTimestamp, index) => {
           }
           .chat-img:hover {
             cursor: pointer;
+          }
+          .refer-msg {
+            direction: ltr;
+            margin-top: 5px;
+            .refer-text {
+              font-size: 12px;
+              background-color: #E8E8E8;
+              color: #797979;
+              padding: 5px;
+              border-radius: 3px;
+              display: inline-block;
+              max-width: 400px;
+              .icon-file {
+                color: #207346;
+              }
+            }
+          }
+          .chat-file {
+            direction: ltr;
+            width: 200px;
+            height: 100px;
+            background-color: #FFFFFF;
+            border-radius: 5px;
+            .chat-file-top {
+              height: 75px;
+              border-bottom: 1px solid #f0f0f0;
+              display: flex;
+              padding: 10px;
+              .chat-file-left {
+                width: 150px;
+                height: 100%;
+                .chat-file-title {
+                  font-size: 14px;
+                }
+                .chat-file-content {
+                  font-size: 12px;
+                  color: #797979;
+                  align-items: center;
+                }
+              }
+              .chat-file-icon {
+                width: 50px;
+                height: 100%;
+                font-size: 30px;
+                text-align: center;
+                color: #207346;
+              }
+            }
+            .chat-file-bottom {
+              .chat-file-app-info {
+                font-size: 11px;
+                color: #797979;
+                padding-left: 10px;
+                line-height: 25px;
+              }
+            }
           }
         }
       }

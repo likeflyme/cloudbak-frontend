@@ -107,3 +107,9 @@ export const parseXml = (xmlString) => {
     return parser.parseFromString(xmlString, 'application/xml');
 };
 
+export const getReferFileName = (content) => {
+    let dom = parseXml(content);
+    let title = dom.getElementsByTagName('title')[0]
+    return title.textContent
+}
+

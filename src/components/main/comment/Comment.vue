@@ -52,8 +52,8 @@ const selectItem = (session) => {
                 <img v-else :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" alt="header">
               </div>
               <div class="item-msg">
-                <p class="item-msg-title">{{ shortenCharts(session.strNickName, '25', '...') }}</p>
-                <p class="item-msg-desc">{{ shortenCharts(session.strContent, '25', '...') }}</p>
+                <p class="item-msg-title">{{ shortenCharts(session.strNickName, '23', '...') }}</p>
+                <p class="item-msg-desc">{{ shortenCharts(session.strContent, '23', '...') }}</p>
               </div>
               <div class="item-info">
                 <p class="item-info-time">15:11</p>
