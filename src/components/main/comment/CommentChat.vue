@@ -202,7 +202,7 @@ const fileSize = (bytes) => {
           </div>
           <div class="chat-info">
             <div class="chat-nickname" v-if="isChatRoom(id)">
-              <p v-if="isChatRoom(id) && m.IsSender === 0">{{ getUserNameByWxId(store, m.WxId) }} {{m.Type}} {{m.SubType}}</p>
+              <p v-if="isChatRoom(id) && m.IsSender === 0">{{ getUserNameByWxId(store, m.WxId) }}</p>
             </div>
             <!-- 文本消息 -->
             <div v-if="m.Type === 1" class="chat-text">
@@ -243,7 +243,7 @@ const fileSize = (bytes) => {
             </div>
             <div v-else class="refer-msg">
               <p class="refer-text">
-                暂不支持的交易类型：{{ get_msg_desc(m.Type, m.SubType) }}
+                暂不支持的消息类型：{{ get_msg_desc(m.Type, m.SubType) }}
               </p>
             </div>
             <!-- 引用消息 -->

@@ -24,10 +24,28 @@ const routes = [
             {
                 path: 'address-book',
                 component: () => import("../components/main/addressbook/AddressBook.vue"),
+                children: [
+                    {
+                        path: 'chat-room-info/:id',
+                        component: () => import("../components/main/addressbook/info/ChatRoomInfo.vue"),
+                    },
+                    {
+                        path: 'user-info/:id',
+                        component: () => import("../components/main/addressbook/info/UserInfo.vue"),
+                    }
+                ]
             },
             {
                 path: 'collect',
                 component: () => import("../components/main/collect/Collect.vue"),
+            },
+            {
+                path: 'files',
+                component: () => import("../components/main/files/Files.vue"),
+            },
+            {
+                path: 'community',
+                component: () => import("../components/main/community/Community.vue"),
             }
         ]
     },

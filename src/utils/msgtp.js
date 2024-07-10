@@ -34,10 +34,7 @@ const msgType = {
 }
 
 export const get_msg_desc = (tp, subtp) => {
-    let key = tp + '.' + subtp;
-    console.log(key)
-    let desc = msgType[key];
-    console.log(desc)
+    let desc = msgType[tp + '.' + subtp];
     if (desc) {
         return desc;
     } else {

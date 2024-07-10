@@ -16,3 +16,11 @@ export const contact = () => {
     return service.get('/api/msg/contact');
 };
 
+export const contactSplit = (page, size, ChatRoomType=0) => {
+    return service.get(`/api/msg/contact-split?page=${page}&size=${size}&ChatRoomType=${ChatRoomType}`);
+};
+
+export const chatroomInfo = (chatroomName) => {
+    return service.get(`/api/msg/chatroom-info?chat_room_name=${chatroomName}`);
+};
+

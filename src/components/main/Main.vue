@@ -5,26 +5,14 @@
         <li class="item">
           <img class="u-header" src="https://static.raining.top/picgo/weixinhead.jpg" alt=" 展开" role="button">
         </li>
-        <li class="item">
-          <router-link to="/comment">
-            <font-awesome-icon class="item-icon item-icon-active" :icon="['fas', 'comment']" title="聊天"/>
+        <li class="item" v-for="m in menu">
+          <router-link :to="m.path">
+            <font-awesome-icon class="item-icon"
+                               :class="{'item-icon-active': selectedItem === m.id }"
+                               :icon="m.icon"
+                               :title="m.title"
+                                @click="selectedItem = m.id"/>
           </router-link>
-        </li>
-        <li class="item">
-          <router-link to="/address-book">
-            <font-awesome-icon class="item-icon" :icon="['far', 'user']" title="通讯录"/>
-          </router-link>
-        </li>
-        <li class="item">
-          <router-link to="/collect">
-            <font-awesome-icon class="item-icon" :icon="['fas', 'cube']" title="收藏"/>
-          </router-link>
-        </li>
-        <li class="item">
-          <font-awesome-icon class="item-icon" :icon="['fas', 'folder-closed']" title="聊天文件"/>
-        </li>
-        <li class="item">
-          <font-awesome-icon class="item-icon" :icon="['fas', 'camera']" title="朋友圈"/>
         </li>
       </ul>
     </div>
@@ -38,9 +26,44 @@
 import {useRouter} from "vue-router";
 import {contact} from "../../api/msg.js";
 import {useStore} from "vuex";
+import {reactive, ref} from "vue";
 
 const store = useStore();
 const router = useRouter();
+const selectedItem = ref('comment');
+
+const menu = reactive([
+  {
+    id: 'comment',
+    title: '聊天',
+    icon: ['far', 'comment'],
+    path: '/comment'
+  },
+  {
+    id: 'address-book',
+    title: '通讯录',
+    icon: ['far', 'user'],
+    path: '/address-book'
+  },
+  {
+    id: 'collect',
+    title: '收藏',
+    icon: ['fas', 'cube'],
+    path: '/collect'
+  },
+  {
+    id: 'files',
+    title: '聊天文件',
+    icon: ['far', 'folder'],
+    path: '/files'
+  },
+  {
+    id: 'community',
+    title: '朋友圈',
+    icon: ['fas', 'camera'],
+    path: '/community'
+  }
+])
 
 // 加载联系人数据
 contact().then(resp => {
