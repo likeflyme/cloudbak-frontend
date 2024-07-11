@@ -8,6 +8,10 @@ export const sessions = () => {
     return service.get("/api/msg/sessions");
 };
 
+export const msgBySvrId = (svrId) => {
+    return service.get(`/api/msg/msg_by_svr_id?svr_id=${svrId}`);
+};
+
 export const msgs = (query) => {
     return service.get(`/api/msg/msgs?strUsrName=${query.strUsrName}&page=${query.page}&size=${query.size}`);
 };

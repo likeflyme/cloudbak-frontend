@@ -5,7 +5,9 @@ const state = {
     userInfo: {
         current_session: {}
     },
-    mappedContact: {}
+    mappedContact: {},
+    // 联系人页面用户详情
+    addrShowUser: {}
 }
 
 const mutations = {
@@ -19,6 +21,9 @@ const mutations = {
         for (let c of contact) {
             state.mappedContact[c.UserName] = c;
         }
+    },
+    setAddrShowUser (state, addrShowUser) {
+        state.addrShowUser = addrShowUser;
     }
 }
 
@@ -43,6 +48,9 @@ const getters = {
     },
     getMappedContact(state) {
         return state.mappedContact;
+    },
+    getAddrShowUser(state) {
+        return state.addrShowUser;
     }
 
 }

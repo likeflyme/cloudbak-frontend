@@ -113,3 +113,12 @@ export const getReferFileName = (content) => {
     return title.textContent
 }
 
+export const getThumbFromStringContent = (content) => {
+    let dom = parseXml(content);
+    const emoji = dom.querySelector('emoji');
+    if (emoji) {
+        return emoji.getAttribute('cdnurl');
+    }
+    return '';
+}
+

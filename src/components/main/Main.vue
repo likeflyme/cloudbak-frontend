@@ -44,25 +44,26 @@ const menu = reactive([
     title: '通讯录',
     icon: ['far', 'user'],
     path: '/address-book'
-  },
-  {
-    id: 'collect',
-    title: '收藏',
-    icon: ['fas', 'cube'],
-    path: '/collect'
-  },
-  {
-    id: 'files',
-    title: '聊天文件',
-    icon: ['far', 'folder'],
-    path: '/files'
-  },
-  {
-    id: 'community',
-    title: '朋友圈',
-    icon: ['fas', 'camera'],
-    path: '/community'
   }
+  // ,
+  // {
+  //   id: 'collect',
+  //   title: '收藏',
+  //   icon: ['fas', 'cube'],
+  //   path: '/collect'
+  // },
+  // {
+  //   id: 'files',
+  //   title: '聊天文件',
+  //   icon: ['far', 'folder'],
+  //   path: '/files'
+  // },
+  // {
+  //   id: 'community',
+  //   title: '朋友圈',
+  //   icon: ['fas', 'camera'],
+  //   path: '/community'
+  // }
 ])
 
 // 加载联系人数据

@@ -1,15 +1,26 @@
 <script setup>
 import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
-import {msgs, session as getSession} from "../../../api/msg.js"
+import {msgs, session as getSession, chatroomInfo, msgBySvrId} from "@/api/msg.js"
 import {useStore} from "vuex";
-import {getUserNameByWxId, isChatRoom, parseXml, getReferFileName} from "../../../utils/common.js";
-import {get_msg_desc} from "../../../utils/msgtp.js";
+import {getUserNameByWxId, parseXml, getReferFileName, getThumbFromStringContent} from "@/utils/common.js";
+import {get_msg_desc} from "@/utils/msgtp.js";
+import defaultImage from '@/assets/default-head.svg';
+import cleanedImage from '@/assets/cleaned.jpeg';
 
 const store = useStore();
 const route = useRoute();
 
 const id = route.params.id
+const isChatRoom = id.includes('@');
+const userList = reactive([]);
+const chatMapBySvrId = reactive({})
+// 群聊，加载群聊信息（人数）
+chatroomInfo(id).then(data => {
+  let ul = data.UserNameList.split('^G');
+  userList.push(...ul)
+});
+
 const noMoreMsg = ref(false);
 const images = reactive([]);
 
@@ -54,7 +65,14 @@ const loadData = () => {
         // 图片数据处理
         parseImg(resp);
         // 添加到数据列表
-        msg_list.push(...resp);
+        // msg_list.push(...resp);
+        for (let c of resp) {
+          msg_list.push(c);
+          // 图片类型存一份到映射中方便引用类型查找
+          if (c.Type === 3 && c.SubType === 0) {
+            chatMapBySvrId[c.MsgSvrId] = c;
+          }
+        }
       } else {
         noMoreMsg.value = true;
       }
@@ -175,12 +193,29 @@ const fileSize = (bytes) => {
     return (bytes / (1024 * 1024 * 1024 * 1024)).toFixed(2) + ' TB';
   }
 }
-
+const setDefaultImage = (event) => {
+  event.target.src = defaultImage;
+}
+const getOriMsgBySvrId = (svrId) => {
+  let msg = chatMapBySvrId[svrId];
+  // 本地不存在，则到服务端查找
+  console.log(svrId);
+  console.log(msg);
+  if (!msg) {
+    console.log('本地无原消息，服务器查找');
+    msgBySvrId(svrId).then(data => {
+      console.log("服务端得到原消息");
+      console.log(data)
+      chatMapBySvrId[svrId] = data;
+    });
+  }
+};
 </script>
 <template>
   <div class="main-content">
     <div class="main-content-top">
-      <p class="main-content-title">{{ session.strNickName }}</p>
+      <p class="main-content-title">{{ session.strNickName }} </p>
+      <p class="main-content-title" v-if="isChatRoom"> ({{userList.length}})</p>
     </div>
     <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer" v-viewer="imageOptions">
       <div class="chat-container" v-for="(m, index) in msg_list" :key="m">
@@ -189,20 +224,21 @@ const fileSize = (bytes) => {
             {{ formatDate(m.CreateTime) }}
           </p>
         </div>
-        <div class="tips" v-if="m.Type === 10000 && m.SubType === 0">
+        <!-- 系统通知类消息 -->
+        <div class="tips" v-if="m.Type === 10000">
           <p class="tips-content">
             {{ m.StrContent }}
           </p>
         </div>
         <div v-else class="chat" :class="{'right': m.IsSender === 1, 'left': m.IsSender === 0}" >
           <div class="chat-header">
-            <img v-if="m.IsSender === 1" :src="store.getters.getCurrentWxHeadImgPath" alt="" class="exclude"/>
-            <img v-else-if="isChatRoom(id)" :src="store.getters.getHeadImgPath + m.WxId + '.jpg'" alt="" class="exclude"/>
-            <img v-else :src="store.getters.getHeadImgPath + id + '.jpg'" alt="" class="exclude"/>
+            <img v-if="m.IsSender === 1" :src="store.getters.getCurrentWxHeadImgPath" @error="setDefaultImage" alt="" class="exclude"/>
+            <img v-else-if="isChatRoom" :src="store.getters.getHeadImgPath + m.WxId + '.jpg'" @error="setDefaultImage" alt="" class="exclude"/>
+            <img v-else :src="store.getters.getHeadImgPath + id + '.jpg'" @error="setDefaultImage" alt="" class="exclude"/>
           </div>
           <div class="chat-info">
-            <div class="chat-nickname" v-if="isChatRoom(id)">
-              <p v-if="isChatRoom(id) && m.IsSender === 0">{{ getUserNameByWxId(store, m.WxId) }}</p>
+            <div class="chat-nickname" v-if="isChatRoom">
+              <p v-if="isChatRoom && m.IsSender === 0">{{ getUserNameByWxId(store, m.WxId) }}</p>
             </div>
             <!-- 文本消息 -->
             <div v-if="m.Type === 1" class="chat-text">
@@ -214,6 +250,13 @@ const fileSize = (bytes) => {
             <div v-else-if="m.Type === 3 && m.SubType ===0" class="chat-img">
               <img
                   :src="'/image?img_path=' + m.Thumb + '&session_name=' + store.getters.getCurrentSessionName"
+                  :data-original="m.Image ? '/image?img_path=' + m.Image + '&session_name=' + store.getters.getCurrentSessionName : cleanedImage"
+                  alt=""/>
+            </div>
+            <!-- 用户图片表情 -->
+            <div v-else-if="m.Type === 47 && m.SubType === 0" class="chat-img">
+              <img class="exclude"
+                  :src="getThumbFromStringContent(m.StrContent)"
                   :data-original="'/image?img_path=' + (m.Image ? m.Image : m.Thumb) + '&session_name=' + store.getters.getCurrentSessionName"
                   alt=""/>
             </div>
@@ -248,13 +291,27 @@ const fileSize = (bytes) => {
             </div>
             <!-- 引用消息 -->
             <div class="refer-msg" v-if="m.Type === 49 && m.SubType === 57">
-
+              <!-- 引用文本消息 -->
               <p class="refer-text" v-if="m.compress_content.msg.appmsg.refermsg.type === '1'">
                 {{ m.compress_content.msg.appmsg.refermsg.displayname }}: {{ m.compress_content.msg.appmsg.refermsg.content }}
               </p>
+              <!-- 引用文件消息 -->
               <p class="refer-text" v-else-if="m.compress_content.msg.appmsg.refermsg.type === '49'">
                 {{ m.compress_content.msg.appmsg.refermsg.displayname }}: {{ getReferFileName(m.compress_content.msg.appmsg.refermsg.content) }}
                 <font-awesome-icon class="icon-file" :icon="['fas', 'file']" title="文件"/>
+              </p>
+              <!-- 引用图片消息 -->
+              <div class="refer-img" v-else-if="m.compress_content.msg.appmsg.refermsg.type === '3'">
+                {{ getOriMsgBySvrId(m.compress_content.msg.appmsg.refermsg.svrid) }}
+                <p v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]" class="refer-img-title">{{ getUserNameByWxId(store, chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].WxId) }}: </p>
+                <img v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]"
+                    :src="'/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Thumb + '&session_name=' + store.getters.getCurrentSessionName"
+                    :data-original="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image ? '/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image + '&session_name=' + store.getters.getCurrentSessionName : cleanedImage"
+                    alt=""/>
+              </div>
+              <!-- 引用其他消息 -->
+              <p class="refer-text" v-else>
+                暂不支持的引用消息类型 refermsg.type = {{ m.compress_content.msg.appmsg.refermsg.type }}
               </p>
             </div>
 
@@ -317,8 +374,8 @@ const fileSize = (bytes) => {
           width: 35px;
           height: 35px;
           img {
-            width: 100%;
-            height: 100%;
+            width: 35px;
+            height: 35px;
             border-radius: 3px;
           }
         }
@@ -347,7 +404,7 @@ const fileSize = (bytes) => {
           }
           .chat-img {
             border-radius: 4px;
-            border: 1px solid lightgray;
+            //border: 1px solid lightgray;
           }
           .chat-img:hover {
             cursor: pointer;
@@ -363,14 +420,25 @@ const fileSize = (bytes) => {
               border-radius: 3px;
               display: inline-block;
               max-width: 400px;
+              // 长文本换行
+              word-wrap: break-word;
+              word-break: break-all;
               .icon-file {
                 color: #207346;
               }
             }
+            .refer-img {
+              font-size: 12px;
+              background-color: #E8E8E8;
+              color: #797979;
+              padding: 5px 10px;
+              border-radius: 3px;
+              display: inline-block;
+            }
           }
           .chat-file {
             direction: ltr;
-            width: 200px;
+            width: 300px;
             height: 100px;
             background-color: #FFFFFF;
             border-radius: 5px;
@@ -380,7 +448,7 @@ const fileSize = (bytes) => {
               display: flex;
               padding: 10px;
               .chat-file-left {
-                width: 150px;
+                width: 230px;
                 height: 100%;
                 .chat-file-title {
                   font-size: 14px;
@@ -437,12 +505,12 @@ const fileSize = (bytes) => {
           }
         }
       }
-      .chat.right:hover {
+      .chat.right .chat-info:hover {
         .chat-text {
           background-color: #89D961;
         }
       }
-      .chat.left:hover {
+      .chat.left .chat-info:hover {
         .chat-text {
           background-color: #EBEBEB;
         }

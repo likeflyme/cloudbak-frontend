@@ -1,9 +1,10 @@
 <script setup>
 import {useRoute} from "vue-router";
-import {chatroomInfo} from "../../../../api/msg.js";
+import {chatroomInfo} from "@/api/msg.js";
 import {reactive} from "vue";
-import {getUserNameByWxId, isChatRoom, parseXml, getReferFileName} from "../../../../utils/common.js";
+import {getUserNameByWxId, shortenCharts} from "@/utils/common.js";
 import {useStore} from "vuex";
+import defaultImage from '@/assets/default-head.svg';
 
 const store = useStore();
 const route = useRoute();
@@ -12,16 +13,13 @@ const id = route.params.id;
 const userList = reactive([]);
 
 chatroomInfo(id).then(data => {
-  console.log(data);
   let ul = data.UserNameList.split('^G');
-  console.log(ul);
   userList.push(...ul)
-  console.log(ul)
 });
 
 
 const setDefaultImage = (event) => {
-  event.target.src = 'https://static.raining.top/picgo/default-head.png';
+  event.target.src = defaultImage;
 }
 
 </script>
@@ -35,7 +33,7 @@ const setDefaultImage = (event) => {
       <ul class="users-container">
         <li class="user" v-for="wxid in userList">
           <img class="user-img" :src="store.getters.getHeadImgPath + wxid + '.jpg'" @error="setDefaultImage" alt=""/>
-          <p class="user-name"> {{ getUserNameByWxId(store, wxid) }} </p>
+          <p class="user-name"> {{ shortenCharts(getUserNameByWxId(store, wxid), 8, '...') }} </p>
         </li>
       </ul>
     </div>
@@ -92,9 +90,8 @@ const setDefaultImage = (event) => {
     }
   }
   // 以下是滚动条样式
-  /* 隐藏默认的滚动条轨道和拇指 */
   .info-msg::-webkit-scrollbar {
-    width: 0; /* 隐藏滚动条 */
+    width: 6px;
     background: transparent; /* 使滚动条轨道背景透明 */
   }
 

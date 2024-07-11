@@ -4,6 +4,7 @@ import {useStore} from "vuex";
 import {onBeforeMount, reactive, ref} from "vue";
 import {contactSplit} from "../../../api/msg.js";
 import {useRouter, useRoute} from "vue-router";
+import defaultImage from '@/assets/default-head.png';
 
 const store = useStore();
 const router = useRouter();
@@ -39,7 +40,7 @@ load();
 
 
 const setDefaultImage = (event) => {
-  event.target.src = 'https://static.raining.top/picgo/default-head.png';
+  event.target.src = defaultImage;
 }
 
 const contactContainer = ref(null);
@@ -59,6 +60,7 @@ const goChatRoomInfo = (contact) => {
 
 const goUserInfo = (contact) => {
   selectedItem.value = contact.UserName;
+  store.commit('setAddrShowUser', contact);
   const targetPath = '/address-book/user-info/' + contact.UserName;
   router.push(targetPath);
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <Sidebar></Sidebar>
+<!--    <Sidebar></Sidebar>-->
     <Main></Main>
   </div>
 </template>

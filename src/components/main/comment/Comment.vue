@@ -3,6 +3,7 @@ import {ref} from 'vue'
 import {shortenCharts} from "../../../utils/common.js";
 import {useStore} from "vuex";
 import {useRouter, useRoute} from "vue-router";
+import defaultImage from '@/assets/default-head.svg';
 
 const store = useStore();
 const router = useRouter();
@@ -21,6 +22,40 @@ const selectItem = (session) => {
   const targetPath = '/comment/' + session.strUsrName;
   router.push(targetPath);
 }
+
+const formatDate = (timestamp) => {
+  const date = new Date(timestamp * 1000);
+  const now = new Date();
+
+  // 获取今天的日期
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // 获取昨天的日期
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  // 获取年、月、日、小时、分钟
+  // const year = date.getFullYear();
+  const year = String(date.getFullYear()).slice(-2); // 只取年份的后两位
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  // 根据日期判断输出格式
+  if (date >= today) {
+    return `${hours}:${minutes}`;
+  } else if (date >= yesterday) {
+    return `昨天 ${hours}:${minutes}`;
+  } else {
+    return `${year}/${month}/${day}`;
+  }
+};
+
+const setDefaultImage = (event) => {
+  event.target.src = defaultImage;
+}
+
 </script>
 
 <template>
@@ -49,14 +84,14 @@ const selectItem = (session) => {
               <div class="item-header">
                 <!-- 订阅号的头像 -->
                 <img v-if="session.strUsrName === '@publicUser'" src="../../../images/wx/public_user.png" alt="header">
-                <img v-else :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" alt="header">
+                <img v-else :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" @error="setDefaultImage" alt="header">
               </div>
-              <div class="item-msg">
-                <p class="item-msg-title">{{ shortenCharts(session.strNickName, '23', '...') }}</p>
-                <p class="item-msg-desc">{{ shortenCharts(session.strContent, '23', '...') }}</p>
+              <div class="item-msg no-wrap-text">
+                <p class="item-msg-title">{{ session.strNickName }}</p>
+                <p class="item-msg-desc">{{ session.strContent }}</p>
               </div>
               <div class="item-info">
-                <p class="item-info-time">15:11</p>
+                <p class="item-info-time">{{ formatDate(session.nTime) }}</p>
               </div>
             </li>
           </ul>
@@ -70,11 +105,14 @@ const selectItem = (session) => {
 </template>
 
 <style scoped lang="less">
+.no-wrap-text {
+  white-space: nowrap;
+}
 .main-comment {
   display: flex;
   height: 100%;
   .main-session {
-    width: 300px; /* 设置 session 部分的宽度 */
+    width: 320px; /* 设置 session 部分的宽度 */
     background-color: #e0e0e0; /* 示例背景色 */
     display: flex;
     flex-direction: column; /* 垂直排列子元素 */
@@ -103,7 +141,7 @@ const selectItem = (session) => {
       overflow-y: scroll; /* 启用垂直滚动 */
       overflow-x: hidden;
       .session-items-fix-roller {
-        width: 300px !important;
+        width: 320px !important;
         .item {
           display: flex;
           padding: 13px;
@@ -112,14 +150,18 @@ const selectItem = (session) => {
             width: 40px;
             height: 40px;
             img {
-              width: 100%;
-              height: 100%;
+              width: 40px;
+              height: 40px;
               border-radius: 2px;
             }
           }
           .item-msg {
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
             padding-left: 10px;
+            margin-right: 5px;
+            overflow: hidden;
             .item-msg-title {
               font-size: 14px;
             }
@@ -129,7 +171,7 @@ const selectItem = (session) => {
             }
           }
           .item-info {
-            width: 40px;
+            width: 50px;
             height: 40px;
             .item-info-time {
               font-size: 12px;
