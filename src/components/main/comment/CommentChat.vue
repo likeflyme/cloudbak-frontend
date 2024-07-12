@@ -405,6 +405,9 @@ const getOriMsgBySvrId = (svrId) => {
           .chat-img {
             border-radius: 4px;
             //border: 1px solid lightgray;
+            img {
+              max-width: 200px;
+            }
           }
           .chat-img:hover {
             cursor: pointer;
