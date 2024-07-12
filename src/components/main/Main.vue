@@ -24,9 +24,9 @@
 
 <script setup>
 import {useRouter} from "vue-router";
-import {contact} from "../../api/msg.js";
+import {contact, sessions} from "../../api/msg.js";
 import {useStore} from "vuex";
-import {reactive, ref} from "vue";
+import {onBeforeMount, reactive, ref} from "vue";
 
 const store = useStore();
 const router = useRouter();
@@ -66,13 +66,19 @@ const menu = reactive([
   // }
 ])
 
-// 加载联系人数据
-contact().then(resp => {
-  store.commit("setContact", resp)
-});
 
+onBeforeMount(() => {
+  // 加载联系人数据
+  contact().then(resp => {
+    store.commit("setContact", resp)
+  });
+  // 加载用户聊天会话数据
+  sessions().then(resp => {
+    store.commit("setSessions", resp);
+  });
+  router.push("/comment");
+})
 
-router.push("/comment");
 </script>
 <style scoped lang="less">
   .main-container {

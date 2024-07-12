@@ -12,16 +12,6 @@ const routes = [
         component: () => import("../views/Home.vue"),
         children:[
             {
-                path: 'comment',
-                component: () => import("../components/main/comment/Comment.vue"),
-                children: [
-                    {
-                        path: ':id',
-                        component: () => import("../components/main/comment/CommentChat.vue"),
-                    }
-                ]
-            },
-            {
                 path: 'address-book',
                 component: () => import("../components/main/addressbook/AddressBook.vue"),
                 children: [
@@ -32,6 +22,16 @@ const routes = [
                     {
                         path: 'user-info/:id',
                         component: () => import("../components/main/addressbook/info/UserInfo.vue"),
+                    }
+                ]
+            },
+            {
+                path: 'comment',
+                component: () => import("../components/main/comment/Comment.vue"),
+                children: [
+                    {
+                        path: ':id',
+                        component: () => import("../components/main/comment/CommentChat.vue"),
                     }
                 ]
             },

@@ -249,15 +249,15 @@ const getOriMsgBySvrId = (svrId) => {
             <!-- 图片消息 -->
             <div v-else-if="m.Type === 3 && m.SubType ===0" class="chat-img">
               <img
-                  :src="'/image?img_path=' + m.Thumb + '&session_name=' + store.getters.getCurrentSessionName"
-                  :data-original="m.Image ? '/image?img_path=' + m.Image + '&session_name=' + store.getters.getCurrentSessionName : cleanedImage"
+                  :src="'/image?img_path=' + m.Thumb + '&session_id=' + store.getters.getCurrentSessionId"
+                  :data-original="m.Image ? '/image?img_path=' + m.Image + '&session_id=' + store.getters.getCurrentSessionId : cleanedImage"
                   alt=""/>
             </div>
             <!-- 用户图片表情 -->
             <div v-else-if="m.Type === 47 && m.SubType === 0" class="chat-img">
               <img class="exclude"
                   :src="getThumbFromStringContent(m.StrContent)"
-                  :data-original="'/image?img_path=' + (m.Image ? m.Image : m.Thumb) + '&session_name=' + store.getters.getCurrentSessionName"
+                  :data-original="'/image?img_path=' + (m.Image ? m.Image : m.Thumb) + '&session_id=' + store.getters.getCurrentSessionId"
                   alt=""/>
             </div>
             <!-- 引用消息 -->
@@ -305,8 +305,8 @@ const getOriMsgBySvrId = (svrId) => {
                 {{ getOriMsgBySvrId(m.compress_content.msg.appmsg.refermsg.svrid) }}
                 <p v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]" class="refer-img-title">{{ getUserNameByWxId(store, chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].WxId) }}: </p>
                 <img v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]"
-                    :src="'/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Thumb + '&session_name=' + store.getters.getCurrentSessionName"
-                    :data-original="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image ? '/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image + '&session_name=' + store.getters.getCurrentSessionName : cleanedImage"
+                    :src="'/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Thumb + '&session_id=' + store.getters.getCurrentSessionId"
+                    :data-original="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image ? '/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image + '&session_id=' + store.getters.getCurrentSessionId : cleanedImage"
                     alt=""/>
               </div>
               <!-- 引用其他消息 -->

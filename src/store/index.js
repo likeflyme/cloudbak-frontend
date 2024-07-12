@@ -7,7 +7,8 @@ const state = {
     },
     mappedContact: {},
     // 联系人页面用户详情
-    addrShowUser: {}
+    addrShowUser: {},
+    sysSessions: []
 }
 
 const mutations = {
@@ -24,7 +25,14 @@ const mutations = {
     },
     setAddrShowUser (state, addrShowUser) {
         state.addrShowUser = addrShowUser;
-    }
+    },
+    setSysSessions (state, sysSessions) {
+        state.sysSessions = sysSessions
+    },
+    setCurrentSession(state, sysSession) {
+        state.userInfo.current_session_id = sysSession.id;
+        state.userInfo.current_session = sysSession;
+    },
 }
 
 const getters = {
@@ -35,13 +43,16 @@ const getters = {
         return state.userInfo;
     },
     getHeadImgPath(state) {
-        return '/head/' + state.userInfo.current_session.name + '/' + state.userInfo.current_session.wx_id + '/';
+        return '/head/' + state.userInfo.current_session.id + '/';
     },
     getCurrentWxId(state) {
         return state.userInfo.current_session.wx_id;
     },
     getCurrentSessionName(state) {
         return state.userInfo.current_session.name;
+    },
+    getCurrentSessionId(state) {
+        return state.userInfo.current_session_id;
     },
     getCurrentWxHeadImgPath(state) {
         return getters.getHeadImgPath(state) + getters.getCurrentWxId(state) + '.jpg'
@@ -51,8 +62,10 @@ const getters = {
     },
     getAddrShowUser(state) {
         return state.addrShowUser;
+    },
+    getSysSessions(state) {
+        return state.sysSessions;
     }
-
 }
 
 // 创建一个新的 store 实例
