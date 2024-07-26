@@ -1,6 +1,7 @@
 <script setup>
 import {ref} from 'vue'
 import {shortenCharts} from "../../../utils/common.js";
+import {sessions} from "@/api/msg.js";
 import {useStore} from "vuex";
 import {useRouter, useRoute} from "vue-router";
 import defaultImage from '@/assets/default-head.svg';
@@ -8,6 +9,8 @@ import defaultImage from '@/assets/default-head.svg';
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
+
+const sysSessionId = route.params.sessionId;
 
 const input = ref('');
 
@@ -19,8 +22,10 @@ const selectedItem = ref(null)
 
 const selectItem = (session) => {
   selectedItem.value = session.strUsrName;
-  const targetPath = '/comment/' + session.strUsrName;
-  router.push(targetPath);
+  // const targetPath = '/comment/' + session.strUsrName;
+
+  router.push({ name: 'chat', params: { sessionId: sysSessionId, id: session.strUsrName} });
+  // router.push(targetPath);
 }
 
 const formatDate = (timestamp) => {
@@ -55,6 +60,11 @@ const formatDate = (timestamp) => {
 const setDefaultImage = (event) => {
   event.target.src = defaultImage;
 }
+
+// 加载用户聊天会话数据
+sessions().then(resp => {
+  store.commit("setSessions", resp);
+});
 
 </script>
 

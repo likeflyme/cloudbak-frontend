@@ -6,44 +6,44 @@
           <img class="u-header" src="https://static.raining.top/picgo/weixinhead.jpg" alt=" 展开" role="button">
         </li>
         <li class="item" v-for="m in menu">
-          <router-link :to="m.path">
-            <font-awesome-icon class="item-icon"
-                               :class="{'item-icon-active': selectedItem === m.id }"
-                               :icon="m.icon"
-                               :title="m.title"
-                                @click="selectedItem = m.id"/>
-          </router-link>
+          <font-awesome-icon class="item-icon"
+                             :class="{'item-icon-active': selectedItem === m.id }"
+                             :icon="m.icon"
+                             :title="m.title"
+                             @click="selectItem(m)"/>
         </li>
       </ul>
     </div>
     <div class="main-right">
-      <router-view/>
+      <router-view  :key="$route.fullPath"/>
     </div>
   </div>
 </template>
 
 <script setup>
-import {useRouter} from "vue-router";
+import {useRouter, useRoute} from "vue-router";
 import {contact, sessions} from "../../api/msg.js";
 import {useStore} from "vuex";
 import {onBeforeMount, reactive, ref} from "vue";
 
 const store = useStore();
 const router = useRouter();
+const route = useRoute();
 const selectedItem = ref('comment');
-
+const sessionId = route.params.sessionId;
+console.log("切换Main", sessionId);
 const menu = reactive([
   {
     id: 'comment',
     title: '聊天',
     icon: ['far', 'comment'],
-    path: '/comment'
+    path: 'comment'
   },
   {
     id: 'address-book',
     title: '通讯录',
     icon: ['far', 'user'],
-    path: '/address-book'
+    path: 'address-book'
   }
   // ,
   // {
@@ -67,17 +67,19 @@ const menu = reactive([
 ])
 
 
-onBeforeMount(() => {
-  // 加载联系人数据
-  contact().then(resp => {
-    store.commit("setContact", resp)
-  });
-  // 加载用户聊天会话数据
-  sessions().then(resp => {
-    store.commit("setSessions", resp);
-  });
-  router.push("/comment");
-})
+// 加载联系人数据
+contact().then(resp => {
+  store.commit("setContact", resp)
+});
+
+const selectItem = (item) => {
+  selectedItem.value = item.id;
+  router.push({ name: item.id, params: { sessionId: sessionId } });
+}
+
+// 默认加载comment
+console.log('默认加载 comment');
+router.push({ name: 'comment', params: { sessionId: sessionId } });
 
 </script>
 <style scoped lang="less">

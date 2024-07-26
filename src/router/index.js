@@ -12,40 +12,53 @@ const routes = [
         component: () => import("../views/Home.vue"),
         children:[
             {
-                path: 'address-book',
-                component: () => import("../components/main/addressbook/AddressBook.vue"),
+                name: 'session',
+                path: 'session/:sessionId/',
+                component: () => import("../components/main/Main.vue"),
                 children: [
                     {
-                        path: 'chat-room-info/:id',
-                        component: () => import("../components/main/addressbook/info/ChatRoomInfo.vue"),
+                        name: 'address-book',
+                        path: 'address-book',
+                        component: () => import("../components/main/addressbook/AddressBook.vue"),
+                        children: [
+                            {
+                                path: 'chat-room-info/:id',
+                                component: () => import("../components/main/addressbook/info/ChatRoomInfo.vue"),
+                            },
+                            {
+                                path: 'user-info/:id',
+                                component: () => import("../components/main/addressbook/info/UserInfo.vue"),
+                            }
+                        ]
                     },
                     {
-                        path: 'user-info/:id',
-                        component: () => import("../components/main/addressbook/info/UserInfo.vue"),
-                    }
-                ]
-            },
-            {
-                path: 'comment',
-                component: () => import("../components/main/comment/Comment.vue"),
-                children: [
+                        name: 'comment',
+                        path: 'comment',
+                        component: () => import("../components/main/comment/Comment.vue"),
+                        children: [
+                            {
+                                name: "chat",
+                                path: ':id',
+                                component: () => import("../components/main/comment/CommentChat.vue"),
+                            }
+                        ]
+                    },
                     {
-                        path: ':id',
-                        component: () => import("../components/main/comment/CommentChat.vue"),
+                        name: 'collect',
+                        path: 'collect',
+                        component: () => import("../components/main/collect/Collect.vue"),
+                    },
+                    {
+                        name: 'files',
+                        path: 'files',
+                        component: () => import("../components/main/files/Files.vue"),
+                    },
+                    {
+                        name: 'community',
+                        path: 'community',
+                        component: () => import("../components/main/community/Community.vue"),
                     }
                 ]
-            },
-            {
-                path: 'collect',
-                component: () => import("../components/main/collect/Collect.vue"),
-            },
-            {
-                path: 'files',
-                component: () => import("../components/main/files/Files.vue"),
-            },
-            {
-                path: 'community',
-                component: () => import("../components/main/community/Community.vue"),
             }
         ]
     },
