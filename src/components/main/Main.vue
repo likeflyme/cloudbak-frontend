@@ -3,7 +3,7 @@
     <div class="main-sidebar">
       <ul class="item-container">
         <li class="item">
-          <img class="u-header" src="https://static.raining.top/picgo/weixinhead.jpg" alt=" 展开" role="button">
+          <img class="u-header" :src="store.getters.getHeadImgPath + store.getters.getCurrentWxId + '.jpg'" alt=" 展开" role="button">
         </li>
         <li class="item" v-for="m in menu">
           <font-awesome-icon class="item-icon"
@@ -85,8 +85,8 @@ router.push({ name: 'comment', params: { sessionId: sessionId } });
 <style scoped lang="less">
   .main-container {
     position: absolute;
-    width: 1250px;
-    height: 950px;
+    width: 1150px;
+    height: 850px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

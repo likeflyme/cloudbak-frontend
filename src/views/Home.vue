@@ -15,10 +15,7 @@
         </li>
       </ul>
     </div>
-<!--    <Main v-if="showMain">-->
-
-<!--    </Main>-->
-    <router-view />
+    <router-view :key="routerKey"/>
   </div>
 </template>
 
@@ -30,6 +27,8 @@ import {useRouter} from "vue-router";
 import {sysSessions, updateCurrentSession as updateCurrentSessionOnServer} from "@/api/user.js";
 const store = useStore();
 const router = useRouter();
+
+const routerKey = ref(0);
 
 const showMain = ref(false);
 
@@ -53,6 +52,7 @@ const updateCurrentSession = (session) => {
   updateCurrentSessionOnServer(session.id).then((data) => {
     console.log("跳转 session", session);
     store.commit("setCurrentSession", data);
+    routerKey.value = session.id;
     router.push({ name: "session", params: { sessionId: session.id } });
   });
 }
