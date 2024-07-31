@@ -22,10 +22,12 @@ const routes = [
                         component: () => import("../components/main/addressbook/AddressBook.vue"),
                         children: [
                             {
+                                name: 'chat-room-info',
                                 path: 'chat-room-info/:id',
                                 component: () => import("../components/main/addressbook/info/ChatRoomInfo.vue"),
                             },
                             {
+                                name: 'user-info',
                                 path: 'user-info/:id',
                                 component: () => import("../components/main/addressbook/info/UserInfo.vue"),
                             }

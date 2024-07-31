@@ -15,7 +15,7 @@
       </ul>
     </div>
     <div class="main-right">
-      <router-view  :key="$route.fullPath"/>
+      <router-view :key="routerKey"/>
     </div>
   </div>
 </template>
@@ -31,7 +31,8 @@ const router = useRouter();
 const route = useRoute();
 const selectedItem = ref('comment');
 const sessionId = route.params.sessionId;
-console.log("切换Main", sessionId);
+const routerKey = ref('');
+
 const menu = reactive([
   {
     id: 'comment',
@@ -74,11 +75,13 @@ contact().then(resp => {
 
 const selectItem = (item) => {
   selectedItem.value = item.id;
+  routerKey.value = item.id;
   router.push({ name: item.id, params: { sessionId: sessionId } });
 }
 
 // 默认加载comment
 console.log('默认加载 comment');
+routerKey.value = 'comment';
 router.push({ name: 'comment', params: { sessionId: sessionId } });
 
 </script>

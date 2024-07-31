@@ -10,6 +10,10 @@ const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
+const sessionId = route.params.sessionId;
+
+const routerKey = ref('');
+
 const page = ref(1);
 const size = ref(20);
 const input = ref('');
@@ -54,15 +58,19 @@ const onScroll = () => {
 
 const goChatRoomInfo = (contact) => {
   selectedItem.value = contact.UserName;
-  const targetPath = '/address-book/chat-room-info/' + contact.UserName;
-  router.push(targetPath);
+  // const targetPath = '/address-book/chat-room-info/' + contact.UserName;
+  // router.push(targetPath);
+  routerKey.value = contact.UserName;
+  router.push({ name: 'chat-room-info', params: { sessionId: sessionId, id: contact.UserName} });
 }
 
 const goUserInfo = (contact) => {
   selectedItem.value = contact.UserName;
   store.commit('setAddrShowUser', contact);
-  const targetPath = '/address-book/user-info/' + contact.UserName;
-  router.push(targetPath);
+  // const targetPath = '/address-book/user-info/' + contact.UserName;
+  // router.push(targetPath);
+  routerKey.value = contact.UserName;
+  router.push({ name: 'user-info', params: { sessionId: sessionId, id: contact.UserName} });
 }
 
 </script>
@@ -114,7 +122,7 @@ const goUserInfo = (contact) => {
       </div>
     </div>
     <div class="addr-right">
-      <router-view :key="$route.fullPath"/>
+      <router-view :key="routerKey"/>
     </div>
   </div>
 </template>
