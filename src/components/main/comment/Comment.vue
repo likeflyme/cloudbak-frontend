@@ -92,9 +92,7 @@ sessions().then(resp => {
                 :class="{ 'item-active': selectedItem === session.strUsrName }"
                 @click="selectItem(session)">
               <div class="item-header">
-                <!-- 订阅号的头像 -->
-                <img v-if="session.strUsrName === '@publicUser'" src="../../../images/wx/public_user.png" alt="header">
-                <img v-else :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" @error="setDefaultImage" alt="header">
+                <img :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" @error="setDefaultImage" alt="header">
               </div>
               <div class="item-msg no-wrap-text">
                 <p class="item-msg-title">{{ session.strNickName }}</p>
