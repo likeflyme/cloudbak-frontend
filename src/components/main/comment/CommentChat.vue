@@ -16,10 +16,12 @@ const isChatRoom = id.includes('@');
 const userList = reactive([]);
 const chatMapBySvrId = reactive({})
 // 群聊，加载群聊信息（人数）
-chatroomInfo(id).then(data => {
-  let ul = data.UserNameList.split('^G');
-  userList.push(...ul)
-});
+if (isChatRoom) {
+  chatroomInfo(id).then(data => {
+    let ul = data.UserNameList.split('^G');
+    userList.push(...ul)
+  });
+}
 
 const noMoreMsg = ref(false);
 const images = reactive([]);
@@ -210,6 +212,10 @@ const getOriMsgBySvrId = (svrId) => {
     });
   }
 };
+
+const convertSysMsg = (strContent) => {
+  return strContent.replace(/<\/?revokemsg>/g, '');
+}
 </script>
 <template>
   <div class="main-content">
@@ -227,7 +233,7 @@ const getOriMsgBySvrId = (svrId) => {
         <!-- 系统通知类消息 -->
         <div class="tips" v-if="m.Type === 10000">
           <p class="tips-content">
-            {{ m.StrContent }}
+            {{ convertSysMsg(m.StrContent) }}
           </p>
         </div>
         <div v-else class="chat" :class="{'right': m.IsSender === 1, 'left': m.IsSender === 0}" >
