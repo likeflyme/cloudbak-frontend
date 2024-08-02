@@ -29,7 +29,9 @@ const images = reactive([]);
 const query = reactive({
   strUsrName: id,
   page: 1,
-  size: 30
+  size: 30,
+  start: 0,
+  dbNo: -1
 });
 const session = reactive({})
 
@@ -63,12 +65,20 @@ loadSession();
 const loadData = () => {
   if (!noMoreMsg.value) {
     msgs(query).then(resp => {
-      if (resp.length > 0) {
+      if (resp.msgs.length > 0) {
+        query.start = resp.start;
+        // 设置数据库编号
+        if (query.dbNo === -1) {
+          query.dbNo = resp.dbNo;
+        } else if (query.dbNo !== resp.dbNo) {
+          query.page = 0;
+          query.dbNo = resp.dbNo;
+        }
         // 图片数据处理
-        parseImg(resp);
+        parseImg(resp.msgs);
         // 添加到数据列表
         // msg_list.push(...resp);
-        for (let c of resp) {
+        for (let c of resp.msgs) {
           msg_list.push(c);
           // 图片类型存一份到映射中方便引用类型查找
           if (c.Type === 3 && c.SubType === 0) {

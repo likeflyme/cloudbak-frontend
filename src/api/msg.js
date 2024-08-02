@@ -13,7 +13,7 @@ export const msgBySvrId = (svrId) => {
 };
 
 export const msgs = (query) => {
-    return service.get(`/api/msg/msgs?strUsrName=${query.strUsrName}&page=${query.page}&size=${query.size}`);
+    return service.get(`/api/msg/msgs?strUsrName=${query.strUsrName}&page=${query.page}&size=${query.size}&start=${query.start}&dbNo=${query.dbNo}`);
 };
 
 export const contact = () => {
