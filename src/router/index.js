@@ -6,7 +6,7 @@ const routes = [
         path: '/',
         name: 'home',
         meta: {
-            title: 'Home',
+            title: '云朵备份',
             loginRequire: true
         },
         component: () => import("../views/Home.vue"),
@@ -68,7 +68,7 @@ const routes = [
         path: '/login',
         name: 'login',
         meta: {
-            title: 'Login',
+            title: '云朵备份-登录',
             loginRequire: false
         },
         component: () => import("../views/Login.vue"),

@@ -14,7 +14,7 @@
     <div class="weui-form">
       <div class="weui-form__bd">
         <div class="weui-form__text-area">
-          <h2 class="weui-form__title">微信云备份 - 登录</h2>
+          <h2 class="weui-form__title">云朵备份 - 登录</h2>
 <!--          <div class="weui-form__desc">展示表单页面的信息结构样式,-->
 <!--            分别由头部区域/控件区域/提示区域/操作区域和底部信息区域组成。-->
 <!--          </div>-->
@@ -26,7 +26,7 @@
               <label for="js_input1" class="weui-cell weui-cell_active">
                 <div class="weui-cell__hd"><span class="weui-label">用户名</span></div>
                 <div class="weui-cell__bd">
-                  <input id="js_input1" class="weui-input" v-model="form.username" placeholder="填写用户名或邮箱"/>
+                  <input id="js_input1" class="weui-input" v-model="form.username" placeholder="填写用户名"/>
                 </div>
               </label>
               <label for="js_input2" class="weui-cell weui-cell_active">
@@ -72,9 +72,9 @@
         <div class="weui-form__extra-area">
           <div class="weui-footer">
             <p class="weui-footer__links">
-              <a href="javascript:" class="weui-footer__link">微信云备份</a>
+              <a href="javascript:" class="weui-footer__link">云朵备份</a>
             </p>
-            <p class="weui-footer__text">Copyright © 2024-2025 wexinback.io</p>
+            <p class="weui-footer__text">Copyright © 2024-2025 cloudbak.io</p>
           </div>
         </div>
       </div>

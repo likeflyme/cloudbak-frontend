@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page-home">
     <div class="sidebar">
       <div class="open-close-container">
         <!--      <img class="open-close" src="../images/icon_nav_form.png" alt=" 展开" role="button">-->
@@ -74,11 +74,12 @@ const getStateDesc = (session) => {
 </script>
 
 <style scoped lang="less">
-.page {
+.page-home {
   position: absolute;
   width: 100%;
   height: 100%;
   overflow-y: scroll;
+  background-color: #EDEDED;
 }
 .sidebar {
   position: absolute;
