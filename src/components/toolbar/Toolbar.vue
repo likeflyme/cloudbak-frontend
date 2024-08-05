@@ -24,6 +24,7 @@ const clickLogout = () => {
   right: 30px;
   top: 30px;
   display: flex;
+  z-index: 6000;
   .t-icon {
     cursor: pointer;
     margin-left: 10px;

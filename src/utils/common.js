@@ -122,3 +122,28 @@ export const getThumbFromStringContent = (content) => {
     return '';
 }
 
+export const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+export const validateUsername = (username) => {
+    const re = /^[a-zA-Z0-9_]+$/;
+    return re.test(username);
+}
+
+
+export const validatePassword = (password) => {
+    if (password.length < 6) {
+        return false; // 密码长度不足
+    }
+
+    const hasNumber = /[0-9]/.test(password);
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    // 检查是否至少包含两种字符类型
+    const typesCount = [hasNumber, hasLetter, hasSpecialChar].filter(Boolean).length;
+
+    return typesCount >= 2;
+}

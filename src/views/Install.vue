@@ -14,61 +14,45 @@
     <div class="weui-form">
       <div class="weui-form__bd">
         <div class="weui-form__text-area">
-          <h2 class="weui-form__title">云朵备份 - 登录</h2>
-<!--          <div class="weui-form__desc">展示表单页面的信息结构样式,-->
-<!--            分别由头部区域/控件区域/提示区域/操作区域和底部信息区域组成。-->
-<!--          </div>-->
+          <h2 class="weui-form__title">云朵备份 - 安装</h2>
         </div>
         <div class="weui-form__control-area">
           <div class="weui-cells__group weui-cells__group_form">
-<!--            <div class="weui-cells__title">表单组标题</div>-->
+            <!--            <div class="weui-cells__title">表单组标题</div>-->
             <div class="weui-cells">
               <label for="js_input1" class="weui-cell weui-cell_active">
-                <div class="weui-cell__hd"><span class="weui-label">账号</span></div>
+                <div class="weui-cell__hd"><span class="weui-label">用户名</span></div>
                 <div class="weui-cell__bd">
-                  <input id="js_input1" class="weui-input" v-model="form.username" placeholder="用户名或邮箱"/>
+                  <input id="js_input1" class="weui-input" v-model="form.username" placeholder="数字字母下划线"/>
+                </div>
+              </label>
+              <label for="js_input1" class="weui-cell weui-cell_active">
+                <div class="weui-cell__hd"><span class="weui-label">邮箱</span></div>
+                <div class="weui-cell__bd">
+                  <input id="js_input1" class="weui-input" v-model="form.email" placeholder="邮箱"/>
                 </div>
               </label>
               <label for="js_input2" class="weui-cell weui-cell_active">
                 <div class="weui-cell__hd"><span class="weui-label">密码</span></div>
                 <div class="weui-cell__bd">
-                  <input id="js_input2" class="weui-input" type="password" v-model="form.password" placeholder="填写密码"/>
+                  <input id="js_input2" class="weui-input" type="password" v-model="form.password" placeholder="密码"/>
                 </div>
               </label>
-<!--              <label for="js_input3" class="weui-cell weui-cell_active">-->
-<!--                <div class="weui-cell__hd"><span class="weui-label">联系电话</span>-->
-<!--                  <div class="weui-cell__desc">副标题</div>-->
-<!--                </div>-->
-<!--                <div class="weui-cell__bd">-->
-<!--                  <input id="js_input3" class="weui-input" placeholder="填写绑定的电话号码" type="number"-->
-<!--                         pattern="[0-9]*"/>-->
-<!--                </div>-->
-<!--              </label>-->
             </div>
           </div>
         </div>
       </div>
       <div class="weui-form__ft">
-<!--        <div class="weui-form__tips-area">-->
-<!--          <p class="weui-form__tips">-->
-<!--            表单页提示，居中对齐-->
-<!--          </p>-->
-<!--        </div>-->
         <div class="weui-form__opr-area">
           <a href="javascript:"
              role="button"
              class="weui-btn"
              :class="{'weui-btn_primary': !is_loading, 'weui-btn_default': is_loading, 'weui-btn_loading': is_loading}"
-             @click="login">
+             @click="start">
             <i v-if="is_loading" class="weui-mask-loading"></i>
-            {{ login_btn_title }}
+            {{ start_btn_title }}
           </a>
         </div>
-<!--        <div class="weui-form__tips-area">-->
-<!--          <p class="weui-form__tips">-->
-<!--            表单页提示，居中对齐-->
-<!--          </p>-->
-<!--        </div>-->
         <div class="weui-form__extra-area">
           <div class="weui-footer">
             <p class="weui-footer__links">
@@ -91,45 +75,48 @@
 </template>
 
 <script setup>
-import {ref, reactive} from 'vue';
-import {token} from "../api/auth.js";
-import {loginSuccess, isLogin} from '../utils/common';
+import {ref, reactive, toRaw} from 'vue';
 import router from "../router/index.js";
-import {checkInstall} from "../api/user.js";
+import {createUser} from "../api/user.js";
+import {validateEmail, validatePassword, validateUsername} from "../utils/common.js";
 
 const error_msg = ref('');
 const is_loading = ref(false);
-const login_btn_title = ref('登 录');
+const start_btn_title = ref('开 始');
 const form = reactive({
   username: '',
-  password: ''
+  password: '',
+  email: ''
 });
 
-checkInstall().then(response => {
-  console.log(response);
-  if (response.count === 0) {
-    router.push("/install")
-  }
-});
-
-const login = () => {
-  // openError("登录失败");
+const start = () => {
   if (!form.username) {
-    openError('必须输入登录用户名或邮箱');
+    openError('必须输入用户名');
+    return;
+  }
+  if (!validateUsername(form.username)) {
+    openError('用户名必须为数字字母下划线');
     return;
   }
   if (!form.password) {
-    openError('必须输入登录密码');
+    openError('必须输入密码');
     return;
   }
-  let formData = new FormData();
-  formData.append('username', form.username);
-  formData.append('password', form.password);
-
-  token(formData).then((resp) => {
-    console.log(resp);
-    loginSuccess(resp);
-    router.push('/')
+  if (!validatePassword(form.password)) {
+    openError('密码至少6位，且必须包含字母数字特殊字符中的至少两种');
+    return;
+  }
+  if (!form.email) {
+    openError('必须输入email');
+    return;
+  }
+  if (!validateEmail(form.email)) {
+    openError('无效的邮箱');
+    return;
+  }
+  let jsonString = JSON.stringify(toRaw(form));
+  createUser(jsonString).then(() => {
+    router.push('/login')
   }).catch(e => {
     if (e.response.data) {
       openError(e.response.data.detail);
@@ -138,6 +125,7 @@ const login = () => {
     }
   });
 };
+
 
 const openError = (msg) => {
   error_msg.value = msg;

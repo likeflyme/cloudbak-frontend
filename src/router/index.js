@@ -72,6 +72,15 @@ const routes = [
             loginRequire: false
         },
         component: () => import("../views/Login.vue"),
+    },
+    {
+        path: '/install',
+        name: 'install',
+        meta: {
+            title: '云朵备份-安装',
+            loginRequire: false
+        },
+        component: () => import("../views/Install.vue"),
     }
 ]
 

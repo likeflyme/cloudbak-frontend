@@ -1,4 +1,15 @@
 <template>
+  <div role="alert" class="weui-information-bar weui-information-bar_warn-weak" v-if="showDownload">
+    <div class="weui-information-bar__hd">
+      <i class="weui-icon-outlined-warn"></i>
+    </div>
+    <div class="weui-information-bar__bd">
+      您还没有同步任何数据到服务器，<a class="downloadClient" target="_blank" href="https://static.raining.top/wechat-cloud-bak/WechatCloudBakDesktop.zip">下载 Windows 同步客户端</a>。
+    </div>
+    <div class="weui-information-bar__ft">
+      <button class="weui-btn_icon" @click="closeError">关闭<i class="weui-icon-close-thin"></i></button>
+    </div>
+  </div>
   <div class="page-home">
     <div class="sidebar">
       <div class="open-close-container">
@@ -34,6 +45,7 @@ const router = useRouter();
 const routerKey = ref(0);
 
 const showMain = ref(false);
+const showDownload = ref(false);
 
 // 加载用户信息
 userinfo().then(resp => {
@@ -48,6 +60,8 @@ sysSessions().then(data => {
   store.commit("setSysSessions", data);
   if (data.length > 0) {
     updateCurrentSession(data[0]);
+  } else {
+    showDownload.value = true;
   }
 });
 
@@ -74,6 +88,9 @@ const getStateDesc = (session) => {
 </script>
 
 <style scoped lang="less">
+.downloadClient:hover {
+  cursor: pointer;
+}
 .page-home {
   position: absolute;
   width: 100%;
