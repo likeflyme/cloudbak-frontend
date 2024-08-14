@@ -8,8 +8,8 @@ export const sessions = () => {
     return service.get("/api/msg/sessions");
 };
 
-export const msgBySvrId = (svrId) => {
-    return service.get(`/api/msg/msg_by_svr_id?svr_id=${svrId}`);
+export const msgBySvrId = (svrId, DbNo) => {
+    return service.get(`/api/msg/msg_by_svr_id?svr_id=${svrId}&db_no=${DbNo}`);
 };
 
 export const msgs = (query) => {

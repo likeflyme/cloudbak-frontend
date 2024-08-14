@@ -122,6 +122,22 @@ export const getThumbFromStringContent = (content) => {
     return '';
 }
 
+export const getVoiceLength = (content) => {
+    let dom = parseXml(content);
+    const length = dom.querySelector('voicemsg').getAttribute('length');
+    // 将毫秒转换为秒和分钟
+    const seconds = Math.floor(length / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    // 格式化为分钟和秒
+    if (minutes > 0) {
+        return `${minutes}m ${remainingSeconds}"`;
+    } else {
+        return `${remainingSeconds}"`;
+    }
+}
+
 export const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);

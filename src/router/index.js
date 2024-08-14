@@ -14,51 +14,51 @@ const routes = [
             {
                 name: 'session',
                 path: 'session/:sessionId/',
-                component: () => import("../components/main/Main.vue"),
+                component: () => import("../views/main/Main.vue"),
                 children: [
                     {
                         name: 'address-book',
                         path: 'address-book',
-                        component: () => import("../components/main/addressbook/AddressBook.vue"),
+                        component: () => import("../views/main/addressbook/AddressBook.vue"),
                         children: [
                             {
                                 name: 'chat-room-info',
                                 path: 'chat-room-info/:id',
-                                component: () => import("../components/main/addressbook/info/ChatRoomInfo.vue"),
+                                component: () => import("../views/main/addressbook/info/ChatRoomInfo.vue"),
                             },
                             {
                                 name: 'user-info',
                                 path: 'user-info/:id',
-                                component: () => import("../components/main/addressbook/info/UserInfo.vue"),
+                                component: () => import("../views/main/addressbook/info/UserInfo.vue"),
                             }
                         ]
                     },
                     {
                         name: 'comment',
                         path: 'comment',
-                        component: () => import("../components/main/comment/Comment.vue"),
+                        component: () => import("../views/main/comment/Comment.vue"),
                         children: [
                             {
                                 name: "chat",
                                 path: ':id',
-                                component: () => import("../components/main/comment/CommentChat.vue"),
+                                component: () => import("../views/main/comment/CommentChat.vue"),
                             }
                         ]
                     },
                     {
                         name: 'collect',
                         path: 'collect',
-                        component: () => import("../components/main/collect/Collect.vue"),
+                        component: () => import("../views/main/collect/Collect.vue"),
                     },
                     {
                         name: 'files',
                         path: 'files',
-                        component: () => import("../components/main/files/Files.vue"),
+                        component: () => import("../views/main/files/Files.vue"),
                     },
                     {
                         name: 'community',
                         path: 'community',
-                        component: () => import("../components/main/community/Community.vue"),
+                        component: () => import("../views/main/community/Community.vue"),
                     }
                 ]
             }

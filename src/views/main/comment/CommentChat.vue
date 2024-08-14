@@ -3,10 +3,11 @@ import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
 import {msgs, session as getSession, chatroomInfo, msgBySvrId} from "@/api/msg.js"
 import {useStore} from "vuex";
-import {getUserNameByWxId, parseXml, getReferFileName, getThumbFromStringContent} from "@/utils/common.js";
+import {getUserNameByWxId, parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength} from "@/utils/common.js";
 import {get_msg_desc} from "@/utils/msgtp.js";
 import defaultImage from '@/assets/default-head.svg';
 import cleanedImage from '@/assets/cleaned.jpeg';
+import AudioPlayer from "../../../components/AudioPlayer.vue";
 
 const store = useStore();
 const route = useRoute();
@@ -82,7 +83,7 @@ const loadData = () => {
           msg_list.push(c);
           // 图片类型存一份到映射中方便引用类型查找
           if (c.Type === 3 && c.SubType === 0) {
-            chatMapBySvrId[c.MsgSvrId] = c;
+            chatMapBySvrId[c.MsgSvrIDStr] = c;
           }
         }
       } else {
@@ -208,14 +209,14 @@ const fileSize = (bytes) => {
 const setDefaultImage = (event) => {
   event.target.src = defaultImage;
 }
-const getOriMsgBySvrId = (svrId) => {
+const getOriMsgBySvrId = (svrId, DbNo) => {
   let msg = chatMapBySvrId[svrId];
   // 本地不存在，则到服务端查找
   console.log(svrId);
   console.log(msg);
   if (!msg) {
     console.log('本地无原消息，服务器查找');
-    msgBySvrId(svrId).then(data => {
+    msgBySvrId(svrId, DbNo).then(data => {
       console.log("服务端得到原消息");
       console.log(data)
       chatMapBySvrId[svrId] = data;
@@ -269,6 +270,13 @@ const convertSysMsg = (strContent) => {
                   :data-original="m.Image ? '/image?img_path=' + m.Image + '&session_id=' + store.getters.getCurrentSessionId : cleanedImage"
                   alt=""/>
             </div>
+            <!-- 语音消息 -->
+            <div v-else-if="m.Type === 34 && m.SubType ===0" class="chat-media">
+              <AudioPlayer
+                :src="`/api/msg/media?MsgSvrID=${m.MsgSvrIDStr}&session_id=${store.getters.getCurrentSessionId}&db_no=${m.DbNo}`"
+                :text="getVoiceLength(m.StrContent)"
+                :right="m.IsSender === 1"/>
+            </div>
             <!-- 用户图片表情 -->
             <div v-else-if="m.Type === 47 && m.SubType === 0" class="chat-img">
               <img class="exclude"
@@ -318,7 +326,7 @@ const convertSysMsg = (strContent) => {
               </p>
               <!-- 引用图片消息 -->
               <div class="refer-img" v-else-if="m.compress_content.msg.appmsg.refermsg.type === '3'">
-                {{ getOriMsgBySvrId(m.compress_content.msg.appmsg.refermsg.svrid) }}
+                {{ getOriMsgBySvrId(m.compress_content.msg.appmsg.refermsg.svrid, m.DbNo) }}
                 <p v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]" class="refer-img-title">{{ getUserNameByWxId(store, chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].WxId) }}: </p>
                 <img v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]"
                     :src="'/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Thumb + '&session_id=' + store.getters.getCurrentSessionId"
@@ -428,6 +436,9 @@ const convertSysMsg = (strContent) => {
           .chat-img:hover {
             cursor: pointer;
           }
+          .chat-media {
+
+          }
           .refer-msg {
             direction: ltr;
             margin-top: 5px;
@@ -521,6 +532,9 @@ const convertSysMsg = (strContent) => {
           .chat-text {
             text-align: left;
             background-color: #FFFFFF;
+          }
+          .chat-media {
+            direction: ltr;
           }
         }
       }

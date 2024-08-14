@@ -38,7 +38,7 @@ import {userinfo} from "@/api/auth.js";
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
 import {sysSessions, updateCurrentSession as updateCurrentSessionOnServer} from "@/api/user.js";
-import Toolbar from "../components/toolbar/Toolbar.vue";
+import Toolbar from "./toolbar/Toolbar.vue";
 const store = useStore();
 const router = useRouter();
 
