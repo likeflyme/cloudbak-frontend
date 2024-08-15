@@ -28,6 +28,9 @@
     </div>
     <router-view :key="routerKey"/>
     <Toolbar></Toolbar>
+    <div class="page-footer">
+      版本号：{{ packageJson.version  }}
+    </div>
   </div>
 
 </template>
@@ -39,6 +42,7 @@ import {useStore} from "vuex";
 import {useRouter} from "vue-router";
 import {sysSessions, updateCurrentSession as updateCurrentSessionOnServer} from "@/api/user.js";
 import Toolbar from "./toolbar/Toolbar.vue";
+import packageJson from '../../package.json';
 const store = useStore();
 const router = useRouter();
 
@@ -97,6 +101,13 @@ const getStateDesc = (session) => {
   height: 100%;
   overflow-y: scroll;
   background-color: #EDEDED;
+  .page-footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    font-size: 12px;
+  }
 }
 .sidebar {
   position: absolute;

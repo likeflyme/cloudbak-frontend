@@ -13,7 +13,7 @@ const store = useStore();
 const route = useRoute();
 
 const id = route.params.id
-const isChatRoom = id.includes('@');
+const isChatRoom = id.includes('@chatroom');
 const userList = reactive([]);
 const chatMapBySvrId = reactive({})
 // 群聊，加载群聊信息（人数）

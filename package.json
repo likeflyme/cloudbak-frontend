@@ -1,7 +1,7 @@
 {
-  "name": "CBackWeChatFrontend",
+  "name": "cloudbak",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.8-preview",
   "description": "A WeChat Backup Tool.",
   "type": "module",
   "scripts": {
