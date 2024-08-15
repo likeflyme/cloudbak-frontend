@@ -227,7 +227,7 @@ const download = (path) => {
   path = path.replace('\\', '/');
   const fileName = path.split('/').pop();
   let sessionId = store.getters.getCurrentSessionId;
-  let url = `/api/msg/file?path=${encodeURIComponent(path)}&session_id=${sessionId}`;
+  let url = `/file?path=${encodeURIComponent(path)}&session_id=${sessionId}`;
   const link = document.createElement('a');
   link.href = url;
   link.download = fileName;
@@ -237,6 +237,10 @@ const download = (path) => {
   link.click();
   // 移除<a>元素
   document.body.removeChild(link);
+}
+
+const videoError = (e) => {
+  console.log("video 播放错误", e)
 }
 </script>
 <template>
@@ -287,6 +291,13 @@ const download = (path) => {
                 :src="`/api/msg/media?MsgSvrID=${m.MsgSvrIDStr}&session_id=${store.getters.getCurrentSessionId}&db_no=${m.DbNo}`"
                 :text="getVoiceLength(m.StrContent)"
                 :right="m.IsSender === 1"/>
+            </div>
+            <!-- 视频消息 -->
+            <div v-else-if="m.Type === 43 && m.SubType ===0" class="chat-img exclude">
+              <video controls width="250" :poster="`/image?img_path=${m.Thumb}&session_id=${store.getters.getCurrentSessionId}`">
+                <source
+                    :src="`/video?video_path=${m.Image}&session_id=1`" type="video/mp4" />
+              </video>
             </div>
             <!-- 用户图片表情 -->
             <div v-else-if="m.Type === 47 && m.SubType === 0" class="chat-img">

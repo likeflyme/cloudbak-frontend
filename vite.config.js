@@ -33,6 +33,18 @@ export default defineConfig({
         // target: 'https://app.navkeeper.com/',
         changeOrigin: true,
         log: 'debug'
+      },
+      ['/video']: {
+        target: 'http://host.docker.internal:8000/api/msg',
+        // target: 'https://app.navkeeper.com/',
+        changeOrigin: true,
+        log: 'debug'
+      },
+      ['/file']: {
+        target: 'http://host.docker.internal:8000/api/msg',
+        // target: 'https://app.navkeeper.com/',
+        changeOrigin: true,
+        log: 'debug'
       }
     },
     watch: {
