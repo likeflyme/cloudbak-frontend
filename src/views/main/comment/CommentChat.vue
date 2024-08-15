@@ -227,6 +227,22 @@ const getOriMsgBySvrId = (svrId, DbNo) => {
 const convertSysMsg = (strContent) => {
   return strContent.replace(/<\/?revokemsg>/g, '');
 }
+
+const download = (path) => {
+  path = path.replace('\\', '/');
+  const fileName = path.split('/').pop();
+  let sessionId = store.getters.getCurrentSessionId;
+  let url = `/api/msg/file?path=${encodeURIComponent(path)}&session_id=${sessionId}`;
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  // 将<a>元素添加到DOM
+  document.body.appendChild(link);
+  // 触发点击事件
+  link.click();
+  // 移除<a>元素
+  document.body.removeChild(link);
+}
 </script>
 <template>
   <div class="main-content">
@@ -291,7 +307,7 @@ const convertSysMsg = (strContent) => {
               </p>
             </div>
             <!-- 文件消息 -->
-            <div v-else-if="m.Type === 49 && m.SubType === 6" class="chat-file">
+            <div v-else-if="m.Type === 49 && m.SubType === 6" class="chat-file" @click="download(m.Image)">
               <div class="chat-file-top">
                 <div class="chat-file-left">
                   <p class="chat-file-title">{{ m.compress_content.msg.appmsg.title }}</p>
@@ -302,7 +318,7 @@ const convertSysMsg = (strContent) => {
                 </div>
               </div>
               <div class="chat-file-bottom">
-                <p class="chat-file-app-info">{{ m.compress_content.msg.appinfo.appname }}</p>
+                <p v-if="m.compress_content.msg.appinfo" class="chat-file-app-info">{{ m.compress_content.msg.appinfo.appname }}</p>
               </div>
 <!--              <p>-->
 <!--                {{ m.compress_content.msg.appmsg.title }}-->
@@ -505,6 +521,9 @@ const convertSysMsg = (strContent) => {
                 line-height: 25px;
               }
             }
+          }
+          .chat-file:hover {
+            cursor: pointer;
           }
         }
       }
