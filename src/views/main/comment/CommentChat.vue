@@ -212,13 +212,8 @@ const setDefaultImage = (event) => {
 const getOriMsgBySvrId = (svrId, DbNo) => {
   let msg = chatMapBySvrId[svrId];
   // 本地不存在，则到服务端查找
-  console.log(svrId);
-  console.log(msg);
   if (!msg) {
-    console.log('本地无原消息，服务器查找');
     msgBySvrId(svrId, DbNo).then(data => {
-      console.log("服务端得到原消息");
-      console.log(data)
       chatMapBySvrId[svrId] = data;
     });
   }
