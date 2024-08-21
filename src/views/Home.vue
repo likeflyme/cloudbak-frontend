@@ -4,7 +4,7 @@
       <i class="weui-icon-outlined-warn"></i>
     </div>
     <div class="weui-information-bar__bd">
-      您还没有同步任何数据到服务器，<a class="downloadClient" target="_blank" href="https://static.raining.top/wechat-cloud-bak/WechatCloudBakDesktop.zip">下载 Windows 同步客户端</a>。
+      您还没有同步任何数据到服务器，<a class="downloadClient" target="_blank" href="http://cloudbak.org/download-desktop.html">下载 Windows 同步客户端</a>。
     </div>
     <div class="weui-information-bar__ft">
       <button class="weui-btn_icon" @click="closeError">关闭<i class="weui-icon-close-thin"></i></button>
