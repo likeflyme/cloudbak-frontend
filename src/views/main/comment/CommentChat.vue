@@ -296,7 +296,7 @@ const videoError = (e) => {
             <div v-else-if="m.Type === 43 && m.SubType ===0" class="chat-img exclude">
               <video controls width="250" :poster="`/image?img_path=${m.Thumb}&session_id=${store.getters.getCurrentSessionId}`">
                 <source
-                    :src="`/video?video_path=${m.Image}&session_id=1`" type="video/mp4" />
+                    :src="`/video?video_path=${m.Image}&session_id=${store.getters.getCurrentSessionId}`" type="video/mp4" />
               </video>
             </div>
             <!-- 用户图片表情 -->
