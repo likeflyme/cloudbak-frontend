@@ -71,7 +71,6 @@ sysSessions().then(data => {
 
 const updateCurrentSession = (session) => {
   updateCurrentSessionOnServer(session.id).then((data) => {
-    console.log("跳转 session", session);
     store.commit("setCurrentSession", data);
     routerKey.value = session.id;
     router.push({ name: "session", params: { sessionId: session.id } });

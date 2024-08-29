@@ -108,7 +108,8 @@ export const parseXml = (xmlString) => {
 };
 
 export const getReferFileName = (content) => {
-    let dom = parseXml(content);
+    let xmlStr = content.split(':')[1]
+    let dom = parseXml(xmlStr.trim());
     let title = dom.getElementsByTagName('title')[0]
     return title.textContent
 }

@@ -1,23 +1,29 @@
 <script setup>
 import {useStore} from "vuex";
+import {useRouter, useRoute} from "vue-router";
 import {getUserNameByWxId, shortenCharts} from "@/utils/common.js";
 import defaultImage from '@/assets/default-head.svg';
 
 const store = useStore();
+const router = useRouter();
+const route = useRoute();
 const user = store.getters.getAddrShowUser;
 const setDefaultImage = (event) => {
   event.target.src = defaultImage;
+}
+const comment = () => {
+  router.push({ name: 'chat', params: { sessionId: route.params.sessionId, id: user.UserName} });
 }
 </script>
 
 <template>
   <div class="info-container">
     <div class="info-head bottom-border">
-      <img class="info-img" :src="store.getters.getHeadImgPath + user.UserName + '.jpg'" @error="setDefaultImage" alt=""/>
+      <img class="info-img" :src="user.smallHeadImgUrl" @error="setDefaultImage" alt=""/>
       <div class="info-desc-container">
-        <p class="info-title">{{ getUserNameByWxId(store, user.UserName) }}</p>
+        <p class="info-title">{{ user.Remark?user.Remark:user.NickName }}</p>
+        <p class="info-area">昵称：{{ user.NickName }}</p>
         <p class="info-wxid">微信号：{{ user.UserName }}</p>
-<!--        <p class="info-area">地区：中国大陆</p>-->
       </div>
     </div>
     <div class="info-other bottom-border">
@@ -28,6 +34,11 @@ const setDefaultImage = (event) => {
       <div class="info-other-item">
         <p class="info-key">个性签名</p>
         <p class="info-value"></p>
+      </div>
+      <div class="info-other-item">
+        <p class="info-value">
+          <a class="weui-btn weui-btn_primary weui-btn_mini" @click="comment">查看消息</a>
+        </p>
       </div>
     </div>
   </div>

@@ -4,8 +4,8 @@ export const session = (strUsrName) => {
     return service.get("/api/msg/session?strUsrName=" + strUsrName);
 };
 
-export const sessions = () => {
-    return service.get("/api/msg/sessions");
+export const sessions = (page, size) => {
+    return service.get(`/api/msg/sessions?page=${page}&size=${size}`);
 };
 
 export const msgBySvrId = (svrId, DbNo) => {
@@ -26,5 +26,9 @@ export const contactSplit = (page, size, ChatRoomType=0) => {
 
 export const chatroomInfo = (chatroomName) => {
     return service.get(`/api/msg/chatroom-info?chat_room_name=${chatroomName}`);
+};
+
+export const headImage = (usrName) => {
+    return service.get("/api/msg/head-image?usrName=" + usrName);
 };
 

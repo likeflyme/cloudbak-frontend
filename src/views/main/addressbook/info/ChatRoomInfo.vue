@@ -1,5 +1,5 @@
 <script setup>
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {chatroomInfo} from "@/api/msg.js";
 import {reactive} from "vue";
 import {getUserNameByWxId, shortenCharts} from "@/utils/common.js";
@@ -7,14 +7,14 @@ import {useStore} from "vuex";
 import defaultImage from '@/assets/default-head.svg';
 
 const store = useStore();
+const router = useRouter();
 const route = useRoute();
+const chatroom = reactive({});
 
 const id = route.params.id;
-const userList = reactive([]);
 
 chatroomInfo(id).then(data => {
-  let ul = data.UserNameList.split('^G');
-  userList.push(...ul)
+  Object.assign(chatroom, data);
 });
 
 
@@ -22,20 +22,28 @@ const setDefaultImage = (event) => {
   event.target.src = defaultImage;
 }
 
+const comment = () => {
+  router.push({ name: 'chat', params: { sessionId: route.params.sessionId, id: id} });
+}
+
 </script>
 
 <template>
   <div class="info-container">
     <div class="info-top">
-      <p class="info-title">{{ getUserNameByWxId(store, id) }}</p>
+      <p class="info-title">{{ chatroom.Remark ? chatroom.Remark : chatroom.NickName }}  </p>
     </div>
     <div class="info-msg" >
+      <div class="comment-btn">
+        <a class="weui-btn weui-btn_primary weui-btn_mini" @click="comment">查看消息</a>
+      </div>
       <ul class="users-container">
-        <li class="user" v-for="wxid in userList">
-          <img class="user-img" :src="store.getters.getHeadImgPath + wxid + '.jpg'" @error="setDefaultImage" alt=""/>
-          <p class="user-name"> {{ shortenCharts(getUserNameByWxId(store, wxid), 8, '...') }} </p>
+        <li class="user" v-for="contact in chatroom.ContactList">
+          <img class="user-img" :src="contact.smallHeadImgUrl" @error="setDefaultImage" alt=""/>
+          <p class="user-name"> {{ contact.NickName }} </p>
         </li>
       </ul>
+
     </div>
   </div>
 </template>
@@ -87,6 +95,11 @@ const setDefaultImage = (event) => {
       .user:hover {
         background-color: #E6E6E6;
       }
+    }
+    .comment-btn {
+      bottom: 10px;
+      text-align: center;
+      margin-top: 10px;
     }
   }
   // 以下是滚动条样式

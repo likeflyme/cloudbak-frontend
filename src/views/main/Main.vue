@@ -3,7 +3,7 @@
     <div class="main-sidebar">
       <ul class="item-container">
         <li class="item">
-          <img class="u-header" :src="store.getters.getHeadImgPath + store.getters.getCurrentWxId + '.jpg'" alt=" 展开" role="button">
+          <img class="u-header" :src="wxHeadImage.smallHeadImgUrl" alt="头像" role="button">
         </li>
         <li class="item" v-for="m in menu">
           <font-awesome-icon class="item-icon"
@@ -22,9 +22,10 @@
 
 <script setup>
 import {useRouter, useRoute} from "vue-router";
-import {contact, sessions} from "../../api/msg.js";
+import {contact, headImage} from "../../api/msg.js";
 import {useStore} from "vuex";
-import {onBeforeMount, reactive, ref} from "vue";
+import {reactive, ref} from "vue";
+import defaultImage from '@/assets/default-head.svg';
 
 const store = useStore();
 const router = useRouter();
@@ -32,6 +33,7 @@ const route = useRoute();
 const selectedItem = ref('comment');
 const sessionId = route.params.sessionId;
 const routerKey = ref('');
+const wxHeadImage = reactive({smallHeadImgUrl: defaultImage});
 
 const menu = reactive([
   {
@@ -69,8 +71,12 @@ const menu = reactive([
 
 
 // 加载联系人数据
-contact().then(resp => {
-  store.commit("setContact", resp)
+// contact().then(resp => {
+//   store.commit("setContact", resp)
+// });
+// 加载session数据
+headImage(store.getters.getCurrentWxId).then(resp => {
+  Object.assign(wxHeadImage, resp);
 });
 
 const selectItem = (item) => {
@@ -80,7 +86,6 @@ const selectItem = (item) => {
 }
 
 // 默认加载comment
-console.log('默认加载 comment');
 routerKey.value = 'comment';
 router.push({ name: 'comment', params: { sessionId: sessionId } });
 

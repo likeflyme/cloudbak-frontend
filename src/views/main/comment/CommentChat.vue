@@ -66,6 +66,9 @@ loadSession();
 const loadData = () => {
   if (!noMoreMsg.value) {
     msgs(query).then(resp => {
+      if (resp.msgs.length < query.size) {
+        noMoreMsg.value = true;
+      }
       if (resp.msgs.length > 0) {
         query.start = resp.start;
         // 设置数据库编号
@@ -86,8 +89,6 @@ const loadData = () => {
             chatMapBySvrId[c.MsgSvrIDStr] = c;
           }
         }
-      } else {
-        noMoreMsg.value = true;
       }
     });
   }
@@ -264,13 +265,11 @@ const videoError = (e) => {
         </div>
         <div v-else class="chat" :class="{'right': m.IsSender === 1, 'left': m.IsSender === 0}" >
           <div class="chat-header">
-            <img v-if="m.IsSender === 1" :src="store.getters.getCurrentWxHeadImgPath" @error="setDefaultImage" alt="" class="exclude"/>
-            <img v-else-if="isChatRoom" :src="store.getters.getHeadImgPath + m.WxId + '.jpg'" @error="setDefaultImage" alt="" class="exclude"/>
-            <img v-else :src="store.getters.getHeadImgPath + id + '.jpg'" @error="setDefaultImage" alt="" class="exclude"/>
+            <img :src="m.smallHeadImgUrl?m.smallHeadImgUrl:defaultImage" @error="setDefaultImage" alt="" class="exclude"/>
           </div>
           <div class="chat-info">
             <div class="chat-nickname" v-if="isChatRoom">
-              <p v-if="isChatRoom && m.IsSender === 0">{{ getUserNameByWxId(store, m.WxId) }}</p>
+              <p v-if="isChatRoom && m.IsSender === 0">{{ m.Remark?m.Remark:m.NickName }}</p>
             </div>
             <!-- 文本消息 -->
             <div v-if="m.Type === 1" class="chat-text">

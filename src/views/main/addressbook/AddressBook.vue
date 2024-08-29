@@ -4,7 +4,7 @@ import {useStore} from "vuex";
 import {onBeforeMount, reactive, ref} from "vue";
 import {contactSplit} from "../../../api/msg.js";
 import {useRouter, useRoute} from "vue-router";
-import defaultImage from '@/assets/default-head.png';
+import defaultImage from '@/assets/default-head.svg';
 
 const store = useStore();
 const router = useRouter();
@@ -51,25 +51,19 @@ const contactContainer = ref(null);
 
 const onScroll = () => {
   let sub = contactContainer.value.scrollHeight - contactContainer.value.clientHeight - contactContainer.value.scrollTop;
-  if (Math.abs(sub) < 1) {
+  if (Math.abs(sub) <= 1) {
     load();
   }
 }
 
 const goChatRoomInfo = (contact) => {
   selectedItem.value = contact.UserName;
-  // const targetPath = '/address-book/chat-room-info/' + contact.UserName;
-  // router.push(targetPath);
-  routerKey.value = contact.UserName;
-  router.push({ name: 'chat-room-info', params: { sessionId: sessionId, id: contact.UserName} });
+  router.push({ name: 'chat-room-info', params: {id: contact.UserName} });
 }
 
 const goUserInfo = (contact) => {
   selectedItem.value = contact.UserName;
   store.commit('setAddrShowUser', contact);
-  // const targetPath = '/address-book/user-info/' + contact.UserName;
-  // router.push(targetPath);
-  routerKey.value = contact.UserName;
   router.push({ name: 'user-info', params: { sessionId: sessionId, id: contact.UserName} });
 }
 
@@ -99,7 +93,7 @@ const goUserInfo = (contact) => {
               v-for="c in chatRoom"
               @click="goChatRoomInfo(c)">
             <img class="item-img"
-                 :src="store.getters.getHeadImgPath + c.UserName + '.jpg'"
+                 :src="c.smallHeadImgUrl"
                  @error="setDefaultImage"
                  alt="">
             <p class="item-title">{{ c.Remark ? c.Remark : c.NickName }}</p>
@@ -112,7 +106,7 @@ const goUserInfo = (contact) => {
               :class="{'item-active': selectedItem === c.UserName}"
               @click="goUserInfo(c)">
             <img class="item-img"
-                 :src="store.getters.getHeadImgPath + c.UserName + '.jpg'"
+                 :src="c.smallHeadImgUrl"
                  @error="setDefaultImage"
                  alt="">
             <p class="item-title">{{ c.Remark ? c.Remark : c.NickName }}</p>
@@ -122,7 +116,7 @@ const goUserInfo = (contact) => {
       </div>
     </div>
     <div class="addr-right">
-      <router-view :key="routerKey"/>
+      <router-view :key="$route.fullPath"/>
     </div>
   </div>
 </template>

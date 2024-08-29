@@ -1,7 +1,6 @@
 <script setup>
-import {ref} from 'vue'
-import {shortenCharts} from "../../../utils/common.js";
-import {sessions} from "@/api/msg.js";
+import {reactive, ref} from 'vue'
+import {sessions as getSessions} from "@/api/msg.js";
 import {useStore} from "vuex";
 import {useRouter, useRoute} from "vue-router";
 import defaultImage from '@/assets/default-head.svg';
@@ -9,6 +8,14 @@ import defaultImage from '@/assets/default-head.svg';
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
+
+const page = ref(0);
+const size = ref(20);
+const noMore = ref(false);
+
+const sessions = reactive([]);
+
+const contactContainer = ref(null);
 
 const sysSessionId = route.params.sessionId;
 
@@ -61,10 +68,30 @@ const setDefaultImage = (event) => {
   event.target.src = defaultImage;
 }
 
-// 加载用户聊天会话数据
-sessions().then(resp => {
-  store.commit("setSessions", resp);
-});
+const load = () => {
+  // 没有更多数据不再获取了
+  if (noMore.value) {
+    return;
+  }
+  // 加载用户聊天会话数据
+  getSessions(page.value, size.value).then(resp => {
+    sessions.push(...resp);
+    page.value = page.value + 1;
+    if (resp.length < size.value) {
+      noMore.value = true;
+    }
+  });
+}
+
+const onScroll = () => {
+  let sub = contactContainer.value.scrollHeight - contactContainer.value.clientHeight - contactContainer.value.scrollTop;
+  if (Math.abs(sub) <= 1) {
+    load();
+  }
+}
+
+// 加载session数据
+load();
 
 </script>
 
@@ -84,15 +111,15 @@ sessions().then(resp => {
           </form>
         </div>
       </div>
-      <div class="session-items-container">
+      <div class="session-items-container" ref="contactContainer" @scroll="onScroll">
         <div class="session-items-fix-roller">
           <ul class="items-ul">
             <li class="item"
-                v-for="(session, idx) in store.state.sessions" :key="session.strUsrName"
+                v-for="(session, idx) in sessions" :key="session.strUsrName"
                 :class="{ 'item-active': selectedItem === session.strUsrName }"
                 @click="selectItem(session)">
               <div class="item-header">
-                <img :src="store.getters.getHeadImgPath + session.strUsrName + '.jpg'" @error="setDefaultImage" alt="header">
+                <img :src="session.smallHeadImgUrl" @error="setDefaultImage" alt="header">
               </div>
               <div class="item-msg no-wrap-text">
                 <p class="item-msg-title">{{ session.strNickName }}</p>
@@ -104,6 +131,7 @@ sessions().then(resp => {
             </li>
           </ul>
         </div>
+        <p class="load-more" :class="{'load-more-hide': noMore}" @click="load"> 加载更多 </p>
       </div>
     </div>
     <div class="main-msg">
@@ -197,6 +225,15 @@ sessions().then(resp => {
         .item-active:hover {
           background-color: #CAC8C6;
         }
+      }
+      .load-more {
+        font-size: 13px;
+        text-align: center;
+        color: #56A5FD;
+        padding: 5px 0;
+      }
+      .load-more-hide {
+        display: none;
       }
     }
 
