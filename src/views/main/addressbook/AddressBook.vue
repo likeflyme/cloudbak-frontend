@@ -33,7 +33,7 @@ const load = () => {
 }
 
 const loadChatRoom = () => {
-  contactSplit(1, 100, 2).then(data => {
+  contactSplit(1, 1000, 2).then(data => {
     chatRoom.push(...data);
   });
 }

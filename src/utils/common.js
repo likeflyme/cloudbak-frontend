@@ -108,10 +108,19 @@ export const parseXml = (xmlString) => {
 };
 
 export const getReferFileName = (content) => {
-    let xmlStr = content.split(':')[1]
-    let dom = parseXml(xmlStr.trim());
-    let title = dom.getElementsByTagName('title')[0]
-    return title.textContent
+    try {
+        let array = content.split(':');
+        let xmlStr = array[0];
+        if (array.length === 2) {
+            xmlStr = array[1]
+        }
+        let dom = parseXml(xmlStr.trim());
+        let title = dom.getElementsByTagName('title')[0];
+        return title.textContent;
+    } catch (e) {
+        console.error(e)
+    }
+    return 'Undefined';
 }
 
 export const getThumbFromStringContent = (content) => {

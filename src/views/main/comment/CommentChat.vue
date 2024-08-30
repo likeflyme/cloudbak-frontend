@@ -3,10 +3,11 @@ import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
 import {msgs, session as getSession, chatroomInfo, msgBySvrId} from "@/api/msg.js"
 import {useStore} from "vuex";
-import {getUserNameByWxId, parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength} from "@/utils/common.js";
+import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength} from "@/utils/common.js";
 import {get_msg_desc} from "@/utils/msgtp.js";
 import defaultImage from '@/assets/default-head.svg';
 import cleanedImage from '@/assets/cleaned.jpeg';
+import unknownFile from '@/assets/filetypeicon/unknown.svg';
 import AudioPlayer from "../../../components/AudioPlayer.vue";
 
 const store = useStore();
@@ -319,7 +320,7 @@ const videoError = (e) => {
                   <p class="chat-file-content">{{ fileSize(m.compress_content.msg.appmsg.appattach.totallen)}}</p>
                 </div>
                 <div class="chat-file-icon">
-                  <font-awesome-icon class="item-icon" :icon="['far', 'file']" title="文件"/>
+                  <img class="item-icon" :src="unknownFile" alt=""/>
                 </div>
               </div>
               <div class="chat-file-bottom">
@@ -348,7 +349,7 @@ const videoError = (e) => {
               <!-- 引用图片消息 -->
               <div class="refer-img" v-else-if="m.compress_content.msg.appmsg.refermsg.type === '3'">
                 {{ getOriMsgBySvrId(m.compress_content.msg.appmsg.refermsg.svrid, m.DbNo) }}
-                <p v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]" class="refer-img-title">{{ getUserNameByWxId(store, chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].WxId) }}: </p>
+                <p v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]" class="refer-img-title">{{ m.compress_content.msg.appmsg.refermsg.displayname }}: </p>
                 <img v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]"
                     :src="'/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Thumb + '&session_id=' + store.getters.getCurrentSessionId"
                     :data-original="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image ? '/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image + '&session_id=' + store.getters.getCurrentSessionId : cleanedImage"
@@ -516,6 +517,9 @@ const videoError = (e) => {
                 font-size: 30px;
                 text-align: center;
                 color: #207346;
+                .item-icon {
+                  width: 40px;
+                }
               }
             }
             .chat-file-bottom {
