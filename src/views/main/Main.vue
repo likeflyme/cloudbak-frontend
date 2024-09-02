@@ -26,6 +26,7 @@ import {contact, headImage} from "../../api/msg.js";
 import {useStore} from "vuex";
 import {reactive, ref} from "vue";
 import defaultImage from '@/assets/default-head.svg';
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const store = useStore();
 const router = useRouter();

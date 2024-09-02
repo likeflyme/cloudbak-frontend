@@ -9,6 +9,7 @@ import defaultImage from '@/assets/default-head.svg';
 import cleanedImage from '@/assets/cleaned.jpeg';
 import unknownFile from '@/assets/filetypeicon/unknown.svg';
 import AudioPlayer from "../../../components/AudioPlayer.vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const store = useStore();
 const route = useRoute();
@@ -26,6 +27,7 @@ if (isChatRoom) {
 }
 
 const noMoreMsg = ref(false);
+const isLoading = ref(false);
 const images = reactive([]);
 
 const query = reactive({
@@ -66,36 +68,41 @@ loadSession();
 
 const loadData = () => {
   if (!noMoreMsg.value) {
-    msgs(query).then(resp => {
-      if (resp.msgs.length < query.size) {
-        noMoreMsg.value = true;
-      }
-      if (resp.msgs.length > 0) {
-        query.start = resp.start;
-        // 设置数据库编号
-        if (query.dbNo === -1) {
-          query.dbNo = resp.dbNo;
-        } else if (query.dbNo !== resp.dbNo) {
-          query.page = 0;
-          query.dbNo = resp.dbNo;
+    isLoading.value = true;
+    try {
+      msgs(query).then(resp => {
+        if (resp.msgs.length < query.size) {
+          noMoreMsg.value = true;
         }
-        // 图片数据处理
-        try{
-          parseImg(resp.msgs);
-        } catch (e) {
-          console.log('parse img error: ', e);
-        }
-        // 添加到数据列表
-        // msg_list.push(...resp);
-        for (let c of resp.msgs) {
-          msg_list.push(c);
-          // 图片类型存一份到映射中方便引用类型查找
-          if (c.Type === 3 && c.SubType === 0) {
-            chatMapBySvrId[c.MsgSvrIDStr] = c;
+        if (resp.msgs.length > 0) {
+          query.start = resp.start;
+          // 设置数据库编号
+          if (query.dbNo === -1) {
+            query.dbNo = resp.dbNo;
+          } else if (query.dbNo !== resp.dbNo) {
+            query.page = 0;
+            query.dbNo = resp.dbNo;
+          }
+          // 图片数据处理
+          try{
+            parseImg(resp.msgs);
+          } catch (e) {
+            console.log('parse img error: ', e);
+          }
+          // 添加到数据列表
+          // msg_list.push(...resp);
+          for (let c of resp.msgs) {
+            msg_list.push(c);
+            // 图片类型存一份到映射中方便引用类型查找
+            if (c.Type === 3 && c.SubType === 0) {
+              chatMapBySvrId[c.MsgSvrIDStr] = c;
+            }
           }
         }
-      }
-    });
+      });
+    } finally {
+      isLoading.value = false;
+    }
   }
 }
 
