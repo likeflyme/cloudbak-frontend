@@ -124,28 +124,38 @@ export const getReferFileName = (content) => {
 }
 
 export const getThumbFromStringContent = (content) => {
-    let dom = parseXml(content);
-    const emoji = dom.querySelector('emoji');
-    if (emoji) {
-        return emoji.getAttribute('cdnurl');
+    try {
+        let dom = parseXml(content);
+        const emoji = dom.querySelector('emoji');
+        if (emoji) {
+            return emoji.getAttribute('cdnurl');
+        }
+        return '';
+    } catch (e) {
+        console.error(e)
     }
     return '';
 }
 
 export const getVoiceLength = (content) => {
-    let dom = parseXml(content);
-    const length = dom.querySelector('voicemsg').getAttribute('length');
-    // 将毫秒转换为秒和分钟
-    const seconds = Math.floor(length / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    try {
+        let dom = parseXml(content);
+        const length = dom.querySelector('voicemsg').getAttribute('length');
+        // 将毫秒转换为秒和分钟
+        const seconds = Math.floor(length / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
 
-    // 格式化为分钟和秒
-    if (minutes > 0) {
-        return `${minutes}m ${remainingSeconds}"`;
-    } else {
-        return `${remainingSeconds}"`;
+        // 格式化为分钟和秒
+        if (minutes > 0) {
+            return `${minutes}m ${remainingSeconds}"`;
+        } else {
+            return `${remainingSeconds}"`;
+        }
+    } catch (e) {
+        console.error(e)
     }
+    return '';
 }
 
 export const validateEmail = (email) => {

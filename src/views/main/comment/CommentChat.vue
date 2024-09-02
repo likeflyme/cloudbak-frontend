@@ -80,7 +80,11 @@ const loadData = () => {
           query.dbNo = resp.dbNo;
         }
         // 图片数据处理
-        parseImg(resp.msgs);
+        try{
+          parseImg(resp.msgs);
+        } catch (e) {
+          console.log('parse img error: ', e);
+        }
         // 添加到数据列表
         // msg_list.push(...resp);
         for (let c of resp.msgs) {
