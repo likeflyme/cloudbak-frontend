@@ -21,8 +21,10 @@ const chatMapBySvrId = reactive({})
 // 群聊，加载群聊信息（人数）
 if (isChatRoom) {
   chatroomInfo(id).then(data => {
-    let ul = data.UserNameList.split('^G');
-    userList.push(...ul)
+    if(data) {
+      let ul = data.UserNameList.split('^G');
+      userList.push(...ul)
+    }
   });
 }
 
@@ -306,8 +308,7 @@ const videoError = (e) => {
             <!-- 视频消息 -->
             <div v-else-if="m.Type === 43 && m.SubType ===0" class="chat-img exclude">
               <video controls width="250" :poster="`/image?img_path=${m.Thumb}&session_id=${store.getters.getCurrentSessionId}`">
-                <source
-                    :src="`/video?video_path=${m.Image}&session_id=${store.getters.getCurrentSessionId}`" type="video/mp4" />
+                <source v-if="m.Image" :src="`/video?video_path=${m.Image}&session_id=${store.getters.getCurrentSessionId}`" type="video/mp4" />
               </video>
             </div>
             <!-- 用户图片表情 -->
