@@ -71,40 +71,40 @@ loadSession();
 const loadData = () => {
   if (!noMoreMsg.value) {
     isLoading.value = true;
-    try {
-      msgs(query).then(resp => {
-        if (resp.msgs.length < query.size) {
-          noMoreMsg.value = true;
-        }
-        if (resp.msgs.length > 0) {
-          query.start = resp.start;
-          // 设置数据库编号
-          if (query.dbNo === -1) {
-            query.dbNo = resp.dbNo;
-          } else if (query.dbNo !== resp.dbNo) {
-            query.page = 0;
-            query.dbNo = resp.dbNo;
-          }
-          // 图片数据处理
-          try{
-            parseImg(resp.msgs);
-          } catch (e) {
-            console.log('parse img error: ', e);
-          }
-          // 添加到数据列表
-          // msg_list.push(...resp);
-          for (let c of resp.msgs) {
-            msg_list.push(c);
-            // 图片类型存一份到映射中方便引用类型查找
-            if (c.Type === 3 && c.SubType === 0) {
-              chatMapBySvrId[c.MsgSvrIDStr] = c;
-            }
-          }
-        }
-      });
-    } finally {
+    msgs(query).then(resp => {
       isLoading.value = false;
-    }
+      if (resp.msgs.length < query.size) {
+        noMoreMsg.value = true;
+      }
+      if (resp.msgs.length > 0) {
+        query.start = resp.start;
+        // 设置数据库编号
+        if (query.dbNo === -1) {
+          query.dbNo = resp.dbNo;
+        } else if (query.dbNo !== resp.dbNo) {
+          query.page = 0;
+          query.dbNo = resp.dbNo;
+        }
+        // 图片数据处理
+        try{
+          parseImg(resp.msgs);
+        } catch (e) {
+          console.log('parse img error: ', e);
+        }
+        // 添加到数据列表
+        // msg_list.push(...resp);
+        for (let c of resp.msgs) {
+          msg_list.push(c);
+          // 图片类型存一份到映射中方便引用类型查找
+          if (c.Type === 3 && c.SubType === 0) {
+            chatMapBySvrId[c.MsgSvrIDStr] = c;
+          }
+        }
+      }
+    }).catch(e => {
+      isLoading.value = false;
+      console.log(e)
+    });
   }
 }
 
@@ -261,7 +261,7 @@ const videoError = (e) => {
 <template>
   <div class="main-content">
     <div class="main-content-top">
-      <p class="main-content-title">{{ session.strNickName }} </p>
+      <p class="main-content-title">{{ session.Remark?session.Remark:session.strNickName }} </p>
       <p class="main-content-title" v-if="isChatRoom"> ({{userList.length}})</p>
     </div>
     <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer" v-viewer="imageOptions">
@@ -377,7 +377,10 @@ const videoError = (e) => {
         </div>
       </div>
       <div class="load-more">
-        <a v-if="!noMoreMsg" href="javascript:void(0)" @click="loadMore">查看更多消息</a>
+        <a v-if="!noMoreMsg" href="javascript:void(0)" @click="loadMore">
+          <font-awesome-icon class="loading-icon" v-if="isLoading" :icon="['fas', 'spinner']"/>
+          <p v-else>查看更多消息</p>
+        </a>
       </div>
     </div>
   </div>
@@ -385,6 +388,15 @@ const videoError = (e) => {
 <style scoped lang="less">
 * {
   box-sizing: border-box;
+}
+/* Define an animation behavior */
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+/* This is the class name given by the Font Awesome component when icon contains 'spinner' */
+.fa-spinner {
+  /* Apply 'spinner' keyframes looping once every second (1s)  */
+  animation: spinner 1s linear infinite;
 }
 .main-content {
   background-color: #F5F5F5; /* 示例背景色 */
@@ -598,6 +610,9 @@ const videoError = (e) => {
       .no-more-msg {
         font-size: 12px;
         color: dimgray;
+      }
+      .loading-icon {
+        color: gray;
       }
     }
 

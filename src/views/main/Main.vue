@@ -13,18 +13,47 @@
                              @click="selectItem(m)"/>
         </li>
       </ul>
+      <ul class="sidebar-bottom">
+        <li class="item-icon" @click="toggleSettings" ref="toggleButton">
+          <font-awesome-icon :icon="['fas', 'bars']" />
+        </li>
+      </ul>
     </div>
     <div class="main-right">
       <router-view :key="routerKey"/>
+    </div>
+    <div v-if="showSettings" class="main-settings-bar" :style="settingsStyle" ref="settingsDiv">
+      <ul class="settings-bar-ul">
+        <li class="settings-bar-item" @click="showDeleteDialog?showDeleteDialog=false:showDeleteDialog=true">删除会话</li>
+      </ul>
+    </div>
+  </div>
+  <div role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="js_title1" id="iosDialog1" v-if="showDeleteDialog">
+    <div class="weui-mask"></div>
+    <div class="weui-dialog">
+      <div class="weui-dialog__hd"><strong class="weui-dialog__title" id="js_title1">删除会话</strong></div>
+      <div class="weui-dialog__bd">
+        <p>确定要删除会话吗？</p>
+        <p>确定删除后，该会话的数据文件将在后台静默删除！</p>
+        <p>会话名称：{{ store.getters.getCurrentSession.name }}</p>
+        <p>会话备注：{{ store.getters.getCurrentSession.desc }}</p>
+        <p>微信账号：{{ store.getters.getCurrentSession.wx_acct_name }}</p>
+        <p>微信昵称：{{ store.getters.getCurrentSession.wx_name }}</p>
+      </div>
+      <div class="weui-dialog__ft">
+        <a role="button" href="javascript:" class="weui-dialog__btn weui-dialog__btn_default" @click="showDeleteDialog=false">取消</a>
+        <a role="button" href="javascript:" class="weui-dialog__btn weui-dialog__btn_primary" @click="sessionDelete(store.getters.getCurrentSession.id)">确定删除</a>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import {useRouter, useRoute} from "vue-router";
-import {contact, headImage} from "../../api/msg.js";
+import {headImage} from "../../api/msg.js";
+import {deleteSession, updateCurrentSession as updateCurrentSessionOnServer} from "../../api/user.js";
 import {useStore} from "vuex";
-import {reactive, ref} from "vue";
+import {reactive, ref, computed, onMounted, onUnmounted} from "vue";
 import defaultImage from '@/assets/default-head.svg';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
@@ -35,6 +64,11 @@ const selectedItem = ref('comment');
 const sessionId = route.params.sessionId;
 const routerKey = ref('');
 const wxHeadImage = reactive({smallHeadImgUrl: defaultImage});
+const showSettings = ref(false);
+const showDeleteDialog = ref(false);
+// 获取按钮和设置窗口的引用
+const settingsDiv = ref(null);
+const toggleButton = ref(null);
 
 const menu = reactive([
   {
@@ -86,6 +120,61 @@ const selectItem = (item) => {
   router.push({ name: item.id, params: { sessionId: sessionId } });
 }
 
+const toggleSettings = () => {
+  showSettings.value = !showSettings.value;
+};
+
+const settingsStyle = computed(() => {
+  const mainSidebar = document.querySelector('.main-sidebar');
+  if (mainSidebar) {
+    const mainSidebarHeight = mainSidebar.offsetHeight;
+    return {
+      position: 'absolute',
+      left: `${mainSidebar.offsetWidth}px`,
+      top: `${mainSidebarHeight - 60}px`,
+    };
+  }
+  return {};
+});
+
+// 监听点击事件，判断是否点击到页面其他位置
+const handleClickOutside = (event) => {
+  if (
+      showSettings.value &&
+      settingsDiv.value &&
+      toggleButton.value &&
+      !settingsDiv.value.contains(event.target) &&
+      !toggleButton.value.contains(event.target)
+  ) {
+    showSettings.value = false;
+  }
+};
+
+// 在组件挂载时添加事件监听
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+// 在组件卸载时移除事件监听
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
+
+const sessionDelete = (id) => {
+  deleteSession(id).then(resp => {
+    let sessions = store.getters.getSysSessions;
+    if (sessions && sessions.length > 0) {
+      let first = sessions[0];
+      updateCurrentSessionOnServer(first.id).then((data) => {
+        store.commit("dropSession", id);
+        router.push({ name: 'home'});
+      });
+    }
+  }).catch(e => {
+    console.log(e);
+  });
+}
+
 // 默认加载comment
 routerKey.value = 'comment';
 router.push({ name: 'comment', params: { sessionId: sessionId } });
@@ -111,13 +200,42 @@ router.push({ name: 'comment', params: { sessionId: sessionId } });
   .main-sidebar {
     width: 55px; /* 设置侧边栏的宽度 */
     background-color: #2E2E2E;
+    display: flex;
+    flex-direction: column;
+    .sidebar-bottom {
+      width: 100%;
+      height: 40px;
+      .item-icon {
+        text-align: center;
+        font-size: 19px;
+        color: #999999;
+      }
+      .item-icon:hover {
+        cursor: pointer;
+      }
+    }
   }
   .main-right {
     flex-grow: 1;
   }
+  .main-settings-bar {
+    width: 100px;
+    background-color: #232323;
+    .settings-bar-ul {
+      .settings-bar-item {
+        font-size: 14px;
+        color: #999999;
+        padding: 10px 15px;
+      }
+      .settings-bar-item:hover {
+        cursor: pointer;
+        background-color: #2E2E2E;
+      }
+    }
+  }
 
   .item-container {
-    height: 100%;
+    flex-grow: 1;
     .item {
       margin-top: 16px;
       text-align: center;

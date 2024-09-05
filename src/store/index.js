@@ -2,6 +2,7 @@ import {createStore} from 'vuex'
 
 const state = {
     sessions: [],
+    mapSessions: {},
     userInfo: {
         current_session: {}
     },
@@ -33,6 +34,9 @@ const mutations = {
         state.userInfo.current_session_id = sysSession.id;
         state.userInfo.current_session = sysSession;
     },
+    dropSession(state, sysSessionId) {
+        state.sysSessions = state.sysSessions.filter(session => session.id !== sysSessionId);
+    }
 }
 
 const getters = {
@@ -53,6 +57,9 @@ const getters = {
     },
     getCurrentSessionId(state) {
         return state.userInfo.current_session_id;
+    },
+    getCurrentSession(state) {
+        return state.userInfo.current_session;
     },
     getCurrentWxHeadImgPath(state) {
         return getters.getHeadImgPath(state) + getters.getCurrentWxId(state) + '.jpg'

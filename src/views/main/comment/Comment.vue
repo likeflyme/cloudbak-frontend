@@ -9,7 +9,7 @@ const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
-const page = ref(0);
+const page = ref(1);
 const size = ref(20);
 const noMore = ref(false);
 
@@ -122,7 +122,7 @@ load();
                 <img :src="session.smallHeadImgUrl" @error="setDefaultImage" alt="header">
               </div>
               <div class="item-msg no-wrap-text">
-                <p class="item-msg-title">{{ session.strNickName }}</p>
+                <p class="item-msg-title">{{ session.Remark? session.Remark:session.strNickName }}</p>
                 <p class="item-msg-desc">{{ session.strContent }}</p>
               </div>
               <div class="item-info">

@@ -1,7 +1,7 @@
 {
   "name": "cloudbak",
   "private": true,
-  "version": "0.1.4-snapshot",
+  "version": "0.1.5-preview",
   "description": "A WeChat Backup Tool.",
   "type": "module",
   "scripts": {

@@ -15,3 +15,6 @@ export const checkInstall = () => {
 export const createUser = (data) => {
     return service.post("/api/user/create-user", data)
 };
+export const deleteSession = (sys_session_id) => {
+    return service.delete(`/api/user/sys-session/${sys_session_id}`)
+};
