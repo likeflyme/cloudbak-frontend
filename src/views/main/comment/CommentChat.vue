@@ -1,7 +1,7 @@
 <script setup>
 import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
-import {msgs, session as getSession, chatroomInfo, msgBySvrId} from "@/api/msg.js"
+import {msgs, session as getSession, chatroomInfo, msgBySvrId, chatroom} from "@/api/msg.js"
 import {useStore} from "vuex";
 import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength} from "@/utils/common.js";
 import {get_msg_desc} from "@/utils/msgtp.js";
@@ -17,13 +17,19 @@ const route = useRoute();
 const id = route.params.id
 const isChatRoom = id.includes('@chatroom');
 const userList = reactive([]);
+const userLength = ref(0);
 const chatMapBySvrId = reactive({})
+const displayNameMap = reactive({})
 // 群聊，加载群聊信息（人数）
 if (isChatRoom) {
-  chatroomInfo(id).then(data => {
+  chatroom(id).then(data => {
     if(data) {
       let ul = data.UserNameList.split('^G');
-      userList.push(...ul)
+      let dl = data.DisplayNameList.split('^G');
+      userLength.value = ul.length;
+      for(let i = 0; i < ul.length; i++) {
+        displayNameMap[ul[i]] = dl[i];
+      }
     }
   });
 }
@@ -239,30 +245,45 @@ const convertSysMsg = (strContent) => {
 }
 
 const download = (path) => {
-  path = path.replace('\\', '/');
-  const fileName = path.split('/').pop();
-  let sessionId = store.getters.getCurrentSessionId;
-  let url = `/file?path=${encodeURIComponent(path)}&session_id=${sessionId}`;
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  // 将<a>元素添加到DOM
-  document.body.appendChild(link);
-  // 触发点击事件
-  link.click();
-  // 移除<a>元素
-  document.body.removeChild(link);
+  if (path) {
+    path = path.replace('\\', '/');
+    const fileName = path.split('/').pop();
+    let sessionId = store.getters.getCurrentSessionId;
+    let url = `/file?path=${encodeURIComponent(path)}&session_id=${sessionId}`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    // 将<a>元素添加到DOM
+    document.body.appendChild(link);
+    // 触发点击事件
+    link.click();
+    // 移除<a>元素
+    document.body.removeChild(link);
+  }
 }
 
-const videoError = (e) => {
-  console.log("video 播放错误", e)
+/**
+ * 有备注先用备注，其次群备注，最后昵称
+ * @param m
+ * @returns {*}
+ */
+const displayName = (m) => {
+  if (m.Remark) {
+    return m.Remark;
+  }
+  let chatName = displayNameMap[m.WxId];
+  if (chatName) {
+    return chatName;
+  } else {
+    return m.NickName
+  }
 }
 </script>
 <template>
   <div class="main-content">
     <div class="main-content-top">
-      <p class="main-content-title">{{ session.Remark?session.Remark:session.strNickName }} </p>
-      <p class="main-content-title" v-if="isChatRoom"> ({{userList.length}})</p>
+      <p class="main-content-title">{{ session.Remark?session.Remark:session.strNickName }}</p>
+      <p class="main-content-title" v-if="isChatRoom"> ({{userLength}})</p>
     </div>
     <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer" v-viewer="imageOptions">
       <div class="chat-container" v-for="(m, index) in msg_list" :key="m">
@@ -283,7 +304,7 @@ const videoError = (e) => {
           </div>
           <div class="chat-info">
             <div class="chat-nickname" v-if="isChatRoom">
-              <p v-if="isChatRoom && m.IsSender === 0">{{ m.Remark?m.Remark:m.NickName }}</p>
+              <p v-if="isChatRoom && m.IsSender === 0"> {{ displayName(m) }} </p>
             </div>
             <!-- 文本消息 -->
             <div v-if="m.Type === 1" class="chat-text">
@@ -336,7 +357,12 @@ const videoError = (e) => {
                 </div>
               </div>
               <div class="chat-file-bottom">
-                <p v-if="m.compress_content.msg.appinfo" class="chat-file-app-info">{{ m.compress_content.msg.appinfo.appname }}</p>
+                <p v-if="m.Image" class="chat-file-app-info">
+                  <p v-if="m.compress_content.msg.appinfo" class="chat-file-app-info">{{ m.compress_content.msg.appinfo.appname }}</p>
+                </p>
+                <p v-else class="chat-file-app-info">
+                  未下载的文件
+                </p>
               </div>
 <!--              <p>-->
 <!--                {{ m.compress_content.msg.appmsg.title }}-->
