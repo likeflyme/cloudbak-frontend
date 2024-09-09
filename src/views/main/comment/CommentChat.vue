@@ -20,15 +20,18 @@ const userList = reactive([]);
 const userLength = ref(0);
 const chatMapBySvrId = reactive({})
 const displayNameMap = reactive({})
+const chatRoomNameMap = reactive({})
 // 群聊，加载群聊信息（人数）
 if (isChatRoom) {
   chatroom(id).then(data => {
     if(data) {
       let ul = data.UserNameList.split('^G');
-      let dl = data.DisplayNameList.split('^G');
       userLength.value = ul.length;
-      for(let i = 0; i < ul.length; i++) {
-        displayNameMap[ul[i]] = dl[i];
+      if (data.ChatRoomMembers) {
+        for (let i = 0; i < data.ChatRoomMembers.length; i++) {
+          let m = data.ChatRoomMembers[i]
+          chatRoomNameMap[m.userName] = m.remark;
+        }
       }
     }
   });
@@ -271,7 +274,7 @@ const displayName = (m) => {
   if (m.Remark) {
     return m.Remark;
   }
-  let chatName = displayNameMap[m.WxId];
+  let chatName = chatRoomNameMap[m.WxId];
   if (chatName) {
     return chatName;
   } else {

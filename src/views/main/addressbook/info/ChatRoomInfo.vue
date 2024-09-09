@@ -10,11 +10,38 @@ const store = useStore();
 const router = useRouter();
 const route = useRoute();
 const chatroom = reactive({});
+const userList = reactive([]);
+const displayNameList = reactive([]);
+const contactMap = reactive({});
+const chatRoomNameMap = reactive({})
 
 const id = route.params.id;
 
 chatroomInfo(id).then(data => {
-  Object.assign(chatroom, data);
+  if (data) {
+    Object.assign(chatroom, data);
+    if (data.UserNameList) {
+      let ul = data.UserNameList.split('^G');
+      userList.push(...ul);
+    }
+    if (data.DisplayNameList) {
+      let dl = data.DisplayNameList.split('^G');
+      displayNameList.push(...dl);
+    }
+    if (data.ContactList) {
+      let contactList = data.ContactList;
+      for (let i = 0; i < data.ContactList.length; i++) {
+        let contact = contactList[i];
+        contactMap[contact.UserName] = contact.NickName;
+      }
+    }
+    if (data.ChatRoomMembers) {
+      for (let i = 0; i < data.ChatRoomMembers.length; i++) {
+        let m = data.ChatRoomMembers[i]
+        chatRoomNameMap[m.userName] = m.remark;
+      }
+    }
+  }
 });
 
 
@@ -24,6 +51,23 @@ const setDefaultImage = (event) => {
 
 const comment = () => {
   router.push({ name: 'chat', params: { sessionId: route.params.sessionId, id: id} });
+}
+
+/**
+ * 有备注先用备注，其次群备注，最后昵称
+ * @param m
+ * @returns {*}
+ */
+const displayName = (m) => {
+  if (m.Remark) {
+    return m.Remark;
+  }
+  let chatName = chatRoomNameMap[m.UserName];
+  if (chatName) {
+    return chatName;
+  } else {
+    return m.NickName
+  }
 }
 
 </script>
@@ -39,8 +83,8 @@ const comment = () => {
       </div>
       <ul class="users-container">
         <li class="user" v-for="contact in chatroom.ContactList">
-          <img class="user-img" :src="contact.smallHeadImgUrl" @error="setDefaultImage" alt=""/>
-          <p class="user-name"> {{ contact.NickName }} </p>
+          <img class="user-img" :src="contact.smallHeadImgUrl?contact.smallHeadImgUrl:defaultImage" @error="setDefaultImage" alt=""/>
+          <p class="user-name"> {{ displayName(contact) }} </p>
         </li>
       </ul>
 
