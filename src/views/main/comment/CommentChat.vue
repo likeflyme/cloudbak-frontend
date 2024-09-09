@@ -485,6 +485,7 @@ const displayName = (m) => {
             font-size: 12px;
             color: #BEBEBE;
             text-align: left;
+            direction: ltr;
           }
           .chat-text {
             direction: ltr;
