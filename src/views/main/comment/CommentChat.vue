@@ -16,11 +16,10 @@ const route = useRoute();
 
 const id = route.params.id
 const isChatRoom = id.includes('@chatroom');
-const userList = reactive([]);
 const userLength = ref(0);
-const chatMapBySvrId = reactive({})
-const displayNameMap = reactive({})
-const chatRoomNameMap = reactive({})
+const chatMapBySvrId = reactive({});
+const chatRoomNameMap = reactive({});
+const showTool = ref(false);
 // 群聊，加载群聊信息（人数）
 if (isChatRoom) {
   chatroom(id).then(data => {
@@ -287,6 +286,8 @@ const displayName = (m) => {
     <div class="main-content-top">
       <p class="main-content-title">{{ session.Remark?session.Remark:session.strNickName }}</p>
       <p class="main-content-title" v-if="isChatRoom"> ({{userLength}})</p>
+      <p style="flex-grow: 1"></p>
+      <p class="main-content-toolbar" @click="showTool?showTool=false:showTool=true">...</p>
     </div>
     <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer" v-viewer="imageOptions">
       <div class="chat-container" v-for="(m, index) in msg_list" :key="m">
@@ -297,9 +298,7 @@ const displayName = (m) => {
         </div>
         <!-- 系统通知类消息 -->
         <div class="tips" v-if="m.Type === 10000">
-          <p class="tips-content">
-            {{ convertSysMsg(m.StrContent) }}
-          </p>
+          <p class="tips-content" v-html="convertSysMsg(m.StrContent)"></p>
         </div>
         <div v-else class="chat" :class="{'right': m.IsSender === 1, 'left': m.IsSender === 0}" >
           <div class="chat-header">
@@ -412,6 +411,33 @@ const displayName = (m) => {
         </a>
       </div>
     </div>
+    <div class="main-tools" v-if="showTool">
+      <ul class="main-tools-ul">
+        <li class="main-tools-li">
+          <div class="chatroom-item">
+            <p>群聊名称</p>
+            <p class="chatroom-value"> {{ session.strNickName }} </p>
+          </div>
+          <div class="chatroom-item">
+            <p>群聊公告</p>
+            <p class="chatroom-value"> 暂不支持 </p>
+          </div>
+          <div class="chatroom-item">
+            <p>群聊备注</p>
+            <p class="chatroom-value"> {{ session.Remark?session.Remark:'未设置' }} </p>
+          </div>
+          <div class="chatroom-item">
+            <p>我在本群的昵称</p>
+            <p class="chatroom-value"> 暂不支持 </p>
+          </div>
+        </li>
+        <li class="main-tools-li flex tool-chat">
+          <p>聊天记录</p>
+          <p style="flex-grow: 1"></p>
+          <p class="tool-chevron-right"><font-awesome-icon :icon="['fas', 'chevron-right']"/></p>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <style scoped lang="less">
@@ -428,7 +454,7 @@ const displayName = (m) => {
   animation: spinner 1s linear infinite;
 }
 .main-content {
-  background-color: #F5F5F5; /* 示例背景色 */
+  background-color: #F5F5F5;
   display: flex;
   flex-direction: column; // 垂直排列
   overflow: hidden;
@@ -443,6 +469,11 @@ const displayName = (m) => {
       height: 63px;
       font-size: 20px;
       line-height: 63px;
+    }
+    .main-content-toolbar {
+      padding-right: 10px;
+      font-size: 25px;
+      cursor: pointer;
     }
   }
   .main-content-info {
@@ -462,6 +493,7 @@ const displayName = (m) => {
         text-align: center;
         padding: 10px;
         .tips-content {
+          direction: ltr;
           max-width: 300px;
           margin: 0 auto;
         }
@@ -647,6 +679,38 @@ const displayName = (m) => {
     }
 
 
+  }
+  .main-tools {
+    position: absolute;
+    width: 250px;
+    height: 787px;
+    border-left: 1px solid #EBEBEB;
+    right: 0;top: 63px;
+    background-color: #FFFFFF;
+    padding: 10px 10px;
+    .main-tools-ul {
+      .main-tools-li {
+        border-bottom: 1px solid #EBEBEB;
+        padding: 10px 5px;
+        font-size: 14px;
+        .chatroom-item {
+          padding: 8px 0;
+          .chatroom-value {
+            color: gray;
+          }
+        }
+      }
+      .flex {
+        display: flex;
+      }
+      .tool-chat {
+        cursor: pointer;
+        .tool-chevron-right {
+          color: gray;
+          font-size: 13px;
+        }
+      }
+    }
   }
 
   // 以下是滚动条样式
