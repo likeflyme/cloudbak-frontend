@@ -32,28 +32,14 @@
               <label for="js_input2" class="weui-cell weui-cell_active">
                 <div class="weui-cell__hd"><span class="weui-label">密码</span></div>
                 <div class="weui-cell__bd">
-                  <input id="js_input2" class="weui-input" type="password" v-model="form.password" placeholder="填写密码"/>
+                  <input id="js_input2" class="weui-input" type="password" v-model="form.password" @keydown.enter="login" placeholder="填写密码"/>
                 </div>
               </label>
-<!--              <label for="js_input3" class="weui-cell weui-cell_active">-->
-<!--                <div class="weui-cell__hd"><span class="weui-label">联系电话</span>-->
-<!--                  <div class="weui-cell__desc">副标题</div>-->
-<!--                </div>-->
-<!--                <div class="weui-cell__bd">-->
-<!--                  <input id="js_input3" class="weui-input" placeholder="填写绑定的电话号码" type="number"-->
-<!--                         pattern="[0-9]*"/>-->
-<!--                </div>-->
-<!--              </label>-->
             </div>
           </div>
         </div>
       </div>
       <div class="weui-form__ft">
-<!--        <div class="weui-form__tips-area">-->
-<!--          <p class="weui-form__tips">-->
-<!--            表单页提示，居中对齐-->
-<!--          </p>-->
-<!--        </div>-->
         <div class="weui-form__opr-area">
           <a href="javascript:"
              role="button"
