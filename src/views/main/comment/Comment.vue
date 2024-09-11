@@ -80,6 +80,16 @@ const load = () => {
     if (resp.length < size.value) {
       noMore.value = true;
     }
+  }).catch(e => {
+    if ("response" in e) {
+      store.commit("showErrorToastMsg", {
+        msg: e.response.data
+      })
+    } else {
+      store.commit("showErrorToastMsg", {
+        msg: e
+      })
+    }
   });
 }
 

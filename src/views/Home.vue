@@ -31,6 +31,7 @@
     <div class="page-footer">
       版本号：{{ packageJson.version  }}
     </div>
+    <Toast></Toast>
   </div>
 
 </template>
@@ -43,6 +44,7 @@ import {useRouter} from "vue-router";
 import {sysSessions, updateCurrentSession as updateCurrentSessionOnServer} from "@/api/user.js";
 import Toolbar from "./toolbar/Toolbar.vue";
 import packageJson from '../../package.json';
+import Toast from "../components/Toast.vue";
 const store = useStore();
 const router = useRouter();
 

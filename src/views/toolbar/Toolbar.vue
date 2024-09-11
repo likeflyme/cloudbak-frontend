@@ -20,7 +20,7 @@ const clickLogout = () => {
 <style scoped lang="less">
 .toolbar {
   position: absolute;
-  width: 100px;
+  width: 50px;
   right: 30px;
   top: 30px;
   display: flex;

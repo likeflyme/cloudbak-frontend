@@ -112,6 +112,17 @@ const menu = reactive([
 // 加载session数据
 headImage(store.getters.getCurrentWxId).then(resp => {
   Object.assign(wxHeadImage, resp);
+}).catch(e => {
+  console.log(e);
+  if ("response" in e) {
+    store.commit("showErrorToastMsg", {
+      msg: e.response.data
+    })
+  } else {
+    store.commit("showErrorToastMsg", {
+      msg: e
+    })
+  }
 });
 
 const selectItem = (item) => {
@@ -168,10 +179,28 @@ const sessionDelete = (id) => {
       updateCurrentSessionOnServer(first.id).then((data) => {
         store.commit("dropSession", id);
         router.push({ name: 'home'});
+      }).catch(e => {
+        if ("response" in e) {
+          store.commit("showErrorToastMsg", {
+            msg: e.response.data
+          })
+        } else {
+          store.commit("showErrorToastMsg", {
+            msg: e
+          })
+        }
       });
     }
   }).catch(e => {
-    console.log(e);
+    if ("response" in e) {
+      store.commit("showErrorToastMsg", {
+        msg: e.response.data
+      })
+    } else {
+      store.commit("showErrorToastMsg", {
+        msg: e
+      })
+    }
   });
 }
 
@@ -185,6 +214,7 @@ router.push({ name: 'comment', params: { sessionId: sessionId } });
     position: absolute;
     width: 1150px;
     height: 850px;
+    max-height: 100vh; /* 限制最大高度为视口高度 */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

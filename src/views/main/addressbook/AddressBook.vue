@@ -12,7 +12,6 @@ const route = useRoute();
 
 const sessionId = route.params.sessionId;
 
-const routerKey = ref('');
 
 const page = ref(1);
 const size = ref(20);
@@ -29,6 +28,16 @@ const load = () => {
   contactSplit(page.value, size.value).then(data => {
     contact.push(...data);
     page.value = page.value + 1;
+  }).catch(e => {
+    if ("response" in e) {
+      store.commit("showErrorToastMsg", {
+        msg: e.response.data
+      })
+    } else {
+      store.commit("showErrorToastMsg", {
+        msg: e
+      })
+    }
   });
 }
 

@@ -9,7 +9,13 @@ const state = {
     mappedContact: {},
     // 联系人页面用户详情
     addrShowUser: {},
-    sysSessions: []
+    sysSessions: [],
+    error: {
+        show: false,
+        msg: '错误消息',
+        delay: 5000,
+        tm: null
+    }
 }
 
 const mutations = {
@@ -36,6 +42,28 @@ const mutations = {
     },
     dropSession(state, sysSessionId) {
         state.sysSessions = state.sysSessions.filter(session => session.id !== sysSessionId);
+    },
+    showErrorToastMsg(state, err) {
+        state.error.msg = err.msg;
+        state.error.show = true;
+        let delay = state.error.delay;
+        if (err.delay) {
+            delay = err.delay;
+        }
+        // 先清除前一个延时处理任务
+        if (state.error.tm) {
+            clearTimeout(state.error.tm);
+        }
+        state.error.tm = setTimeout(function () {
+            state.error.show = false;
+        }, delay);
+    },
+    closeErrorToastMsg(state) {
+        if (state.error.tm) {
+            state.error.show = false;
+            clearTimeout(state.error.tm);
+            state.error.tm = null;
+        }
     }
 }
 
@@ -72,6 +100,12 @@ const getters = {
     },
     getSysSessions(state) {
         return state.sysSessions;
+    },
+    isShowToastMsg(state) {
+        return state.error.show;
+    },
+    getToastMsg(state) {
+        return state.error.msg;
     }
 }
 
