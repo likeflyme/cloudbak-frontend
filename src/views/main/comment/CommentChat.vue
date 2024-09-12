@@ -3,7 +3,7 @@ import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
 import {msgs, session as getSession, chatroomInfo, msgBySvrId, chatroom} from "@/api/msg.js"
 import {useStore} from "vuex";
-import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength} from "@/utils/common.js";
+import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength, parseImg, formatMsgDate} from "@/utils/common.js";
 import {get_msg_desc} from "@/utils/msgtp.js";
 import defaultImage from '@/assets/default-head.svg';
 import cleanedImage from '@/assets/cleaned.jpeg';
@@ -21,7 +21,7 @@ const userLength = ref(0);
 const chatMapBySvrId = reactive({});
 const chatRoomNameMap = reactive({});
 const showTool = ref(false);
-const showFilter = ref(false);
+const showFilter = ref(true);
 // 群聊，加载群聊信息（人数）
 if (isChatRoom) {
   chatroom(id).then(data => {
@@ -47,7 +47,11 @@ const query = reactive({
   page: 1,
   size: 30,
   start: 0,
-  dbNo: -1
+  dbNo: -1,
+  filterType: 0,
+  filterText: '',
+  filterDay: '',
+  filterUser: ''
 });
 const session = reactive({})
 
@@ -113,37 +117,21 @@ const loadData = () => {
       }
     }).catch(e => {
       isLoading.value = false;
-      console.log(e)
+      console.log("load msg error:", e)
+      if ("response" in e) {
+        store.commit("showErrorToastMsg", {
+          msg: e.response.data
+        })
+      } else {
+        store.commit("showErrorToastMsg", {
+          msg: e
+        })
+      }
     });
   }
 }
 
-const parseImg = (data) => {
-  for (let i of data) {
-    // 图片信息处理
-    if (i.Type === 3 && i.SubType === 0) {
-      images.push({
-        thumbnail: data.Thumb,
-        source: data.Image
-      })
-      // data.StrContent
-      if (i.StrContent) {
-        const xmlDoc = parseXml(i.StrContent);
-        const imgTag = xmlDoc.querySelector('img');
-        if (imgTag) {
-          const cdnthumbheight = imgTag.getAttribute('cdnthumbheight');
-          i.cdnthumbheight = cdnthumbheight;
 
-          const cdnthumbwidth = imgTag.getAttribute('cdnthumbwidth');
-          i.cdnthumbwidth = cdnthumbwidth;
-
-          const md5 = imgTag.getAttribute('md5');
-          i.md5 = md5;
-        }
-      }
-    }
-  }
-}
 
 // 加载数据
 loadData();
@@ -180,33 +168,6 @@ const onScroll = () => {
 const loadMore = () => {
   query.page = query.page + 1;
   loadData();
-};
-const formatDate = (timestamp) => {
-  const date = new Date(timestamp * 1000);
-  const now = new Date();
-
-  // 获取今天的日期
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  // 获取昨天的日期
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-
-  // 获取年、月、日、小时、分钟
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-
-  // 根据日期判断输出格式
-  if (date >= today) {
-    return `${hours}:${minutes}`;
-  } else if (date >= yesterday) {
-    return `昨天 ${hours}:${minutes}`;
-  } else {
-    return `${year}年${month}月${day}日 ${hours}:${minutes}`;
-  }
 };
 
 const shouldDisplayTimestamp = (currentTimestamp, index) => {
@@ -282,6 +243,10 @@ const displayName = (m) => {
     return m.NickName
   }
 }
+
+const closeFilter = () => {
+  showFilter.value = false;
+}
 </script>
 <template>
   <div class="main-content">
@@ -295,7 +260,7 @@ const displayName = (m) => {
       <div class="chat-container" v-for="(m, index) in msg_list" :key="m">
         <div class="tips" v-if="shouldDisplayTimestamp(m.CreateTime, index)">
           <p class="tips-content">
-            {{ formatDate(m.CreateTime) }}
+            {{ formatMsgDate(m.CreateTime) }}
           </p>
         </div>
         <!-- 系统通知类消息 -->
@@ -433,15 +398,15 @@ const displayName = (m) => {
             <p class="chatroom-value"> 暂不支持 </p>
           </div>
         </li>
-        <li class="main-tools-li flex tool-chat">
-          <p>聊天记录（暂不支持）</p>
+        <li class="main-tools-li flex tool-chat" @click="showFilter?showFilter = false: showFilter = true">
+          <p>聊天记录</p>
           <p style="flex-grow: 1"></p>
           <p class="tool-chevron-right"><font-awesome-icon :icon="['fas', 'chevron-right']"/></p>
         </li>
       </ul>
     </div>
   </div>
-  <MsgFilter v-if="showFilter"></MsgFilter>
+  <MsgFilter v-if="showFilter" @close-filter="closeFilter" :str-usr-name="id" :title="session.Remark?session.Remark:session.strNickName"></MsgFilter>
 </template>
 <style scoped lang="less">
 @import "/src/style/comment-chat.less";
