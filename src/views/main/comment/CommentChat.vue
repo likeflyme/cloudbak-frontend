@@ -3,7 +3,7 @@ import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
 import {msgs, session as getSession, chatroomInfo, msgBySvrId, chatroom} from "@/api/msg.js"
 import {useStore} from "vuex";
-import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength, parseImg, formatMsgDate} from "@/utils/common.js";
+import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength, formatMsgDate} from "@/utils/common.js";
 import {get_msg_desc} from "@/utils/msgtp.js";
 import defaultImage from '@/assets/default-head.svg';
 import cleanedImage from '@/assets/cleaned.jpeg';
@@ -21,7 +21,7 @@ const userLength = ref(0);
 const chatMapBySvrId = reactive({});
 const chatRoomNameMap = reactive({});
 const showTool = ref(false);
-const showFilter = ref(true);
+const showFilter = ref(false);
 // 群聊，加载群聊信息（人数）
 if (isChatRoom) {
   chatroom(id).then(data => {
@@ -47,11 +47,7 @@ const query = reactive({
   page: 1,
   size: 30,
   start: 0,
-  dbNo: -1,
-  filterType: 0,
-  filterText: '',
-  filterDay: '',
-  filterUser: ''
+  dbNo: -1
 });
 const session = reactive({})
 
@@ -81,6 +77,33 @@ const loadSession = () => {
   })
 }
 loadSession();
+
+const parseImg = (data) => {
+  for (let i of data) {
+    // 图片信息处理
+    if (i.Type === 3 && i.SubType === 0) {
+      images.push({
+        thumbnail: data.Thumb,
+        source: data.Image
+      })
+      // data.StrContent
+      if (i.StrContent) {
+        const xmlDoc = parseXml(i.StrContent);
+        const imgTag = xmlDoc.querySelector('img');
+        if (imgTag) {
+          const cdnthumbheight = imgTag.getAttribute('cdnthumbheight');
+          i.cdnthumbheight = cdnthumbheight;
+
+          const cdnthumbwidth = imgTag.getAttribute('cdnthumbwidth');
+          i.cdnthumbwidth = cdnthumbwidth;
+
+          const md5 = imgTag.getAttribute('md5');
+          i.md5 = md5;
+        }
+      }
+    }
+  }
+}
 
 const loadData = () => {
   if (!noMoreMsg.value) {

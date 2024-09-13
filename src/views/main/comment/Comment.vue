@@ -110,7 +110,7 @@ load();
     <div class="main-session">
       <div class="session-search-container">
         <div class="weui-search-bar weui-search-bar_filled-grey weui-search-bar_focusing" id="searchBar">
-          <form id="searchForm" role="combobox" aria-haspopup="true" aria-expanded="false" aria-owns="searchResult" class="weui-search-bar__form">
+          <div id="searchForm" role="combobox" aria-haspopup="true" aria-expanded="false" aria-owns="searchResult" class="weui-search-bar__form">
             <div aria-hidden="false" id="searchBox" class="weui-search-bar__box">
               <i class="weui-icon-search"></i>
               <!--              <span class="weui-search-bar__words">微信</span>-->
@@ -118,7 +118,7 @@ load();
               <div class="weui-search-bar__mask"></div>
               <a href="javascript:" role="button" title="清除" class="weui-icon-clear" id="searchClear" @click="clear"></a>
             </div>
-          </form>
+          </div>
         </div>
       </div>
       <div class="session-items-container" ref="contactContainer" @scroll="onScroll">

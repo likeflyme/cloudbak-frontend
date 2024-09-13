@@ -238,3 +238,45 @@ export const formatMsgDate = (timestamp) => {
         return `${year}年${month}月${day}日 ${hours}:${minutes}`;
     }
 };
+
+export const formatFilterMsgDate = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    const now = new Date();
+
+    // 获取今天的日期
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // 获取昨天的日期
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    // 获取年、月、日、小时、分钟
+    const year = String(date.getFullYear()).slice(-2);
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    // 根据日期判断输出格式
+    if (date >= today) {
+        return `${hours}:${minutes}`;
+    } else if (date >= yesterday) {
+        return `昨天 ${hours}:${minutes}`;
+    } else {
+        return `${year}/${month}/${day} ${hours}:${minutes}`;
+    }
+};
+
+export const filterDateFormatView = (date) => {
+    const year = String(date.getFullYear());
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}/${month}/${day}`
+}
+
+export const filterDateFormatQuery = (date) => {
+    const year = String(date.getFullYear());
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}${month}${day}`
+}
