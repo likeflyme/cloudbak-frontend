@@ -1,14 +1,13 @@
 <script setup>
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {nextTick, reactive, ref} from "vue";
-import {msgs} from "@/api/msg.js"
 import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength, parseImg, formatFilterMsgDate} from "@/utils/common.js";
 import {useStore} from "vuex";
 import defaultImage from '@/assets/default-head.svg';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import {filterDateFormatQuery, filterDateFormatView} from "../utils/common.js";
-import {msgsFilter} from "../api/msg.js";
+import {chatroom, msgsFilter, msgsByLocalId} from "../api/msg.js";
 
 const store = useStore();
 const props = defineProps({
@@ -18,14 +17,13 @@ const props = defineProps({
 const selected = ref(false);
 const selectedType = reactive({});
 const msg_list = reactive([]);
-const noMoreMsg = ref(false);
 const isLoading = ref(false);
-// 反向加载
-const noMoreMsgReverse = ref(false);
-const isLoadingReverse = ref(false);
 // 滚动条反向滚动以及数据加载相关变量
 const chatContainer = ref(null);
 const isTop = ref(false);
+const isBottom = ref(false);
+// 展示上下文按钮
+const isShowContext = ref(false);
 // 日期选择相关变量
 const date = ref();
 const datepicker = ref();
@@ -35,10 +33,13 @@ const queryDayData = {
   width: '120px',
   icon: ['fas', 'calendar-days']
 }
+// 是否为通过id定位查询
+const isQueryByLocalId = ref(false);
+// 普通查询
 const query = reactive({
   strUsrName: props.strUsrName,
   page: 1,
-  size: 30,
+  size: 20,
   start: 0,
   dbNo: -1,
   filterType: 0,
@@ -51,6 +52,7 @@ const query = reactive({
   isTop: false
 });
 
+// 反向查询
 const queryReverse = reactive({
   strUsrName: props.strUsrName,
   page: 0,
@@ -66,6 +68,39 @@ const queryReverse = reactive({
   isLoading: false,
   isBottom: false
 });
+
+// 消息定位查询
+const queryLocalId = reactive({
+  strUsrName: props.strUsrName,
+  localId: 0,
+  CreateTime: 0,
+  Sequence: 0,
+  page: 0,
+  size: 20,
+  start: 0,
+  dbNo: -1,
+  filterMode: 0,
+  noMoreMsg: false,
+  isLoading: false,
+  isTop: false
+});
+
+// 消息定位查询反向查询
+const queryLocalIdReverse = reactive({
+  strUsrName: props.strUsrName,
+  localId: 0,
+  CreateTime: 0,
+  Sequence: 0,
+  page: 1,
+  size: 20,
+  start: 0,
+  dbNo: -1,
+  filterMode: -1,
+  noMoreMsg: false,
+  isLoading: false,
+  isBottom: false
+});
+
 const filterTypes = [
   {
     type: 1,
@@ -126,7 +161,8 @@ const clearSelectType = () => {
   clearAndSearch();
 }
 // 回归初始化查询条件并加载数据函数
-const clearAndSearch = () => {
+const clearAndSearch = (showContext = false) => {
+  isShowContext.value = showContext;
   query.noMoreMsg = false;
   query.dbNo = -1;
   query.page = 1;
@@ -134,6 +170,11 @@ const clearAndSearch = () => {
   queryReverse.noMoreMsg = false;
   queryReverse.dbNo = -1;
   queryReverse.page = 0;
+  queryLocalId.page = 0;
+  queryLocalId.noMoreMsg = false;
+  queryLocalIdReverse.page = 0;
+  queryLocalIdReverse.noMoreMsg = false;
+  isQueryByLocalId.value = false;
   msg_list.length = 0;
   isTop.value = false;
   loadData();
@@ -143,7 +184,7 @@ const loadData = () => {
   if (!query.noMoreMsg) {
     query.isLoading = true;
     msgsFilter(query).then(resp => {
-      isLoading.value = false;
+      query.isLoading = false;
       if (resp.msgs.length < query.size) {
         query.noMoreMsg = true;
       }
@@ -217,21 +258,130 @@ const loadDataReverse = () => {
     });
   }
 }
+
+// 消息定位查询
+const loadDataByLocalId = () => {
+  if (!queryLocalId.noMoreMsg && !queryLocalId.isLoading) {
+    queryLocalId.isLoading = true;
+    isQueryByLocalId.value = true;
+    queryLocalId.page = queryLocalId.page + 1;
+    msgsByLocalId(queryLocalId).then(resp => {
+      queryLocalId.isLoading = false;
+      if (resp.msgs.length < queryLocalId.size) {
+        queryLocalId.noMoreMsg = true;
+      }
+      if (resp.msgs.length > 0) {
+        queryLocalId.start = resp.start;
+        // 设置数据库编号
+        if (query.dbNo === -1) {
+          queryLocalId.dbNo = resp.dbNo;
+        } else if (queryLocalId.dbNo !== resp.dbNo) {
+          queryLocalId.page = 0;
+          queryLocalId.dbNo = resp.dbNo;
+        }
+        // 添加到数据列表
+        msg_list.push(...resp.msgs);
+      }
+    }).catch(e => {
+      queryLocalId.isLoading = false;
+      if ("response" in e) {
+        store.commit("showErrorToastMsg", {
+          msg: e.response.data
+        })
+      } else {
+        store.commit("showErrorToastMsg", {
+          msg: e
+        })
+      }
+    });
+  }
+}
+
+// 消息定位反向查询
+const loadDataByLocalIdReverse = () => {
+  if (!queryLocalIdReverse.noMoreMsg && !queryLocalIdReverse.isLoading) {
+    queryLocalIdReverse.isLoading = true;
+    isQueryByLocalId.value = true;
+    queryLocalIdReverse.page = queryLocalIdReverse.page + 1;
+    msgsByLocalId(queryLocalIdReverse).then(resp => {
+      queryLocalIdReverse.isLoading = false;
+      if (resp.msgs.length < queryLocalIdReverse.size) {
+        queryLocalIdReverse.noMoreMsg = true;
+      }
+      if (resp.msgs.length > 0) {
+        queryLocalIdReverse.start = resp.start;
+        // 设置数据库编号
+        if (queryLocalIdReverse.dbNo === -1) {
+          queryLocalIdReverse.dbNo = resp.dbNo;
+        } else if (queryLocalIdReverse.dbNo !== resp.dbNo) {
+          queryLocalIdReverse.page = 0;
+          queryLocalIdReverse.dbNo = resp.dbNo;
+        }
+        // 添加数据前，记录当前页面高度
+        const previousScrollHeight = chatContainer.value.scrollHeight;
+        const previousScrollTop = chatContainer.value.scrollTop;
+        // 添加到数据列表头部
+        resp.msgs.reverse()
+        msg_list.unshift(...resp.msgs);
+        nextTick(() => {
+          const newScrollHeight = chatContainer.value.scrollHeight;
+          chatContainer.value.scrollTop = newScrollHeight - previousScrollHeight + previousScrollTop;
+        })
+      }
+    }).catch(e => {
+      queryLocalIdReverse.isLoading = false;
+      if ("response" in e) {
+        store.commit("showErrorToastMsg", {
+          msg: e.response.data
+        })
+      } else {
+        store.commit("showErrorToastMsg", {
+          msg: e
+        })
+      }
+    });
+  }
+}
+
 // 页面初始化加载数据
 clearAndSearch();
 
 // 加载更多数据
 const loadMore = () => {
-  query.page = query.page + 1;
-  query.filterMode = 1;
-  loadData();
+  if (isQueryByLocalId.value) {
+    loadDataByLocalId();
+  } else {
+    query.page = query.page + 1;
+    query.filterMode = 1;
+    loadData();
+  }
 };
 
 // 反向加载更多数据
 const loadReverse = () => {
-  queryReverse.page = queryReverse.page + 1;
-  loadDataReverse();
+  if (isQueryByLocalId.value) {
+    loadDataByLocalIdReverse();
+  } else {
+    queryReverse.page = queryReverse.page + 1;
+    loadDataReverse();
+  }
 };
+
+// 消息定位查询
+const loadLocation = (m) => {
+  queryLocalId.dbNo = m.DbNo;
+  queryLocalId.localId = m.localId;
+  queryLocalId.CreateTime = m.CreateTime;
+  queryLocalId.Sequence = m.Sequence;
+  queryLocalIdReverse.dbNo = m.DbNo;
+  queryLocalIdReverse.localId = m.localId;
+  queryLocalIdReverse.CreateTime = m.CreateTime;
+  queryLocalIdReverse.Sequence = m.Sequence;
+  msg_list.length = 0;
+  // 关闭查看上下文的按钮
+  isShowContext.value = false;
+  loadDataByLocalId()
+}
 
 // 滚动条反向滚动以及数据加载相关函数
 // 滚动加载
@@ -257,13 +407,11 @@ const onWheel = (event) => {
 
   // 根据滚轮方向调整滚动条位置，注意方向是反的
   chatContainer.value.scrollTop -= delta;
-  if (isTop.value === true) {
-    // 只有在到达顶部的标记为 true 时才加载数据，加载完后将标记修改为 false;
+  if (chatContainer.value.scrollTop + chatContainer.value.clientHeight === chatContainer.value.scrollHeight) {
     loadMore();
-    isTop.value = false;
   }
-  if (query.filterType === 7) {
-    if (chatContainer.value.scrollTop === 0) {
+  if (chatContainer.value.scrollTop === 0) {
+    if (query.filterType === 7 || isQueryByLocalId.value) {
       loadReverse();
     }
   }
@@ -277,6 +425,40 @@ const datePicked = (modelData) => {
   query.filterDay = queryValue;
   queryReverse.filterDay = queryValue;
   selectFilterType(queryDayData)
+}
+
+// 群聊用户名
+const chatRoomNameMap = reactive({});
+const isChatRoom = props.strUsrName.includes('@chatroom');
+// 群聊，加载群聊信息（人数）
+if (isChatRoom) {
+  chatroom(props.strUsrName).then(data => {
+    if(data) {
+      if (data.ChatRoomMembers) {
+        for (let i = 0; i < data.ChatRoomMembers.length; i++) {
+          let m = data.ChatRoomMembers[i]
+          chatRoomNameMap[m.userName] = m.remark;
+        }
+      }
+    }
+  });
+}
+
+/**
+ * 有备注先用备注，其次群备注，最后昵称
+ * @param m
+ * @returns {*}
+ */
+const displayName = (m) => {
+  if (m.Remark) {
+    return m.Remark;
+  }
+  let chatName = chatRoomNameMap[m.WxId];
+  if (chatName) {
+    return chatName;
+  } else {
+    return m.NickName
+  }
 }
 
 </script>
@@ -324,9 +506,15 @@ const datePicked = (modelData) => {
       </div>
     </div>
     <div class="msg-body" ref="chatContainer" @wheel="onWheel" @scroll="onScroll">
-      <div class="load-more" v-if="query.filterType === 7 && !queryReverse.noMoreMsg">
+      <div class="load-more" v-if="!isQueryByLocalId && query.filterType === 7 && !queryReverse.noMoreMsg">
         <a href="javascript:void(0)" @click="loadReverse">
           <font-awesome-icon class="loading-icon" v-if="queryReverse.isLoading" :icon="['fas', 'spinner']"/>
+          <p v-else>查看更多消息</p>
+        </a>
+      </div>
+      <div class="load-more" v-else-if="isQueryByLocalId && !queryLocalIdReverse.noMoreMsg">
+        <a href="javascript:void(0)" @click="loadReverse">
+          <font-awesome-icon class="loading-icon" v-if="queryLocalIdReverse.isLoading" :icon="['fas', 'spinner']"/>
           <p v-else>查看更多消息</p>
         </a>
       </div>
@@ -337,7 +525,7 @@ const datePicked = (modelData) => {
           </div>
           <div class="msg-right">
             <div class="msg-title">
-              <p class="msg-nickname">{{ m.Remark?m.Remark:m.NickName}}</p>
+              <p class="msg-nickname">{{ displayName(m)}}</p>
               <p class="msg-grow"></p>
               <p class="msg-time">{{ formatFilterMsgDate(m.CreateTime) }}</p>
             </div>
@@ -345,14 +533,25 @@ const datePicked = (modelData) => {
               <div class="msg-text">
                 {{ m.StrContent }}
               </div>
+              <div class="msg-ref" v-if="isShowContext">
+                <p class="msg-checkout" @click="loadLocation(m)">查看上下文</p>
+              </div>
             </div>
           </div>
         </li>
       </ul>
       <p class="no-msg" v-else-if="msg_list.length === 0 && !isLoading"> 无内容 </p>
-      <div class="load-more" v-if="!query.noMoreMsg">
+      <!-- 非定位查询，加载更多 -->
+      <div class="load-more" v-if="!isQueryByLocalId && !query.noMoreMsg">
         <a href="javascript:void(0)" @click="loadMore">
           <font-awesome-icon class="loading-icon" v-if="query.isLoading" :icon="['fas', 'spinner']"/>
+          <p v-else>查看更多消息</p>
+        </a>
+      </div>
+      <!-- 定位查询，加载更多 -->
+      <div class="load-more" v-else-if="isQueryByLocalId && !queryLocalId.noMoreMsg">
+        <a href="javascript:void(0)" @click="loadMore">
+          <font-awesome-icon class="loading-icon" v-if="queryLocalId.isLoading" :icon="['fas', 'spinner']"/>
           <p v-else>查看更多消息</p>
         </a>
       </div>
@@ -477,8 +676,26 @@ const datePicked = (modelData) => {
             }
           }
           .msg-content {
+            display: flex;
             .msg-text {
+              max-width: 400px;
               padding: 15px 0;
+            }
+            .msg-ref {
+              flex-grow: 1;
+              display: flex;
+              align-items: center;
+              text-align: right;
+              cursor: pointer;
+              .msg-checkout {
+                width: 100%;
+                visibility: hidden;
+              }
+            }
+          }
+          .msg-content:hover {
+            .msg-checkout {
+              visibility: visible;
             }
           }
         }

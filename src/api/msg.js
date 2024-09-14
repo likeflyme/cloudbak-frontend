@@ -20,6 +20,10 @@ export const msgsFilter = (query) => {
     return service.get(`/api/msg/msgs-filter?strUsrName=${query.strUsrName}&page=${query.page}&size=${query.size}&start=${query.start}&dbNo=${query.dbNo}&filterType=${query.filterType}&filterText=${query.filterText}&filterDay=${query.filterDay}&filterUser=${query.filterUser}&filterMode=${query.filterMode}`);
 };
 
+export const msgsByLocalId = (query) => {
+    return service.get(`/api/msg/msgs-by-local-id?strUsrName=${query.strUsrName}&page=${query.page}&size=${query.size}&start=${query.start}&dbNo=${query.dbNo}&localId=${query.localId}&CreateTime=${query.CreateTime}&Sequence=${query.Sequence}&filterMode=${query.filterMode}`);
+};
+
 export const contact = () => {
     return service.get('/api/msg/contact');
 };
