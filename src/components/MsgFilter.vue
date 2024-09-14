@@ -7,7 +7,10 @@ import defaultImage from '@/assets/default-head.svg';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import {filterDateFormatQuery, filterDateFormatView} from "../utils/common.js";
+import {get_msg_desc} from "../utils/msgtp.js";
 import {chatroom, msgsFilter, msgsByLocalId} from "../api/msg.js";
+import cleanedImage from '@/assets/cleaned.jpeg';
+import AudioPlayer from "./AudioPlayer.vue";
 
 const store = useStore();
 const props = defineProps({
@@ -140,6 +143,25 @@ const filterTypes = [
   //   icon: ['fas', 'users']
   // },
 ];
+
+// 图片查看器配置
+const imageOptions = reactive({
+  // 配置选项
+  toolbar: true,
+  title: true,
+  tooltip: true,
+  movable: true,
+  zoomable: true,
+  rotatable: true,
+  scalable: true,
+  transition: false,
+  url: 'data-original',
+  filter(image) {
+    // 排除带有 exclude 类的 img 元素
+    return !image.classList.contains('exclude');
+  },
+});
+
 const setDefaultImage = (event) => {
   event.target.src = defaultImage;
 }
@@ -505,7 +527,7 @@ const displayName = (m) => {
 
       </div>
     </div>
-    <div class="msg-body" ref="chatContainer" @wheel="onWheel" @scroll="onScroll">
+    <div class="msg-body" ref="chatContainer" @wheel="onWheel" @scroll="onScroll" v-viewer="imageOptions">
       <div class="load-more" v-if="!isQueryByLocalId && query.filterType === 7 && !queryReverse.noMoreMsg">
         <a href="javascript:void(0)" @click="loadReverse">
           <font-awesome-icon class="loading-icon" v-if="queryReverse.isLoading" :icon="['fas', 'spinner']"/>
@@ -521,7 +543,7 @@ const displayName = (m) => {
       <ul class="msg-ul" v-if="msg_list.length > 0">
         <li v-for="m in msg_list" class="msg-li">
           <div class="msg-head">
-            <img alt="" :src="m.smallHeadImgUrl?m.smallHeadImgUrl:defaultImage" @error="setDefaultImage"/>
+            <img alt="" :src="m.smallHeadImgUrl?m.smallHeadImgUrl:defaultImage" @error="setDefaultImage" class="exclude"/>
           </div>
           <div class="msg-right">
             <div class="msg-title">
@@ -530,8 +552,31 @@ const displayName = (m) => {
               <p class="msg-time">{{ formatFilterMsgDate(m.CreateTime) }}</p>
             </div>
             <div class="msg-content">
-              <div class="msg-text">
+              <!-- 文本 -->
+              <div v-if="m.Type === 1 && m.SubType === 0" class="msg-base msg-text">
                 {{ m.StrContent }}
+              </div>
+              <!-- 图片 -->
+              <div v-else-if="m.Type === 3 && m.SubType === 0" class="msg-base msg-images">
+                <img
+                    :src="'/image?img_path=' + m.Thumb + '&session_id=' + store.getters.getCurrentSessionId"
+                    :data-original="m.Image ? '/image?img_path=' + m.Image + '&session_id=' + store.getters.getCurrentSessionId : cleanedImage"
+                    alt=""/>
+              </div>
+              <!-- 语音 -->
+              <div v-else-if="m.Type === 34 && m.SubType === 0" class="msg-base msg-media">
+                <AudioPlayer class="audio-player"
+                    :src="`/api/msg/media?MsgSvrID=${m.MsgSvrIDStr}&session_id=${store.getters.getCurrentSessionId}&db_no=${m.DbNo}`"
+                    :text="getVoiceLength(m.StrContent)"/>
+              </div>
+              <!-- 视频 -->
+              <div v-else-if="m.Type === 43 && m.SubType === 0" class="msg-base msg-video">
+                <video controls width="150" :poster="`/image?img_path=${m.Thumb}&session_id=${store.getters.getCurrentSessionId}`">
+                  <source v-if="m.Image" :src="`/video?video_path=${m.Image}&session_id=${store.getters.getCurrentSessionId}`" type="video/mp4" />
+                </video>
+              </div>
+              <div v-else class="msg-base msg-no-support">
+                不支持的类型：{{ get_msg_desc(m.Type, m.SubType) }}
               </div>
               <div class="msg-ref" v-if="isShowContext">
                 <p class="msg-checkout" @click="loadLocation(m)">查看上下文</p>

@@ -115,9 +115,15 @@
           }
           .msg-content {
             display: flex;
-            .msg-text {
+            .msg-base {
               max-width: 400px;
               padding: 15px 0;
+              .msg-media {
+                border: 1px solid black;
+              }
+              .msg-no-support {
+                font-size: 12px;
+              }
             }
             .msg-ref {
               flex-grow: 1;
