@@ -11,6 +11,7 @@ import {get_msg_desc} from "../utils/msgtp.js";
 import {chatroom, msgsFilter, msgsByLocalId} from "../api/msg.js";
 import cleanedImage from '@/assets/cleaned.jpeg';
 import AudioPlayer from "./AudioPlayer.vue";
+import ChatFile from "./ChatFile.vue";
 
 const store = useStore();
 const props = defineProps({
@@ -574,6 +575,9 @@ const displayName = (m) => {
                 <video controls width="150" :poster="`/image?img_path=${m.Thumb}&session_id=${store.getters.getCurrentSessionId}`">
                   <source v-if="m.Image" :src="`/video?video_path=${m.Image}&session_id=${store.getters.getCurrentSessionId}`" type="video/mp4" />
                 </video>
+              </div>
+              <div class="msg-base msg-chat-file" v-else-if="m.Type === 49 && m.SubType === 6" >
+                <ChatFile :msg="m"></ChatFile>
               </div>
               <div v-else class="msg-base msg-no-support">
                 不支持的类型：{{ get_msg_desc(m.Type, m.SubType) }}

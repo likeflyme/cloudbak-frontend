@@ -3,7 +3,7 @@ import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
 import {msgs, session as getSession, chatroomInfo, msgBySvrId, chatroom} from "@/api/msg.js"
 import {useStore} from "vuex";
-import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength, formatMsgDate} from "@/utils/common.js";
+import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength, formatMsgDate, fileSize} from "@/utils/common.js";
 import {get_msg_desc} from "@/utils/msgtp.js";
 import defaultImage from '@/assets/default-head.svg';
 import cleanedImage from '@/assets/cleaned.jpeg';
@@ -202,19 +202,7 @@ const shouldDisplayTimestamp = (currentTimestamp, index) => {
   let last = msg_list[index + 1]
   return (currentTimestamp - last.CreateTime) > 600;
 }
-const fileSize = (bytes) => {
-  if (bytes < 1024) {
-    return bytes + ' B';
-  } else if (bytes < 1024 * 1024) {
-    return (bytes / 1024).toFixed(2) + ' KB';
-  } else if (bytes < 1024 * 1024 * 1024) {
-    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-  } else if (bytes < 1024 * 1024 * 1024 * 1024) {
-    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
-  } else {
-    return (bytes / (1024 * 1024 * 1024 * 1024)).toFixed(2) + ' TB';
-  }
-}
+
 const setDefaultImage = (event) => {
   event.target.src = defaultImage;
 }
@@ -263,7 +251,7 @@ const displayName = (m) => {
   if (chatName) {
     return chatName;
   } else {
-    return m.NickName
+    return m.NickName;
   }
 }
 
