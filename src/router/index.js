@@ -13,8 +13,12 @@ const routes = [
         children:[
             {
                 name: 'session',
-                path: 'session/:sessionId/',
-                component: () => import("../views/main/Main.vue"),
+                path: 'session/:sessionId',
+                // component: () => import("../views/main/Main.vue"),
+                components: {
+                    default: () => import("../views/main/Main.vue"),
+                    toolsView: () => import("../components/SysTools.vue"),
+                },
                 children: [
                     {
                         name: 'address-book',

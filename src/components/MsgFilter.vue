@@ -204,7 +204,7 @@ const clearAndSearch = (showContext = false) => {
 }
 // 单纯的加载数据函数
 const loadData = () => {
-  if (!query.noMoreMsg) {
+  if (!query.noMoreMsg && query.isLoading === false) {
     query.isLoading = true;
     msgsFilter(query).then(resp => {
       query.isLoading = false;
@@ -240,7 +240,7 @@ const loadData = () => {
 
 // 反向加载数据函数
 const loadDataReverse = () => {
-  if (!queryReverse.noMoreMsg) {
+  if (!queryReverse.noMoreMsg && queryReverse.isLoading === false) {
     queryReverse.isLoading = true;
     msgsFilter(queryReverse).then(resp => {
       queryReverse.isLoading = false;
@@ -284,7 +284,7 @@ const loadDataReverse = () => {
 
 // 消息定位查询
 const loadDataByLocalId = () => {
-  if (!queryLocalId.noMoreMsg && !queryLocalId.isLoading) {
+  if (!queryLocalId.noMoreMsg && queryLocalId.isLoading === false) {
     queryLocalId.isLoading = true;
     isQueryByLocalId.value = true;
     queryLocalId.page = queryLocalId.page + 1;
@@ -322,7 +322,7 @@ const loadDataByLocalId = () => {
 
 // 消息定位反向查询
 const loadDataByLocalIdReverse = () => {
-  if (!queryLocalIdReverse.noMoreMsg && !queryLocalIdReverse.isLoading) {
+  if (!queryLocalIdReverse.noMoreMsg && queryLocalIdReverse.isLoading === false) {
     queryLocalIdReverse.isLoading = true;
     isQueryByLocalId.value = true;
     queryLocalIdReverse.page = queryLocalIdReverse.page + 1;

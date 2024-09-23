@@ -13,8 +13,11 @@ const state = {
     error: {
         show: false,
         msg: '错误消息',
-        delay: 5000,
+        delay: 10000,
         tm: null
+    },
+    sysTool: {
+        show: false
     }
 }
 
@@ -64,6 +67,12 @@ const mutations = {
             clearTimeout(state.error.tm);
             state.error.tm = null;
         }
+    },
+    openSysTool (state) {
+        state.sysTool.show = true;
+    },
+    closeSysTool (state) {
+        state.sysTool.show = false;
     }
 }
 
@@ -106,6 +115,9 @@ const getters = {
     },
     getToastMsg(state) {
         return state.error.msg;
+    },
+    isShowSysTools(state) {
+        return state.sysTool.show;
     }
 }
 

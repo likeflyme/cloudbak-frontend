@@ -24,6 +24,7 @@
     </div>
     <div v-if="showSettings" class="main-settings-bar" :style="settingsStyle" ref="settingsDiv">
       <ul class="settings-bar-ul">
+        <li class="settings-bar-item" @click="store.commit('openSysTool')">系统工具</li>
         <li class="settings-bar-item" @click="showDeleteDialog?showDeleteDialog=false:showDeleteDialog=true">删除会话</li>
       </ul>
     </div>
@@ -46,6 +47,7 @@
       </div>
     </div>
   </div>
+  <sys-tools v-if="store.getters.isShowSysTools"></sys-tools>
 </template>
 
 <script setup>
@@ -56,6 +58,7 @@ import {useStore} from "vuex";
 import {reactive, ref, computed, onMounted, onUnmounted} from "vue";
 import defaultImage from '@/assets/default-head.svg';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import SysTools from "../../components/SysTools.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -69,6 +72,7 @@ const showDeleteDialog = ref(false);
 // 获取按钮和设置窗口的引用
 const settingsDiv = ref(null);
 const toggleButton = ref(null);
+const isOnDelete = ref(false);
 
 const menu = reactive([
   {
@@ -142,7 +146,7 @@ const settingsStyle = computed(() => {
     return {
       position: 'absolute',
       left: `${mainSidebar.offsetWidth}px`,
-      top: `${mainSidebarHeight - 60}px`,
+      top: `${mainSidebarHeight - 90}px`,
     };
   }
   return {};
@@ -172,14 +176,21 @@ onUnmounted(() => {
 });
 
 const sessionDelete = (id) => {
+  if (isOnDelete.value) {
+    console.log("正在删除，无效的重复点击");
+    return;
+  }
+  isOnDelete.value = true;
   deleteSession(id).then(resp => {
     let sessions = store.getters.getSysSessions;
     if (sessions && sessions.length > 0) {
       let first = sessions[0];
       updateCurrentSessionOnServer(first.id).then((data) => {
         store.commit("dropSession", id);
+        isOnDelete.value = false;
         router.push({ name: 'home'});
       }).catch(e => {
+        isOnDelete.value = false;
         if ("response" in e) {
           store.commit("showErrorToastMsg", {
             msg: e.response.data
@@ -192,6 +203,7 @@ const sessionDelete = (id) => {
       });
     }
   }).catch(e => {
+    isOnDelete.value = false;
     if ("response" in e) {
       store.commit("showErrorToastMsg", {
         msg: e.response.data
