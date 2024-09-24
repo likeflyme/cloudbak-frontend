@@ -25,10 +25,10 @@ const dialogShow = ref(false);
 const passwd = ref('');
 
 const menus = [
-  {
-    title: '系统工具',
-    path: 'tools',
-  },
+  // {
+  //   title: '系统工具',
+  //   path: 'tools',
+  // },
   {
     title: '系统任务',
     path: 'task',
@@ -90,6 +90,7 @@ const loadTasks = () => {
 const refreshTasks = () => {
   tasks.length = 0;
   page.value = 1;
+  noMoreMsg.value = false;
   loadTasks();
 }
 
