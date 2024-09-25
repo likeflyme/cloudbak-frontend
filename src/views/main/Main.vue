@@ -58,7 +58,7 @@ import {useStore} from "vuex";
 import {reactive, ref, computed, onMounted, onUnmounted} from "vue";
 import defaultImage from '@/assets/default-head.svg';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import SysTools from "../../components/SysTools.vue";
+import SysTools from "../../components/tools/SysTools.vue";
 
 const store = useStore();
 const router = useRouter();

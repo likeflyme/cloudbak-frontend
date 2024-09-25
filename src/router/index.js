@@ -17,7 +17,7 @@ const routes = [
                 // component: () => import("../views/main/Main.vue"),
                 components: {
                     default: () => import("../views/main/Main.vue"),
-                    toolsView: () => import("../components/SysTools.vue"),
+                    toolsView: () => import("../components/tools/SysTools.vue"),
                 },
                 children: [
                     {
