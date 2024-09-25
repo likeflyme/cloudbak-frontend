@@ -6,12 +6,16 @@ import {useStore} from "vuex";
 import defaultImage from '@/assets/default-head.svg';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
 import {filterDateFormatQuery, filterDateFormatView} from "../utils/common.js";
 import {get_msg_desc} from "../utils/msgtp.js";
 import {chatroom, msgsFilter, msgsByLocalId} from "../api/msg.js";
 import cleanedImage from '@/assets/cleaned.jpeg';
 import AudioPlayer from "./AudioPlayer.vue";
 import ChatFile from "./ChatFile.vue";
+
+dayjs.locale('zh-cn');
 
 const store = useStore();
 const props = defineProps({
@@ -518,7 +522,12 @@ const displayName = (m) => {
         <ul class="filter-ul">
           <li class="filter-item" v-for="t in filterTypes" @click="selectFilterType(t)">{{ t.title }}</li>
           <li class="filter-item">
-            <VueDatePicker v-model="date" @update:model-value="datePicked" ref="datepicker" :enable-time-picker="false" style="z-index: 1000">
+            <VueDatePicker v-model="date"
+                           @update:model-value="datePicked"
+                           ref="datepicker"
+                           :enable-time-picker="false"
+                           locale="zh-cn"
+                           style="z-index: 1000">
               <template #trigger>
                 <p>日期</p>
               </template>
