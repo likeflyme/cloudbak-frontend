@@ -41,7 +41,11 @@
     padding-left: 20px;
     padding-right: 20px;
     overflow-y: scroll;
-    flex-direction: column-reverse;
+    flex-direction: column;
+    display: flex;
+    .chat-grow {
+      flex-grow: 1;
+    }
     .chat-container {
       transform: rotate(180deg) translateZ(0);
       .tips {

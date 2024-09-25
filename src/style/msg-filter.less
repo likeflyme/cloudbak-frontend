@@ -78,6 +78,11 @@
     direction: rtl;
     flex-grow: 1;
     overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    .chat-grow {
+      flex-grow: 1;
+    }
     .msg-ul {
       // 避免内容方向被切换
       direction: ltr;

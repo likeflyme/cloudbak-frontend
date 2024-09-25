@@ -268,6 +268,8 @@ const closeFilter = () => {
       <p class="main-content-toolbar" @click="showTool?showTool=false:showTool=true">...</p>
     </div>
     <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer" v-viewer="imageOptions">
+      <div class="chat-grow">
+      </div>
       <div class="chat-container" v-for="(m, index) in msg_list" :key="m">
         <div class="tips" v-if="shouldDisplayTimestamp(m.CreateTime, index)">
           <p class="tips-content">

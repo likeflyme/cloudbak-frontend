@@ -541,6 +541,7 @@ const displayName = (m) => {
           <p v-else>查看更多消息</p>
         </a>
       </div>
+      <div class="chat-grow"></div>
       <ul class="msg-ul" v-if="msg_list.length > 0">
         <li v-for="m in msg_list" class="msg-li">
           <div class="msg-head">
