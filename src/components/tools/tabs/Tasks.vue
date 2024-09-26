@@ -171,7 +171,7 @@ loadTasks()
 .tasks {
   height: 100%;
   flex-grow: 1;
-  padding: 10px;
+  padding: 0 10px;
   overflow-y: scroll;
   .task-tools {
     font-size: 12px;
@@ -230,5 +230,34 @@ loadTasks()
       color: gray;
     }
   }
+}
+// 以下是滚动条样式
+/* 隐藏默认的滚动条轨道和拇指 */
+.tasks::-webkit-scrollbar {
+  width: 6px; /* 隐藏滚动条 */
+  background: transparent; /* 使滚动条轨道背景透明 */
+}
+
+/* 鼠标悬停时显示滚动条轨道 */
+.tasks:hover::-webkit-scrollbar {
+  width: 6px; /* 设置滚动条宽度 */
+  background: #f0f0f0; /* 滚动条轨道背景颜色 */
+}
+
+/* 滚动条轨道样式 */
+.tasks:hover::-webkit-scrollbar-track-piece {
+  background: #f0f0f0; /* 设置滚动条轨道背景颜色 */
+  border-radius: 8px; /* 设置滚动条轨道圆角 */
+}
+
+/* 滚动条拇指样式 */
+.tasks:hover::-webkit-scrollbar-thumb {
+  background-color: #c8c9cc; /* 设置滚动条拇指背景颜色 */
+  border-radius: 8px; /* 设置滚动条拇指圆角 */
+}
+
+/* 鼠标悬停在滚动条拇指上时的样式 */
+.tasks:hover::-webkit-scrollbar-thumb:hover {
+  background-color: #b0b0b0; /* 鼠标悬停时滚动条拇指背景颜色 */
 }
 </style>

@@ -2,22 +2,30 @@
 import {ref} from "@vue/reactivity";
 import {useStore} from "vuex";
 import Tasks from "./tabs/Tasks.vue";
+import Info from "./tabs/Info.vue";
 
 const store = useStore();
 
-const activeMenu = ref('tools');
+const activeMenu = ref('info');
 
 
 const menus = [
-  // {
-  //   title: '系统工具',
-  //   path: 'tools',
-  // },
   {
+    name: 'info',
+    title: '用户信息',
+    component: Info,
+  },
+  {
+    name: 'tasks',
     title: '系统任务',
-    path: 'task',
+    component: Tasks
   }
 ]
+
+const getCurrentComponent = () => {
+  const menuItem = menus.find(m => m.name === activeMenu.value);
+  return menuItem ? menuItem.component : null;
+};
 
 </script>
 
@@ -34,12 +42,13 @@ const menus = [
     <div class="tools-menu">
       <ul class="menu-ul">
         <li v-for="m in menus"
-            class="menu-item menu-item-active"
-            :class="{'menu-item-active': activeMenu.value === m.path}">{{ m.title }}</li>
+            class="menu-item"
+            :class="{'menu-item-active': activeMenu === m.name}"
+            @click="activeMenu = m.name">{{ m.title }}</li>
       </ul>
     </div>
     <div class="tools-content">
-      <Tasks/>
+      <component :is="getCurrentComponent()" />
     </div>
   </div>
 </div>
@@ -87,6 +96,7 @@ const menus = [
       .menu-item {
           padding-top: 5px;
           padding-bottom: 5px;
+        cursor: pointer;
       }
       .menu-item-active {
         border-right: 1px solid #07C160;
