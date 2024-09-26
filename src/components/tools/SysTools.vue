@@ -12,7 +12,7 @@ const activeMenu = ref('info');
 const menus = [
   {
     name: 'info',
-    title: '用户信息',
+    title: '会话信息',
     component: Info,
   },
   {
