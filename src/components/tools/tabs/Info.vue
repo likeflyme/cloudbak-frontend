@@ -36,9 +36,9 @@ const maskString = (str) => {
       </div>
       <div class="info-wx">
         <p class="info-wx-item info-wx-item-nickname">{{session.wx_name}}</p>
-        <p class="info-wx-item">微信号: {{session.wx_acct_name}}</p>
-        <p class="info-wx-item">微信id: {{session.wx_id}}</p>
-        <p class="info-wx-item">手机号: {{session.wx_mobile}}</p>
+        <p class="info-wx-item">微信号：{{session.wx_acct_name}}</p>
+        <p class="info-wx-item">微信id：{{session.wx_id}}</p>
+        <p class="info-wx-item">手机号：{{session.wx_mobile}}</p>
       </div>
     </div>
     <div class="info-row">

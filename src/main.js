@@ -14,6 +14,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // v-viewer
 import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
+// dialog
+import DialogPlugin from './plugins/dialog/index.js';
+// toast
+import ToastPlugin from './plugins/toast/toast.js';
 
 // 将所需图标添加到库中
 library.add(fas, far)
@@ -27,4 +31,6 @@ app.use(router)
     .use(store)
     .use(VueCookies)
     .use(VueViewer)
+    .use(DialogPlugin)
+    .use(ToastPlugin)
     .mount('#app');

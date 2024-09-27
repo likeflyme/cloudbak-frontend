@@ -39,6 +39,9 @@ const mutations = {
     setSysSessions (state, sysSessions) {
         state.sysSessions = sysSessions
     },
+    addSysSessions(state, session) {
+        state.sysSessions.push(session);
+    },
     setCurrentSession(state, sysSession) {
         state.userInfo.current_session_id = sysSession.id;
         state.userInfo.current_session = sysSession;

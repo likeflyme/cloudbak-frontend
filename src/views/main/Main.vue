@@ -55,11 +55,12 @@ import {useRouter, useRoute} from "vue-router";
 import {headImage} from "../../api/msg.js";
 import {deleteSession, updateCurrentSession as updateCurrentSessionOnServer} from "../../api/user.js";
 import {useStore} from "vuex";
-import {reactive, ref, computed, onMounted, onUnmounted} from "vue";
+import {reactive, ref, computed, onMounted, onUnmounted, getCurrentInstance} from "vue";
 import defaultImage from '@/assets/default-head.svg';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import SysTools from "../../components/tools/SysTools.vue";
 
+const { proxy } = getCurrentInstance();
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
@@ -185,6 +186,7 @@ const sessionDelete = (id) => {
     let sessions = store.getters.getSysSessions;
     if (sessions && sessions.length > 0) {
       let first = sessions[0];
+      proxy.$toast.success('删除会话成功');
       updateCurrentSessionOnServer(first.id).then((data) => {
         store.commit("dropSession", id);
         isOnDelete.value = false;

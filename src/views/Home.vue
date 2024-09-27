@@ -24,6 +24,11 @@
             {{ session.wx_name[0] }}
           </div>
         </li>
+        <li class="sidebar-li">
+          <div class="name-container" title="添加会话" @click="sessionAddRef.show()">
+            <font-awesome-icon :icon="['fas', 'plus']" />
+          </div>
+        </li>
       </ul>
     </div>
     <router-view :key="routerKey"/>
@@ -32,12 +37,15 @@
       版本号：{{ packageJson.version  }}
     </div>
     <Toast></Toast>
+    <SysWindow ref="sessionAddRef" title="添加会话">
+      <SessionAdd></SessionAdd>
+    </SysWindow>
   </div>
 
 </template>
 
 <script setup lang="ts">
-import {onBeforeMount, ref} from "vue";
+import {ref} from "vue";
 import {userinfo} from "@/api/auth.js";
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
@@ -45,6 +53,9 @@ import {sysSessions, updateCurrentSession as updateCurrentSessionOnServer} from 
 import Toolbar from "./toolbar/Toolbar.vue";
 import packageJson from '../../package.json';
 import Toast from "../components/Toast.vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import SysWindow from "../components/SysWindow.vue";
+import SessionAdd from "../components/home/SessionAdd.vue";
 const store = useStore();
 const router = useRouter();
 
@@ -52,6 +63,7 @@ const routerKey = ref(0);
 
 const showMain = ref(false);
 const showDownload = ref(false);
+const sessionAddRef = ref(null);
 
 // 加载用户信息
 userinfo().then(resp => {
