@@ -19,7 +19,7 @@
         <li class="sidebar-li" v-for="session in store.getters.getSysSessions">
           <div class="name-container"
                :class="{'active': store.getters.getUserInfo.current_session_id === session.id}"
-               :title="session.wx_name + ' ' + getStateDesc(session)"
+               :title="session.wx_name"
                @click="updateCurrentSession(session)">
             {{ session.wx_name[0] }}
           </div>

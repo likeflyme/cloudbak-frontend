@@ -3,10 +3,13 @@
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref} from "@vue/reactivity";
 import {taskList, singleDecrypt} from "@/api/task.js"
-import {reactive} from "vue";
+import {reactive, getCurrentInstance} from "vue";
 import {TaskState} from "@/enums/TaskState.js";
 import {formatFilterMsgDate} from "@/utils/common.js";
+import {useStore} from "vuex";
 
+const { proxy } = getCurrentInstance();
+const store = useStore();
 const page = ref(1);
 const size = ref(30);
 const tasks = reactive([]);
@@ -78,27 +81,27 @@ const onWheel = (event) => {
 };
 
 const exeAnalyze = () => {
-  if (dialogConfirm.value) {
-    console.log('重复点击，跳过');
-    return;
-  }
-  dialogConfirm.value = true;
-  singleDecrypt(store.getters.getCurrentSessionId).then((data) => {
-    dialogConfirm.value = false;
-    dialogShow.value = false;
-    // 刷新数据
-    refreshTasks();
-  }).catch(e => {
-    dialogConfirm.value = false;
-    if ("response" in e) {
-      store.commit("showErrorToastMsg", {
-        msg: e.response.data
-      })
-    } else {
-      store.commit("showErrorToastMsg", {
-        msg: e
-      })
-    }
+  proxy.$dialog.open({
+    title: '创建数据解密任务',
+    desc: `确定要创建数据解密任务吗？系统将重新解密当前会话的数据库文件，这需要些时间。尽量不要在这期间查询该会话数据，避免造成库文件写入失败。`,
+    onConfirmed: () => {
+      singleDecrypt(store.getters.getCurrentSessionId).then((data) => {
+        proxy.$toast.success('创建任务成功');
+        // 刷新数据
+        refreshTasks();
+      }).catch(e => {
+        if ("response" in e) {
+          store.commit("showErrorToastMsg", {
+            msg: e.response.data
+          })
+        } else {
+          store.commit("showErrorToastMsg", {
+            msg: e
+          })
+        }
+      });
+    },
+    onCancelled: () => {}
   });
 }
 
@@ -112,7 +115,7 @@ loadTasks()
 <template>
 <div class="tasks" ref="taskContent" @wheel="onWheel">
   <div class="task-tools">
-    <a class="sys-btn" @click="dialogShow=true">执行数据解密任务</a>
+    <a class="sys-btn" @click="exeAnalyze">执行数据解密任务</a>
     <font-awesome-icon class="sys-btn" :icon="['fas', 'rotate-right']" title="刷新" @click="refreshTasks"/>
   </div>
   <ul class="tasks-ul">
@@ -136,29 +139,6 @@ loadTasks()
       <font-awesome-icon class="loading-icon" v-if="isLoading" :icon="['fas', 'spinner']"/>
       <p v-else>查看更多任务</p>
     </a>
-  </div>
-</div>
-<div role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="js_title1" id="iosDialog1" v-if="dialogShow">
-  <div class="weui-mask"></div>
-  <div class="weui-dialog">
-    <div class="weui-dialog__hd"><strong class="weui-dialog__title" id="js_title1">创建数据解密任务</strong></div>
-    <div class="weui-dialog__bd">
-      <p>确定要创建数据解密任务吗？</p>
-      <p>系统将重新解密当前会话的数据库文件，这需要些时间。尽量不要在这期间查询该会话数据，避免造成库文件写入失败。</p>
-      <!--      <br/>-->
-      <!--      <p>-->
-      <!--        <label for="js_input2" class="weui-cell weui-cell_active">-->
-      <!--          <div class="weui-cell__hd"><span class="weui-label">登录密码</span></div>-->
-      <!--          <div class="weui-cell__bd">-->
-      <!--            <input id="js_input2" class="weui-input " type="password" v-model="passwd" @keydown.enter="login" placeholder="填写密码"/>-->
-      <!--          </div>-->
-      <!--        </label>-->
-      <!--      </p>-->
-    </div>
-    <div class="weui-dialog__ft">
-      <a role="button" href="javascript:" class="weui-dialog__btn weui-dialog__btn_default" @click="dialogShow=false">取消</a>
-      <a role="button" href="javascript:" class="weui-dialog__btn weui-dialog__btn_primary" @click="exeAnalyze()">确定</a>
-    </div>
   </div>
 </div>
 </template>

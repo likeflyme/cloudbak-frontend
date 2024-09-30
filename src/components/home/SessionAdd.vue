@@ -18,6 +18,36 @@ const form = reactive({
   wx_mobile: ''
 });
 
+const submitForm = () => {
+  formCheck(() => {
+    doAddSysSession();
+  });
+}
+
+const formCheck = (callback) => {
+  if (!form.name) {
+    error_msg.value = '会话名称不能为空';
+    return;
+  }
+  if (!form.wx_key) {
+    error_msg.value = '微信KEY不能为空';
+    return;
+  }
+  if (!form.wx_id) {
+    error_msg.value = '微信id不能为空';
+    return;
+  }
+  if (!form.wx_name) {
+    error_msg.value = '微信昵称不能为空';
+    return;
+  }
+  if (!form.wx_acct_name) {
+    error_msg.value = '微信号不能为空';
+    return;
+  }
+  callback();
+}
+
 const doAddSysSession = () => {
   if (loading.value) {
     return;
@@ -62,7 +92,7 @@ const doAddSysSession = () => {
           <!--            <div class="weui-cells__title">表单组标题</div>-->
           <div class="weui-cells">
             <label for="js_input1" class="weui-cell weui-cell_active">
-              <div class="weui-cell__hd"><span class="weui-label">会话名称</span></div>
+              <div class="weui-cell__hd"><span class="weui-label">会话名称*</span></div>
               <div class="weui-cell__bd">
                 <input id="js_input1" class="weui-input" v-model="form.name" placeholder=""/>
               </div>
@@ -74,25 +104,25 @@ const doAddSysSession = () => {
               </div>
             </label>
             <label for="js_input2" class="weui-cell weui-cell_active">
-              <div class="weui-cell__hd"><span class="weui-label">微信KEY</span></div>
+              <div class="weui-cell__hd"><span class="weui-label">微信KEY*</span></div>
               <div class="weui-cell__bd">
                 <input id="js_input2" class="weui-input" v-model="form.wx_key" placeholder=""/>
               </div>
             </label>
             <label for="js_input2" class="weui-cell weui-cell_active">
-              <div class="weui-cell__hd"><span class="weui-label">微信id</span></div>
+              <div class="weui-cell__hd"><span class="weui-label">微信id*</span></div>
               <div class="weui-cell__bd">
                 <input id="js_input2" class="weui-input" v-model="form.wx_id" placeholder=""/>
               </div>
             </label>
             <label for="js_input2" class="weui-cell weui-cell_active">
-              <div class="weui-cell__hd"><span class="weui-label">微信昵称</span></div>
+              <div class="weui-cell__hd"><span class="weui-label">微信昵称*</span></div>
               <div class="weui-cell__bd">
                 <input id="js_input2" class="weui-input" v-model="form.wx_name" placeholder=""/>
               </div>
             </label>
             <label for="js_input2" class="weui-cell weui-cell_active">
-              <div class="weui-cell__hd"><span class="weui-label">微信号</span></div>
+              <div class="weui-cell__hd"><span class="weui-label">微信号*</span></div>
               <div class="weui-cell__bd">
                 <input id="js_input2" class="weui-input" v-model="form.wx_acct_name" placeholder=""/>
               </div>
@@ -106,7 +136,7 @@ const doAddSysSession = () => {
         <a href="javascript:"
            role="button"
            class="weui-btn"
-           @click="doAddSysSession"
+           @click="submitForm"
            :class="{'weui-btn_primary': !loading, 'weui-btn_default': loading, 'weui-btn_loading': loading}">
           <i v-if="loading" class="weui-mask-loading"></i>
           {{ login_btn_title }}
@@ -114,9 +144,13 @@ const doAddSysSession = () => {
       </div>
     </div>
   </div>
+  <div v-if="error_msg" class="error_msg">{{ error_msg }}</div>
 </template>
 
 <style scoped lang="less">
+.error_msg {
+  color: #990C15;
+}
 .weui-form {
   padding:0!important;
 }

@@ -1,7 +1,42 @@
 <script setup>
 import {useStore} from "vuex";
+import {updateSysSession} from "@/api/user.js";
+import {reactive, ref, nextTick, getCurrentInstance} from "vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 const store = useStore();
 const session = store.getters.getCurrentSession;
+const wxNameRef = ref(null);
+const {proxy} = getCurrentInstance();
+
+const formData = reactive({
+  name: session.name,
+  desc: session.desc,
+  wx_id: session.wx_id,
+  wx_key: session.wx_key,
+  wx_name: session.wx_name,
+  wx_acct_name: session.wx_acct_name,
+  wx_mobile: session.wx_mobile,
+  update_time: session.update_time,
+});
+
+const editStatus = reactive({
+  name: false,
+  desc: false,
+  wx_id: false,
+  wx_key: false,
+  wx_name: {
+    edit: false,
+    ref: ref()
+  },
+  wx_acct_name: false,
+  wx_mobile: false,
+  update_time: false
+});
+
+const showEdit = (row, refName) => {
+  row.edit = true;
+  console.log(proxy.$refs);
+};
 
 const maskString = (str) => {
   if (str.length <= 8) {
@@ -35,34 +70,50 @@ const maskString = (str) => {
         <img :src="store.getters.getCurrentSession.smallHeadImgUrl" alt=""/>
       </div>
       <div class="info-wx">
-        <p class="info-wx-item info-wx-item-nickname">{{session.wx_name}}</p>
-        <p class="info-wx-item">微信号：{{session.wx_acct_name}}</p>
-        <p class="info-wx-item">微信id：{{session.wx_id}}</p>
-        <p class="info-wx-item">手机号：{{session.wx_mobile}}</p>
+        <div class="info-wx-item info-wx-item-nickname">
+<!--          <input  class="item-input" v-model="formData.wx_name" :ref="'wxNameRef'"/>-->
+          <p class="item-value">{{session.wx_name}}
+<!--            <font-awesome-icon class="item-edit" :icon="['fas', 'pencil']" @click="showEdit(editStatus.wx_name, 'wxNameRef')"/>-->
+          </p>
+        </div>
+        <div class="info-wx-item">
+          微信号：<p class="item-value">{{session.wx_acct_name}}</p>
+<!--          <input class="item-input" v-model="formData.wx_acct_name"/>-->
+        </div>
+        <div class="info-wx-item">
+          微信id：{{session.wx_id}}
+<!--          <input v-model="formData.wx_id"/>-->
+        </div>
+        <div class="info-wx-item">手机号：{{session.wx_mobile}}
+<!--          <input v-model="formData.wx_mobile"/>-->
+        </div>
       </div>
     </div>
     <div class="info-row">
-      <p class="info-row-item">
+      <div class="info-row-item">
         会话名称：{{session.name}}
-      </p>
-      <p class="info-row-item">
+<!--        <input v-model="formData.name"/>-->
+      </div>
+      <div class="info-row-item">
         会话描述：{{session.desc}}
-      </p>
-      <p class="info-row-item">
+<!--        <input v-model="formData.desc"/>-->
+      </div>
+      <div class="info-row-item">
         KEY：{{maskString(session.wx_key)}}
-      </p>
-      <p class="info-row-item">
+<!--        <input v-model="formData.wx_key"/>-->
+      </div>
+      <div class="info-row-item">
         客户端微信目录：{{session.wx_dir}}
-      </p>
-      <p class="info-row-item">
+      </div>
+      <div class="info-row-item">
         服务端数据目录：{{session.data_path}}
-      </p>
-      <p class="info-row-item">
+      </div>
+      <div class="info-row-item">
         创建时间：{{formatTimestamp(session.create_time)}}
-      </p>
-      <p class="info-row-item">
-        修改时间：{{formatTimestamp(session.update_time)}} （记录上次同步时间，从未同步过与创建时间相同）
-      </p>
+      </div>
+      <div class="info-row-item">
+        修改时间：{{formatTimestamp(session.update_time)}}  （记录上次同步时间，从未同步过与创建时间相同）
+      </div>
     </div>
   </div>
 </template>
@@ -88,7 +139,19 @@ const maskString = (str) => {
       font-size: 12px;
       padding-left: 20px;
       .info-wx-item {
-        color: #a7a7a7
+        color: #a7a7a7;
+        display: flex;
+        align-items: center;
+        .item-edit {
+          font-size: 12px;
+          visibility: hidden;
+        }
+      }
+      .info-wx-item:hover {
+        .item-edit {
+          visibility: visible;
+          cursor: pointer;
+        }
       }
       .info-wx-item-nickname {
         color: #4b4b4b;

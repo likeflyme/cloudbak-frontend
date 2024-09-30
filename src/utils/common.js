@@ -158,6 +158,62 @@ export const getVoiceLength = (content) => {
     return '';
 }
 
+
+const xmlToJson = (xml) => {
+    let obj = {};
+
+    // 如果是元素节点，获取节点名称和属性
+    if (xml.nodeType === 1) {
+        // 获取所有属性
+        if (xml.attributes.length > 0) {
+            obj["@attributes"] = {};
+            for (let j = 0; j < xml.attributes.length; j++) {
+                const attribute = xml.attributes.item(j);
+                obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+            }
+        }
+    } else if (xml.nodeType === 3) {
+        // 文本节点
+        obj = xml.nodeValue;
+    }
+
+    // 处理子节点
+    if (xml.hasChildNodes()) {
+        for (let i = 0; i < xml.childNodes.length; i++) {
+            const item = xml.childNodes.item(i);
+            const nodeName = item.nodeName;
+
+            // 如果节点名称已经存在，转成数组
+            if (typeof (obj[nodeName]) === "undefined") {
+                obj[nodeName] = xmlToJson(item);
+            } else {
+                if (typeof (obj[nodeName]) === "object") {
+                    if (!Array.isArray(obj[nodeName])) {
+                        const old = obj[nodeName];
+                        obj[nodeName] = [];
+                        obj[nodeName].push(old);
+                    }
+                    obj[nodeName].push(xmlToJson(item));
+                } else {
+                    const old = obj[nodeName];
+                    obj[nodeName] = [];
+                    obj[nodeName].push(old);
+                    obj[nodeName].push(xmlToJson(item));
+                }
+            }
+        }
+    }
+    return obj;
+}
+
+
+export const fromXmlToJson = (strContent) => {
+    let parser = new DOMParser();
+    let xml = parser.parseFromString(strContent, "text/xml");
+    // 创建一个对象来保存结果
+    return xmlToJson(xml);
+}
+
 export const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);

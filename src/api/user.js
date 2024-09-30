@@ -12,6 +12,10 @@ export const addSysSession = (data) => {
     return service.post("/api/user/sys-session", data)
 };
 
+export const updateSysSession = (id, data) => {
+    return service.put("/api/user/sys-session/id", data)
+};
+
 export const checkInstall = () => {
     return service.get("/api/user/check-install")
 };

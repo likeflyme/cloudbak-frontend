@@ -40,10 +40,9 @@ const createToast = () => {
                 type: options.type,
             });
 
+            // 定时关闭
             setTimeout(() => {
-                toastVNode.component.exposed.close(); // 调用关闭方法
-                // render(null, container); // 卸载 VNode
-                // document.body.removeChild(container); // 移除 DOM 节点
+                toastVNode.component.exposed.close();
             }, options.duration);
         }
     };
