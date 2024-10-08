@@ -60,7 +60,7 @@
             <p class="weui-footer__links">
               <a href="javascript:" class="weui-footer__link">云朵备份</a>
             </p>
-            <p class="weui-footer__text">Copyright © 2024-2025 cloudbak.io</p>
+            <p class="weui-footer__text">Copyright © 2024-2025 cloudbak.org</p>
           </div>
         </div>
       </div>
