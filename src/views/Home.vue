@@ -71,6 +71,18 @@ userinfo().then(resp => {
   if (resp.current_session ) {
     showMain.value = true;
   }
+  // 初始化配置
+  if ("configs" in resp) {
+    for (const conf in resp.configs) {
+      if ("sys_conf" === conf.key) {
+        store.commit("setSysConf", conf)
+      } else if ("user_conf" === conf.key) {
+        store.commit("setUserConf", conf);
+      } else {
+        store.commit("addSessionConf", conf);
+      }
+    }
+  }
 });
 
 // 加载所有 session

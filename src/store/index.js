@@ -18,6 +18,15 @@ const state = {
     },
     sysTool: {
         show: false
+    },
+    sysConf: {
+
+    },
+    userConf: {
+
+    },
+    sessionConf: {
+
     }
 }
 
@@ -76,6 +85,27 @@ const mutations = {
     },
     closeSysTool (state) {
         state.sysTool.show = false;
+    },
+    setUserConf(state, userConf) {
+        try {
+            state.userConf = JSON.parse(userConf.conf_value);
+        } catch (e) {
+            console.log(e);
+        }
+    },
+    setSysConf(state, sysConf) {
+        try {
+            state.sysConf = JSON.parse(sysConf.conf_value);
+        } catch (e) {
+            console.log(e);
+        }
+    },
+    addSessionConf(state, sessionConf) {
+        try {
+            state.sessionConf[sessionConf.id] = JSON.parse(sessionConf.conf_value);
+        } catch (e) {
+            console.log(e);
+        }
     }
 }
 
@@ -121,6 +151,9 @@ const getters = {
     },
     isShowSysTools(state) {
         return state.sysTool.show;
+    },
+    getUserConf(state) {
+        return state.userConf;
     }
 }
 

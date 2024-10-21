@@ -13,3 +13,8 @@ export const singleDecrypt = (sessionId) => {
     return service.post(`/api/task/single-decrypt/${sessionId}`);
 }
 
+export const updateConf = (sessionId) => {
+    return service.post(`/api/task/single-decrypt/${sessionId}`);
+}
+
+

@@ -3,6 +3,7 @@ import {ref} from "@vue/reactivity";
 import {useStore} from "vuex";
 import Tasks from "./tabs/Tasks.vue";
 import Info from "./tabs/Info.vue";
+import Config from "./tabs/Config.vue";
 
 const store = useStore();
 
@@ -14,6 +15,11 @@ const menus = [
     name: 'info',
     title: '会话信息',
     component: Info,
+  },
+  {
+    name: 'config',
+    title: '会话配置',
+    component: Config
   },
   {
     name: 'tasks',
