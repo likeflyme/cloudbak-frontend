@@ -3,7 +3,7 @@ import {ref} from "@vue/reactivity";
 import {useStore} from "vuex";
 import Tasks from "./tabs/Tasks.vue";
 import Info from "./tabs/Info.vue";
-import Config from "./tabs/Config.vue";
+import SessionConfig from "./tabs/SessionConfig.vue";
 
 const store = useStore();
 
@@ -17,9 +17,9 @@ const menus = [
     component: Info,
   },
   {
-    name: 'config',
+    name: 'sessionConfig',
     title: '会话配置',
-    component: Config
+    component: SessionConfig
   },
   {
     name: 'tasks',
@@ -54,7 +54,7 @@ const getCurrentComponent = () => {
       </ul>
     </div>
     <div class="tools-content">
-      <component :is="getCurrentComponent()" />
+      <component :is="getCurrentComponent()" :key="activeMenu"/>
     </div>
   </div>
 </div>

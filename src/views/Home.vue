@@ -73,7 +73,8 @@ userinfo().then(resp => {
   }
   // 初始化配置
   if ("configs" in resp) {
-    for (const conf in resp.configs) {
+    for (let i = 0; i < resp.configs.length; i++) {
+      const conf = resp.configs[i];
       if ("sys_conf" === conf.key) {
         store.commit("setSysConf", conf)
       } else if ("user_conf" === conf.key) {

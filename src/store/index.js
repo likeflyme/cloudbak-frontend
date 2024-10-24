@@ -102,7 +102,7 @@ const mutations = {
     },
     addSessionConf(state, sessionConf) {
         try {
-            state.sessionConf[sessionConf.id] = JSON.parse(sessionConf.conf_value);
+            state.sessionConf[sessionConf.session_id] = JSON.parse(sessionConf.conf_value);
         } catch (e) {
             console.log(e);
         }
@@ -154,6 +154,15 @@ const getters = {
     },
     getUserConf(state) {
         return state.userConf;
+    },
+    getSysConf(state) {
+        return state.sysConf;
+    },
+    getSessionConf(state) {
+        return state.sessionConf;
+    },
+    getCurrentSessionConf() {
+        return state.sessionConf[state.userInfo.current_session_id];
     }
 }
 
