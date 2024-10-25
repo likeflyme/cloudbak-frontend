@@ -28,8 +28,12 @@ export const contact = () => {
     return service.get('/api/msg/contact');
 };
 
-export const contactSplit = (page, size, ChatRoomType=0) => {
-    return service.get(`/api/msg/contact-split?page=${page}&size=${size}&ChatRoomType=${ChatRoomType}`);
+export const contactSplit = (page, size, search, ChatRoomType=0) => {
+    return service.get(`/api/msg/contact-split?page=${page}&size=${size}&ChatRoomType=${ChatRoomType}&search=${search}`);
+};
+
+export const contactSearch = (search) => {
+    return service.get(`/api/msg/contact-search?search=${search}`);
 };
 
 export const chatroom = (chatroomName) => {

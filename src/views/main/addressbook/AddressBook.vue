@@ -1,7 +1,7 @@
 <script setup>
 import {shortenCharts} from "../../../utils/common.js";
 import {useStore} from "vuex";
-import {onBeforeMount, reactive, ref} from "vue";
+import {onBeforeMount, onUnmounted, reactive, ref, watch} from "vue";
 import {contactSplit} from "../../../api/msg.js";
 import {useRouter, useRoute} from "vue-router";
 import defaultImage from '@/assets/default-head.svg';
@@ -19,15 +19,20 @@ const input = ref('');
 const contact = reactive([]);
 const chatRoom = reactive([]);
 const selectedItem = ref('');
+const search = ref('');
+const noMore = ref(false);
 
 const clear = () => {
-  input.value = '';
+  search.value = '';
 }
 
 const load = () => {
-  contactSplit(page.value, size.value).then(data => {
+  contactSplit(page.value, size.value, search.value).then(data => {
     contact.push(...data);
     page.value = page.value + 1;
+    if (data.length < size.value) {
+      noMore.value = true;
+    }
   }).catch(e => {
     if ("response" in e) {
       store.commit("showErrorToastMsg", {
@@ -42,7 +47,7 @@ const load = () => {
 }
 
 const loadChatRoom = () => {
-  contactSplit(1, 1000, 2).then(data => {
+  contactSplit(1, 1000, search.value,2).then(data => {
     chatRoom.push(...data);
   });
 }
@@ -76,6 +81,45 @@ const goUserInfo = (contact) => {
   router.push({ name: 'user-info', params: { sessionId: sessionId, id: contact.UserName} });
 }
 
+// 搜索
+let timeout = null;
+const sLoading = ref(false);
+
+
+// 监听输入框值的变化
+watch(search, () => {
+  // 清除之前的计时器
+  if (timeout) clearTimeout(timeout);
+
+  // 设置一个新的计时器
+  timeout = setTimeout(() => {
+    handleInputEnd();
+  }, 1000); // 1秒后触发
+});
+
+
+// 输入停止1秒后执行的函数
+const handleInputEnd = () => {
+  noMore.value = false;
+  sLoading.value = true;
+  console.log('用户停止输入，执行函数');
+  console.log(search.value);
+  contact.length = 0;
+  chatRoom.length = 0;
+  loadChatRoom();
+  load();
+};
+
+// 清除计时器以防内存泄漏
+onUnmounted(() => {
+  if (timeout) clearTimeout(timeout);
+});
+
+// enter 事件搜索
+const inputEnter = () => {
+  if (timeout) clearTimeout(timeout);
+  handleInputEnd();
+}
 </script>
 
 <template>
@@ -83,15 +127,15 @@ const goUserInfo = (contact) => {
     <div class="addr-left">
       <div class="addr-search-container">
         <div class="weui-search-bar weui-search-bar_filled-grey weui-search-bar_focusing" id="searchBar">
-          <form id="searchForm" role="combobox" aria-haspopup="true" aria-expanded="false" aria-owns="searchResult" class="weui-search-bar__form">
+          <div id="searchForm" role="combobox" aria-haspopup="true" aria-expanded="false" aria-owns="searchResult" class="weui-search-bar__form">
             <div aria-hidden="false" id="searchBox" class="weui-search-bar__box">
               <i class="weui-icon-search"></i>
               <!--              <span class="weui-search-bar__words">微信</span>-->
-              <input v-model="input" type="search" aria-controls="searchResult" class="weui-search-bar__input" id="searchInput" placeholder="搜索" required/>
+              <input v-model="search" @keyup.enter="inputEnter" type="search" aria-controls="searchResult" class="weui-search-bar__input" id="searchInput" placeholder="搜索" required/>
               <div class="weui-search-bar__mask"></div>
               <a href="javascript:" role="button" title="清除" class="weui-icon-clear" id="searchClear" @click="clear"></a>
             </div>
-          </form>
+          </div>
         </div>
       </div>
       <div class="addr-items-container" ref="contactContainer" @scroll="onScroll">
