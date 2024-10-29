@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import './main.less'
+import './style/main.less'
 import 'weui/dist/style/weui.min.css'
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import App from './App.vue'

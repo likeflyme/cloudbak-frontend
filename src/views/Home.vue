@@ -32,12 +32,12 @@
       </ul>
     </div>
     <router-view :key="routerKey"/>
-    <Toolbar></Toolbar>
+    <Toolbar class="toolbar"></Toolbar>
     <div class="page-footer">
       版本号：{{ packageJson.version  }}
     </div>
     <Toast></Toast>
-    <SysWindow ref="sessionAddRef" title="添加会话">
+    <SysWindow class="sys-window-add-session" ref="sessionAddRef" title="添加会话">
       <SessionAdd></SessionAdd>
     </SysWindow>
   </div>
@@ -118,95 +118,5 @@ const getStateDesc = (session) => {
 </script>
 
 <style scoped lang="less">
-.downloadClient:hover {
-  cursor: pointer;
-}
-.page-home {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow-y: scroll;
-  background-color: #EDEDED;
-  .page-footer {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    font-size: 12px;
-  }
-}
-.sidebar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 80px;
-  padding: 20px;
-
-  .sidebar-ul {
-    margin-top: 10px;
-
-    .sidebar-li {
-      width: 60px;
-      height: 60px;
-      padding: 0;
-      border-radius: 10px;
-      margin-bottom: 10px;
-
-      .name-container {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 60px;
-        font-size: 30px;
-        border: 1px solid lightgray;
-        color: darkgray;
-      }
-
-      .active {
-        //border-color: #059789;
-        color: #059789;
-        border-color: darkgray;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
-
-      .name-container:hover {
-        cursor: pointer;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
-    }
-  }
-
-  .open-close-container {
-    text-align: center;
-
-    .open-close {
-      width: 30px;
-      height: 30px;
-    }
-  }
-}
-
-.session {
-  margin-bottom: 10px;
-
-  .session_name {
-  }
-
-  .session-head-img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .session-head-img:hover {
-    cursor: pointer;
-  }
-}
-
-.session-active {
-  border: 2px solid var(--weui-BRAND-80);
-}
+@import "/src/style/home.less";
 </style>

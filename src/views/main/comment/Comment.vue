@@ -30,6 +30,10 @@ const selectItem = (wxId) => {
   // router.push(targetPath);
 }
 
+const deSelectItem = () => {
+  selectedItem.value = null;
+}
+
 const formatDate = (timestamp) => {
   const date = new Date(timestamp * 1000);
   const now = new Date();
@@ -125,8 +129,6 @@ watch(search, () => {
 // 输入停止1秒后执行的函数
 const handleInputEnd = () => {
   sLoading.value = true;
-  console.log('用户停止输入，执行函数');
-  console.log(search.value);
   contacts.length = 0;
   chatRooms.length = 0;
   if (search.value) {
@@ -187,7 +189,7 @@ const inputEnter = () => {
             <font-awesome-icon class="loading-icon" :icon="['fas', 'spinner']"/>
           </div>
           <div v-else>
-            <div class="session-group">
+            <div class="session-group" v-if="contacts.length > 0">
               <div class="session-items-title">联系人</div>
               <ul class="items-ul">
                 <li class="item" v-for="contact in contacts" @click="selectItem(contact.UserName)">
@@ -201,7 +203,7 @@ const inputEnter = () => {
                 </li>
               </ul>
             </div>
-            <div class="session-group">
+            <div class="session-group" v-if="chatRooms.length > 0">
               <div class="session-items-title">群聊</div>
               <ul class="items-ul">
                 <li class="item" v-for="chatroom in chatRooms" @click="selectItem(chatroom.UserName)">
@@ -241,8 +243,8 @@ const inputEnter = () => {
         <p class="load-more" :class="{'load-more-hide': noMore}" @click="load"> 加载更多 </p>
       </div>
     </div>
-    <div class="main-msg">
-      <router-view :key="$route.fullPath"/>
+    <div class="main-msg" :class="{'open': selectedItem}">
+      <router-view :key="$route.fullPath" @goBack="deSelectItem"/>
     </div>
   </div>
 </template>
@@ -253,13 +255,14 @@ const inputEnter = () => {
 }
 .main-comment {
   display: flex;
+  width: 100%;
   height: 100%;
   .main-session {
-    width: 320px; /* 设置 session 部分的宽度 */
+
     background-color: #e0e0e0; /* 示例背景色 */
     display: flex;
     flex-direction: column; /* 垂直排列子元素 */
-    border-right: 1px solid lightgray;
+
     .session-search-container {
       height: 63px; /* 固定高度 */
       width: 100%; /* 宽度为100% */
@@ -284,7 +287,6 @@ const inputEnter = () => {
       overflow-y: scroll; /* 启用垂直滚动 */
       overflow-x: hidden;
       .session-items-fix-roller {
-        width: 320px !important;
         .loading {
           text-align: center;
           .loading-icon {
@@ -386,10 +388,6 @@ const inputEnter = () => {
       background-color: #b0b0b0; /* 鼠标悬停时滚动条拇指背景颜色 */
     }
   }
-  .main-msg {
-    flex-grow: 1;
-    height: 100%;
-  }
 }
 @keyframes spinner {
   to { transform: rotate(360deg); }
@@ -398,5 +396,56 @@ const inputEnter = () => {
 .fa-spinner {
   /* Apply 'spinner' keyframes looping once every second (1s)  */
   animation: spinner 1s linear infinite;
+}
+
+@media (max-width: 768px) {
+  .main-msg {
+    position: fixed;
+    top: 0;
+    left: 100%;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease-in-out;
+    z-index: 10;
+  }
+  .main-msg.open {
+    transform: translateX(-100%);
+  }
+  .main-session {
+    width: 100%;
+    .session-items-container {
+      .session-items-fix-roller {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-session {
+    width: 320px;
+    border-right: 1px solid lightgray;
+    .session-items-container {
+      .session-items-fix-roller {
+        width: 320px !important;
+      }
+    }
+  }
+}
+
+@media (min-width: 1025px) {
+ .main-session {
+   width: 320px;
+   border-right: 1px solid lightgray;
+   .session-items-container {
+     .session-items-fix-roller {
+       width: 320px !important;
+     }
+   }
+ }
+  .main-msg {
+    flex-grow: 1;
+    height: 100%;
+  }
 }
 </style>

@@ -25,7 +25,7 @@
     <div v-if="showSettings" class="main-settings-bar" :style="settingsStyle" ref="settingsDiv">
       <ul class="settings-bar-ul">
         <li class="settings-bar-item" @click="store.commit('openSysTool')">系统工具</li>
-        <li class="settings-bar-item" @click="showDeleteDialog?showDeleteDialog=false:showDeleteDialog=true">删除会话</li>
+        <li class="settings-bar-item setting-delete-session" @click="showDeleteDialog?showDeleteDialog=false:showDeleteDialog=true">删除会话</li>
       </ul>
     </div>
   </div>
@@ -225,15 +225,6 @@ router.push({ name: 'comment', params: { sessionId: sessionId } });
 </script>
 <style scoped lang="less">
   .main-container {
-    position: absolute;
-    width: 1150px;
-    height: 850px;
-    max-height: 100vh; /* 限制最大高度为视口高度 */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid lightgray;
     display: flex;
   }
   .main-sidebar, .main-session, .main-content {
@@ -260,7 +251,7 @@ router.push({ name: 'comment', params: { sessionId: sessionId } });
     }
   }
   .main-right {
-    flex-grow: 1;
+
   }
   .main-settings-bar {
     width: 100px;
@@ -304,4 +295,47 @@ router.push({ name: 'comment', params: { sessionId: sessionId } });
     }
   }
 
+  @media (max-width: 768px) {
+    .main-container {
+      width: 100%;
+      height: 100%;
+      .setting-delete-session {
+        display: none;
+      }
+      .main-sidebar {
+        display: none;
+      }
+      .main-right {
+        width: 100%;
+      }
+    }
+
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .main-container {
+      width: 100%;
+      height: 100%;
+      .main-right {
+        flex-grow: 1;
+      }
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .main-container {
+      width: 1025px;
+      height: 850px;
+      max-height: 100vh; /* 限制最大高度为视口高度 */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid lightgray;
+      .main-right {
+        flex-grow: 1;
+      }
+    }
+  }
 </style>

@@ -23,9 +23,12 @@
     height: 63px;
     border-bottom: 1px solid lightgray;
     .main-content-title {
-      height: 63px;
+      height: 100%;
       font-size: 20px;
       line-height: 63px;
+      display: flex;
+      align-items: center; /* 垂直居中 */
+      overflow: hidden;
     }
     .main-content-toolbar {
       padding-right: 10px;
@@ -302,5 +305,18 @@
   /* 鼠标悬停在滚动条拇指上时的样式 */
   .main-content-info:hover::-webkit-scrollbar-thumb:hover {
     background-color: #b0b0b0; /* 鼠标悬停时滚动条拇指背景颜色 */
+  }
+}
+
+@media (max-width: 768px) {
+  .main-back {
+    padding-right: 20px;
+    color: dimgray;
+    cursor: pointer;
+  }
+}
+@media (min-width: 769px) {
+  .main-back {
+    display: none;
   }
 }

@@ -258,10 +258,13 @@ const displayName = (m) => {
 const closeFilter = () => {
   showFilter.value = false;
 }
+// 移动端返回
+const emit = defineEmits(['goBack']);
 </script>
 <template>
   <div class="main-content">
     <div class="main-content-top">
+      <p class="main-content-title main-back" @click="emit('goBack');"><font-awesome-icon class="loading-icon" :icon="['fas', 'chevron-left']"/></p>
       <p class="main-content-title">{{ session.Remark?session.Remark:session.strNickName }}</p>
       <p class="main-content-title" v-if="isChatRoom"> ({{userLength}})</p>
       <p style="flex-grow: 1"></p>

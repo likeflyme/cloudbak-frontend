@@ -92,7 +92,6 @@ const form = reactive({
 });
 
 checkInstall().then(response => {
-  console.log(response);
   if (response.count === 0) {
     router.push("/install")
   }
@@ -138,7 +137,7 @@ const closeError = () => {
 <style scoped lang="less">
 
 .weui-form__bd {
-  max-width: 500px;
-  margin: 100px auto;
+  max-width: 35.714rem;
+  margin: 7.14rem auto;
 }
 </style>
