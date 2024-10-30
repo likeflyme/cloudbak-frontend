@@ -117,30 +117,34 @@ const filterTypes = [
     icon: ['fas', 'file']
   },{
     type: 2,
-    title: '图片与视频',
+    title: '图片视频',
     width: '170px',
     icon: ['fas', 'image']
-  },{
-    type: 3,
-    title: '链接',
-    width: '100px',
-    icon: ['fas', 'link']
-  },{
-    type: 4,
-    title: '音乐与音频',
-    width: '170px',
-    icon: ['fas', 'volume-high']
-  },{
-    type: 5,
-    title: '小程序',
-    width: '120px',
-    icon: ['fas', 'globe']
-  },{
-    type: 6,
-    title: '视频号',
-    width: '120px',
-    icon: ['fas', 'video']
   }
+  // ,{
+  //   type: 3,
+  //   title: '链接',
+  //   width: '100px',
+  //   icon: ['fas', 'link']
+  // }
+  // ,{
+  //   type: 4,
+  //   title: '音乐与音频',
+  //   width: '170px',
+  //   icon: ['fas', 'volume-high']
+  // }
+  // ,{
+  //   type: 5,
+  //   title: '小程序',
+  //   width: '120px',
+  //   icon: ['fas', 'globe']
+  // }
+  // ,{
+  //   type: 6,
+  //   title: '视频号',
+  //   width: '120px',
+  //   icon: ['fas', 'video']
+  // }
   // ,{
   //   type: '8',
   //   title: '群成员',
@@ -444,6 +448,20 @@ const onWheel = (event) => {
   }
 };
 
+const onMove = () => {
+  console.log('on move');
+  if (chatContainer.value.scrollTop + chatContainer.value.clientHeight === chatContainer.value.scrollHeight) {
+    console.log('loadMore')
+    loadMore();
+  }
+  if (chatContainer.value.scrollTop === 0) {
+    if (query.filterType === 7 || isQueryByLocalId.value) {
+      console.log('loadReverse')
+      loadReverse();
+    }
+  }
+}
+
 // 日期选择
 const datePicked = (modelData) => {
   let view = filterDateFormatView(modelData);
@@ -506,8 +524,8 @@ const displayName = (m) => {
         <div class="weui-search-bar weui-search-bar_outlined" id="searchBar">
           <div id="searchForm" role="combobox" aria-haspopup="true" aria-expanded="false" aria-owns="searchResult" class="weui-search-bar__form">
             <div class="weui-search-bar__box">
-              <div class="select-type" v-if="selected" @click="clearSelectType" :style="{'width': selectedType.width}">
-                <font-awesome-icon class="select-type-clear" :icon="selectedType.icon"/>
+              <div class="select-type" v-if="selected" @click="clearSelectType">
+                <font-awesome-icon class="select-type-clear select-icon" :icon="selectedType.icon"/>
                 <p>{{ selectedType.title }}</p>
                 <font-awesome-icon class="select-type-clear" :icon="['fas', 'xmark']"/>
               </div>
@@ -537,7 +555,12 @@ const displayName = (m) => {
 
       </div>
     </div>
-    <div class="msg-body" ref="chatContainer" @wheel="onWheel" @scroll="onScroll" v-viewer="imageOptions">
+    <div class="msg-body"
+         ref="chatContainer"
+         @wheel="onWheel"
+         @scroll="onScroll"
+         @touchmove="onMove"
+         v-viewer="imageOptions">
       <div class="load-more" v-if="!isQueryByLocalId && query.filterType === 7 && !queryReverse.noMoreMsg">
         <a href="javascript:void(0)" @click="loadReverse">
           <font-awesome-icon class="loading-icon" v-if="queryReverse.isLoading" :icon="['fas', 'spinner']"/>
@@ -619,5 +642,5 @@ const displayName = (m) => {
 </template>
 
 <style scoped lang="less">
-@import "/src/style/msg-filter.less";
+@import "/src/style/components/msg-filter.less";
 </style>

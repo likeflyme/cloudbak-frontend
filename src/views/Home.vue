@@ -84,17 +84,25 @@ userinfo().then(resp => {
       }
     }
   }
+
+  // 加载所有 session
+  sysSessions().then(data => {
+    store.commit("setSysSessions", data);
+    // 跳转上次选择的 session
+    if (resp.current_session) {
+      const currentSession = resp.current_session;
+      console.log(currentSession);
+      routerKey.value = currentSession.id;
+      router.push({ name: "session", params: { sessionId: currentSession.id } });
+    }
+    // if (data.length > 0) {
+    //   updateCurrentSession(data[0]);
+    // } else {
+    //   showDownload.value = true;
+    // }
+  });
 });
 
-// 加载所有 session
-sysSessions().then(data => {
-  store.commit("setSysSessions", data);
-  if (data.length > 0) {
-    updateCurrentSession(data[0]);
-  } else {
-    showDownload.value = true;
-  }
-});
 
 const updateCurrentSession = (session) => {
   updateCurrentSessionOnServer(session.id).then((data) => {

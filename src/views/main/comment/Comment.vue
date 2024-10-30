@@ -12,6 +12,7 @@ const route = useRoute();
 
 const page = ref(1);
 const size = ref(20);
+const loading = ref(false);
 const noMore = ref(false);
 
 const sessions = reactive([]);
@@ -19,6 +20,7 @@ const sessions = reactive([]);
 const contactContainer = ref(null);
 
 const sysSessionId = route.params.sessionId;
+const userName = route.query.userName;
 
 const selectedItem = ref(null)
 
@@ -28,6 +30,11 @@ const selectItem = (wxId) => {
 
   router.push({ name: 'chat', params: { sessionId: sysSessionId, id: wxId} });
   // router.push(targetPath);
+}
+
+// 移动端自动打开
+if (userName) {
+  selectItem(userName);
 }
 
 const deSelectItem = () => {
@@ -72,6 +79,7 @@ const load = () => {
   if (noMore.value) {
     return;
   }
+  loading.value = true;
   // 加载用户聊天会话数据
   getSessions(page.value, size.value).then(resp => {
     sessions.push(...resp);
@@ -79,7 +87,9 @@ const load = () => {
     if (resp.length < size.value) {
       noMore.value = true;
     }
+    loading.value = false;
   }).catch(e => {
+    loading.value = false;
     if ("response" in e) {
       store.commit("showErrorToastMsg", {
         msg: e.response.data
@@ -240,7 +250,10 @@ const inputEnter = () => {
             </li>
           </ul>
         </div>
-        <p class="load-more" :class="{'load-more-hide': noMore}" @click="load"> 加载更多 </p>
+        <p class="load-more" v-if="!noMore" :class="{'load-more-hide': noMore}" @click="load">
+          <font-awesome-icon class="loading-icon" v-if="loading" :icon="['fas', 'spinner']"/>
+          <p v-else>加载更多</p>
+        </p>
       </div>
     </div>
     <div class="main-msg" :class="{'open': selectedItem}">
@@ -250,202 +263,5 @@ const inputEnter = () => {
 </template>
 
 <style scoped lang="less">
-.no-wrap-text {
-  white-space: nowrap;
-}
-.main-comment {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  .main-session {
-
-    background-color: #e0e0e0; /* 示例背景色 */
-    display: flex;
-    flex-direction: column; /* 垂直排列子元素 */
-
-    .session-search-container {
-      height: 63px; /* 固定高度 */
-      width: 100%; /* 宽度为100% */
-      background-color: #F7F7F7; /* 示例背景色 */
-      .weui-search-bar {
-        height: 63px;
-        background-color: #F7F7F7;
-        .weui-search-bar__form {
-          height: 25px;
-          top: 10px;
-        }
-        .weui-search-bar__mask {
-          height: 25px;
-        }
-      }
-      .weui-search-bar__input {
-        font-size: 13px;
-      }
-    }
-    .session-items-container {
-      flex-grow: 1; /* 占据剩余空间 */
-      overflow-y: scroll; /* 启用垂直滚动 */
-      overflow-x: hidden;
-      .session-items-fix-roller {
-        .loading {
-          text-align: center;
-          .loading-icon {
-            color: gray;
-            font-size: 12px;
-          }
-        }
-        .session-items-title {
-          font-size: 12px;
-          color: gray;
-          padding: 10px;
-        }
-        .item {
-          display: flex;
-          padding: 13px;
-          background-color: #ededed;
-          .item-header {
-            width: 40px;
-            height: 40px;
-            img {
-              width: 40px;
-              height: 40px;
-              border-radius: 2px;
-            }
-          }
-          .item-msg {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            padding-left: 10px;
-            margin-right: 5px;
-            overflow: hidden;
-            .item-msg-title {
-              font-size: 14px;
-            }
-            .item-msg-desc {
-              font-size: 12px;
-              color: #AFAEAE;
-            }
-          }
-          .item-info {
-            width: 50px;
-            height: 40px;
-            .item-info-time {
-              font-size: 12px;
-              color: #AFAEAE;
-              text-align: right;
-            }
-          }
-        }
-        .item:hover {
-          background-color: #D0D0D2;
-        }
-        .item-active {
-          background-color: #CAC8C6;
-        }
-        .item-active:hover {
-          background-color: #CAC8C6;
-        }
-      }
-      .load-more {
-        font-size: 13px;
-        text-align: center;
-        color: #56A5FD;
-        padding: 5px 0;
-      }
-      .load-more-hide {
-        display: none;
-      }
-    }
-
-    // 以下是滚动条样式
-    /* 隐藏默认的滚动条轨道和拇指 */
-    .session-items-container::-webkit-scrollbar {
-      width: 0; /* 隐藏滚动条 */
-      background: transparent; /* 使滚动条轨道背景透明 */
-    }
-
-    /* 鼠标悬停时显示滚动条轨道 */
-    .session-items-container:hover::-webkit-scrollbar {
-      width: 6px; /* 设置滚动条宽度 */
-      background: #f0f0f0; /* 滚动条轨道背景颜色 */
-    }
-
-    /* 滚动条轨道样式 */
-    .session-items-container:hover::-webkit-scrollbar-track-piece {
-      background: #f0f0f0; /* 设置滚动条轨道背景颜色 */
-      border-radius: 8px; /* 设置滚动条轨道圆角 */
-    }
-
-    /* 滚动条拇指样式 */
-    .session-items-container:hover::-webkit-scrollbar-thumb {
-      background-color: #c8c9cc; /* 设置滚动条拇指背景颜色 */
-      border-radius: 8px; /* 设置滚动条拇指圆角 */
-    }
-
-    /* 鼠标悬停在滚动条拇指上时的样式 */
-    .session-items-container:hover::-webkit-scrollbar-thumb:hover {
-      background-color: #b0b0b0; /* 鼠标悬停时滚动条拇指背景颜色 */
-    }
-  }
-}
-@keyframes spinner {
-  to { transform: rotate(360deg); }
-}
-/* This is the class name given by the Font Awesome component when icon contains 'spinner' */
-.fa-spinner {
-  /* Apply 'spinner' keyframes looping once every second (1s)  */
-  animation: spinner 1s linear infinite;
-}
-
-@media (max-width: 768px) {
-  .main-msg {
-    position: fixed;
-    top: 0;
-    left: 100%;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.3s ease-in-out;
-    z-index: 10;
-  }
-  .main-msg.open {
-    transform: translateX(-100%);
-  }
-  .main-session {
-    width: 100%;
-    .session-items-container {
-      .session-items-fix-roller {
-        width: 100%;
-      }
-    }
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .main-session {
-    width: 320px;
-    border-right: 1px solid lightgray;
-    .session-items-container {
-      .session-items-fix-roller {
-        width: 320px !important;
-      }
-    }
-  }
-}
-
-@media (min-width: 1025px) {
- .main-session {
-   width: 320px;
-   border-right: 1px solid lightgray;
-   .session-items-container {
-     .session-items-fix-roller {
-       width: 320px !important;
-     }
-   }
- }
-  .main-msg {
-    flex-grow: 1;
-    height: 100%;
-  }
-}
+@import "/src/style/main/comment/comment.less";
 </style>

@@ -1,21 +1,8 @@
 .filter-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 600px;
-  height: 700px;
-  border: 1px solid lightgray;
-  background-color: #fff;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  border-radius: 3px;
-  font-size: 14px;
   .filter-head {
-    height: 135px;
     background-color: #F5F5F5;
     .head-title {
-      padding: 5px 15px;
+      padding: 0.357rem 1.071rem;
       color: #AFAEAE;
       display: flex;
       .head-title-fill {
@@ -29,29 +16,40 @@
       .weui-search-bar {
         background-color: #F5F5F5;
         .weui-search-bar__form {
-          height: 40px;
+          height: 2.857rem;
           background-color: #fff;
-          border: 1px solid lightgray;
+          border: 0.071rem solid lightgray;
           .weui-search-bar__box {
             .select-type {
               display: flex;
               align-items: center;
               background-color: #E6E6E6;
-              border-radius: 3px;
+              border-radius: 0.214rem;
               color: #797979;
-              padding: 5px 10px;
+              padding: 0.357rem 0.714rem;
               cursor: pointer;
-              margin-right: 10px;
+              margin-right: 0.714rem;
+              max-width: 150px;
+              white-space: nowrap;
+            }
+            .select-clear {
+              display: flex;
+              //.weui-search-bar__input {
+              //  flex-grow: 1;
+              //}
+              .weui-icon-clear {
+                flex-grow: 1;
+              }
             }
             .select-type p {
-              margin-left: 10px; /* 为第二个子元素（<p>）添加 margin-left */
+              margin-left: 0.714rem; /* 为第二个子元素（<p>）添加 margin-left */
             }
             .select-type .select-type-clear:nth-child(3) {
-              margin-left: 5px; /* 为第三个子元素（font-awesome-icon）添加 margin-left */
+              margin-left: 0.357rem; /* 为第三个子元素（font-awesome-icon）添加 margin-left */
             }
             .weui-search-bar__input {
               flex-grow: 1;
-              font-size: 14px;
+              font-size: 1rem;
             }
             .weui-icon-clear {
               cursor: pointer;
@@ -61,11 +59,12 @@
       }
     }
     .head-filter {
-      padding: 0 10px;
+      padding: 0 0.714rem;
       .filter-ul {
         display: flex;
+        flex-wrap: wrap;
         .filter-item {
-          padding: 5px 10px;
+          padding: 0.357rem 0.714rem;
           cursor: pointer;
         }
       }
@@ -92,29 +91,29 @@
         // 再将每项调转180度
         transform: rotate(180deg) translateZ(0);
         word-break: break-word;
-        padding: 0 20px;
+        padding: 0 1.429rem;
         display: flex;
         .msg-head {
-          padding-top: 15px;
-          width: 35px;
-          height: 35px;
+          padding-top: 1.071rem;
+          width: 2.5rem;
+          height: 2.5rem;
           img {
-            width: 35px;
-            height: 35px;
-            border-radius: 3px;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.214rem;
           }
         }
         .msg-right {
           flex-grow: 1;
-          padding-left: 15px;
-          padding-right: 15px;
+          padding-left: 1.071rem;
+          padding-right: 1.071rem;
 
           .msg-title {
-            padding-top: 15px;
-            border-top: 1px solid #EFEFEF;
+            padding-top: 1.071rem;
+            border-top: 0.071rem solid #EFEFEF;
             display: flex;
             color: gray;
-            font-size: 12px;
+            font-size: 0.857rem;
             .msg-grow {
               flex-grow: 1;
             }
@@ -122,13 +121,13 @@
           .msg-content {
             display: flex;
             .msg-base {
-              max-width: 400px;
-              padding: 15px 0;
+              max-width: 28.571rem;
+              padding: 1.071rem 0;
               .msg-media {
-                border: 1px solid black;
+                border: 0.071rem solid black;
               }
               .msg-no-support {
-                font-size: 12px;
+                font-size: 0.857rem;
               }
             }
             .msg-ref {
@@ -160,7 +159,7 @@
       transform: rotate(180deg) translateZ(0);
       direction: ltr;
       text-align: center;
-      font-size: 12px;
+      font-size: 0.857rem;
       a {
         color: dimgray;
       }
@@ -170,26 +169,26 @@
   // 以下是滚动条样式
   /* 隐藏默认的滚动条轨道和拇指 */
   .msg-body::-webkit-scrollbar {
-    width: 6px; /* 隐藏滚动条 */
+    width: 0.429rem; /* 隐藏滚动条 */
     background: transparent; /* 使滚动条轨道背景透明 */
   }
 
   /* 鼠标悬停时显示滚动条轨道 */
   .msg-body:hover::-webkit-scrollbar {
-    width: 6px; /* 设置滚动条宽度 */
+    width: 0.429rem; /* 设置滚动条宽度 */
     background: #f0f0f0; /* 滚动条轨道背景颜色 */
   }
 
   /* 滚动条轨道样式 */
   .msg-body:hover::-webkit-scrollbar-track-piece {
     background: #f0f0f0; /* 设置滚动条轨道背景颜色 */
-    border-radius: 8px; /* 设置滚动条轨道圆角 */
+    border-radius: 0.571rem; /* 设置滚动条轨道圆角 */
   }
 
   /* 滚动条拇指样式 */
   .msg-body:hover::-webkit-scrollbar-thumb {
     background-color: #c8c9cc; /* 设置滚动条拇指背景颜色 */
-    border-radius: 8px; /* 设置滚动条拇指圆角 */
+    border-radius: 0.571rem; /* 设置滚动条拇指圆角 */
   }
 
   /* 鼠标悬停在滚动条拇指上时的样式 */
@@ -205,4 +204,26 @@
 .fa-spinner {
   /* Apply 'spinner' keyframes looping once every second (1s)  */
   animation: spinner 1s linear infinite;
+}
+
+@media (max-width: 768px) {
+  .filter-container {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .filter-container {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    font-size: 1rem;
+  }
 }

@@ -17,32 +17,32 @@ export default defineConfig({
     open: false, // 启动是否自动打开浏览器
     proxy: {
       ['/api']: {
-        target: 'http://host.docker.internal:8000/',
-        // target: 'https://app.navkeeper.com/',
+        // target: 'http://host.docker.internal:8000/',
+        target: 'http://192.168.1.102:9527/',
         changeOrigin: true,
         log: 'debug'
       },
       ['/head']: {
-        target: 'http://host.docker.internal:8000/',
-        // target: 'https://app.navkeeper.com/',
+        // target: 'http://host.docker.internal:8000/',
+        target: 'http://192.168.1.102:9527/',
         changeOrigin: true,
         log: 'debug'
       },
       ['/image']: {
-        target: 'http://host.docker.internal:8000/api/msg',
-        // target: 'https://app.navkeeper.com/',
+        // target: 'http://host.docker.internal:8000/api/msg',
+        target: 'http://192.168.1.102:9527/',
         changeOrigin: true,
         log: 'debug'
       },
       ['/video']: {
-        target: 'http://host.docker.internal:8000/api/msg',
-        // target: 'https://app.navkeeper.com/',
+        // target: 'http://host.docker.internal:8000/api/msg',
+        target: 'http://192.168.1.102:9527/',
         changeOrigin: true,
         log: 'debug'
       },
       ['/file']: {
-        target: 'http://host.docker.internal:8000/api/msg',
-        // target: 'https://app.navkeeper.com/',
+        // target: 'http://host.docker.internal:8000/api/msg',
+        target: 'http://192.168.1.102:9527/',
         changeOrigin: true,
         log: 'debug'
       }

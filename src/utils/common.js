@@ -53,22 +53,26 @@ export const lengthOfCharts = (str) => {
 
 // 缩略字符串，一个中文按照两位计算，英文一位
 export const shortenCharts = (str, max, suffix) => {
-    let m = 0, str_return = '';
-    let a = str.split("");
-    for (let i = 0; i < a.length; i++) {
-        if (a[i].charCodeAt(0) < 299) {
-            m++;
-        } else {
-            m += 2;
+    if (str) {
+        let m = 0, str_return = '';
+        let a = str.split("");
+        for (let i = 0; i < a.length; i++) {
+            if (a[i].charCodeAt(0) < 299) {
+                m++;
+            } else {
+                m += 2;
+            }
+            if (m > max) {
+                if (suffix)
+                    str_return += suffix;
+                break;
+            }
+            str_return += a[i];
         }
-        if (m > max) {
-            if (suffix)
-                str_return += suffix;
-            break;
-        }
-        str_return += a[i];
+        return str_return;
+    } else {
+        return str;
     }
-    return str_return;
 }
 
 // 根据微信号获取用户信息

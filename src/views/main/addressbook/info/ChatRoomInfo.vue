@@ -5,6 +5,7 @@ import {reactive} from "vue";
 import {getUserNameByWxId, shortenCharts} from "@/utils/common.js";
 import {useStore} from "vuex";
 import defaultImage from '@/assets/default-head.svg';
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const store = useStore();
 const router = useRouter();
@@ -49,8 +50,21 @@ const setDefaultImage = (event) => {
   event.target.src = defaultImage;
 }
 
+// const comment = () => {
+//   router.push({ name: 'chat', params: { sessionId: route.params.sessionId, id: id} });
+// }
+
 const comment = () => {
-  router.push({ name: 'chat', params: { sessionId: route.params.sessionId, id: id} });
+  router.push({
+    name: 'chat',
+    params: {
+      sessionId: route.params.sessionId,
+      id: id
+    },
+    query: {
+      userName: id
+    }
+  });
 }
 
 /**
@@ -70,11 +84,15 @@ const displayName = (m) => {
   }
 }
 
+// 移动端返回
+const emit = defineEmits(['goBack']);
+
 </script>
 
 <template>
   <div class="info-container">
     <div class="info-top">
+      <p class="info-title main-back" @click="emit('goBack');"><font-awesome-icon class="main-back" :icon="['fas', 'chevron-left']"/></p>
       <p class="info-title">{{ chatroom.Remark ? chatroom.Remark : chatroom.NickName }}  </p>
     </div>
     <div class="info-msg" >
@@ -93,86 +111,5 @@ const displayName = (m) => {
 </template>
 
 <style scoped lang="less">
-.info-container {
-  background-color: #EFEFEF; /* 示例背景色 */
-  display: flex;
-  flex-direction: column; // 垂直排列
-  overflow: hidden;
-  height: 100%;
-  .info-top {
-    padding-left: 15px;
-    display: flex;
-    align-items: center; /* 垂直居中 */
-    height: 63px;
-    border-bottom: 1px solid lightgray;
-    .info-title {
-      height: 63px;
-      font-size: 20px;
-      line-height: 63px;
-    }
-  }
-  .info-msg {
-    flex-grow: 1;
-    overflow-y: scroll;
-    .users-container {
-      display: flex;
-      flex-wrap: wrap;
-      width: 700px;
-      margin: 20px auto;
-      .user {
-        margin-left: 20px;
-        width: 50px;
-        height: 100px;
-        border-radius: 5px;
-        padding: 10px;
-        .user-img {
-          width: 50px;
-          height: 50px;
-        }
-
-        .user-name {
-          font-size: 12px;
-          text-align: center;
-          color: #797979;
-        }
-      }
-      .user:hover {
-        background-color: #E6E6E6;
-      }
-    }
-    .comment-btn {
-      bottom: 10px;
-      text-align: center;
-      margin-top: 10px;
-    }
-  }
-  // 以下是滚动条样式
-  .info-msg::-webkit-scrollbar {
-    width: 6px;
-    background: transparent; /* 使滚动条轨道背景透明 */
-  }
-
-  /* 鼠标悬停时显示滚动条轨道 */
-  .info-msg:hover::-webkit-scrollbar {
-    width: 6px; /* 设置滚动条宽度 */
-    background: #f0f0f0; /* 滚动条轨道背景颜色 */
-  }
-
-  /* 滚动条轨道样式 */
-  .info-msg:hover::-webkit-scrollbar-track-piece {
-    background: #f0f0f0; /* 设置滚动条轨道背景颜色 */
-    border-radius: 8px; /* 设置滚动条轨道圆角 */
-  }
-
-  /* 滚动条拇指样式 */
-  .info-msg:hover::-webkit-scrollbar-thumb {
-    background-color: #c8c9cc; /* 设置滚动条拇指背景颜色 */
-    border-radius: 8px; /* 设置滚动条拇指圆角 */
-  }
-
-  /* 鼠标悬停在滚动条拇指上时的样式 */
-  .info-msg:hover::-webkit-scrollbar-thumb:hover {
-    background-color: #b0b0b0; /* 鼠标悬停时滚动条拇指背景颜色 */
-  }
-}
+@import "/src/style/main/addressbook/info/chatroom-info.less";
 </style>

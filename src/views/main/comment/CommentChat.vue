@@ -11,6 +11,7 @@ import unknownFile from '@/assets/filetypeicon/unknown.svg';
 import AudioPlayer from "../../../components/AudioPlayer.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import MsgFilter from "../../../components/MsgFilter.vue";
+import {shortenCharts} from "../../../utils/common.js";
 
 const store = useStore();
 const route = useRoute();
@@ -188,6 +189,19 @@ const onScroll = () => {
     }
   }
 };
+
+const handleTouchMove = () => {
+  let top = chatContainer.value.scrollHeight - chatContainer.value.clientHeight;
+  if (Math.abs(chatContainer.value.scrollTop - top) < 2) {
+    // 避免过快加载数据，这里只标记到达顶部
+    if (!isTop.value) {
+      isTop.value = true;
+    } else {
+      loadMore();
+      isTop.value = false;
+    }
+  }
+}
 const loadMore = () => {
   query.page = query.page + 1;
   loadData();
@@ -260,17 +274,31 @@ const closeFilter = () => {
 }
 // 移动端返回
 const emit = defineEmits(['goBack']);
+
+const titleShorten = (title) => {
+  const width = window.innerWidth;
+  if (width > 768) {
+    return title;
+  } else {
+    return shortenCharts(title, 26, '...');
+  }
+}
 </script>
 <template>
   <div class="main-content">
     <div class="main-content-top">
-      <p class="main-content-title main-back" @click="emit('goBack');"><font-awesome-icon class="loading-icon" :icon="['fas', 'chevron-left']"/></p>
-      <p class="main-content-title">{{ session.Remark?session.Remark:session.strNickName }}</p>
+      <p class="main-content-title" @click="emit('goBack');"><font-awesome-icon class="main-back" :icon="['fas', 'chevron-left']"/></p>
+      <p class="main-content-title">{{ titleShorten(session.Remark?session.Remark:session.strNickName) }}</p>
       <p class="main-content-title" v-if="isChatRoom"> ({{userLength}})</p>
       <p style="flex-grow: 1"></p>
       <p class="main-content-toolbar" @click="showTool?showTool=false:showTool=true">...</p>
     </div>
-    <div class="main-content-info" @wheel="onWheel" @scroll="onScroll" ref="chatContainer" v-viewer="imageOptions">
+    <div class="main-content-info"
+         @wheel="onWheel"
+         @scroll="onScroll"
+         @touchmove="handleTouchMove"
+         ref="chatContainer"
+         v-viewer="imageOptions">
       <div class="chat-grow">
       </div>
       <div class="chat-container" v-for="(m, index) in msg_list" :key="m">
@@ -422,8 +450,10 @@ const emit = defineEmits(['goBack']);
       </ul>
     </div>
   </div>
-  <MsgFilter v-if="showFilter" @close-filter="closeFilter" :str-usr-name="id" :title="session.Remark?session.Remark:session.strNickName"></MsgFilter>
+  <div class="msg-filter" :class="{'open': showFilter}" v-if="showFilter" >
+    <MsgFilter @close-filter="closeFilter" :str-usr-name="id" :title="session.Remark?session.Remark:session.strNickName"></MsgFilter>
+  </div>
 </template>
 <style scoped lang="less">
-@import "/src/style/comment-chat.less";
+@import "/src/style/main/comment/comment-chat.less";
 </style>

@@ -10,7 +10,7 @@
                              :class="{'item-icon-active': selectedItem === m.id }"
                              :icon="m.icon"
                              :title="m.title"
-                             @click="selectItem(m)"/>
+                             @click="selectItem(m.id)"/>
         </li>
       </ul>
       <ul class="sidebar-bottom">
@@ -27,6 +27,33 @@
         <li class="settings-bar-item" @click="store.commit('openSysTool')">系统工具</li>
         <li class="settings-bar-item setting-delete-session" @click="showDeleteDialog?showDeleteDialog=false:showDeleteDialog=true">删除会话</li>
       </ul>
+    </div>
+    <div class="weui-tab">
+      <div role="tablist" aria-label="选项卡标题" class="weui-tabbar">
+        <div id="tab1"
+             @click="selectItem('comment')"
+             :class="{'weui-bar__item_on': selectedItem === 'comment'}"
+             role="tab" aria-labelledby="t1_title" aria-describedby="t1_tips" aria-selected="true" aria-controls="panel1" class="weui-tabbar__item">
+          <div id="t1_tips" aria-hidden="true" style="display: inline-block; position: relative;">
+            <font-awesome-icon class="weui-tabbar__icon" :icon="['fas', 'comment']" />
+          </div>
+          <p id="t1_title" aria-hidden="true" class="weui-tabbar__label">聊天</p>
+        </div>
+        <div id="tab2"
+             @click="selectItem('address-book')"
+             :class="{'weui-bar__item_on': selectedItem === 'address-book'}"
+             role="tab" aria-labelledby="t2_title" aria-selected="false" aria-controls="panel2" class="weui-tabbar__item">
+          <font-awesome-icon class="weui-tabbar__icon" :icon="['fas', 'address-book']" />
+          <p aria-hidden="true" id="t2_title" class="weui-tabbar__label">通讯录</p>
+        </div>
+        <div id="tab4"
+             @click="selectItem('user')"
+             :class="{'weui-bar__item_on': selectedItem === 'user'}"
+             role="tab" aria-labelledby="t4_title" aria-selected="false" aria-controls="panel4" class="weui-tabbar__item">
+          <font-awesome-icon class="weui-tabbar__icon" :icon="['fas', 'user']" />
+          <p class="weui-tabbar__label" aria-hidden="true" id="t4_title">我</p>
+        </div>
+      </div>
     </div>
   </div>
   <div role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="js_title1" id="iosDialog1" v-if="showDeleteDialog">
@@ -130,10 +157,10 @@ headImage(store.getters.getCurrentWxId).then(resp => {
   }
 });
 
-const selectItem = (item) => {
-  selectedItem.value = item.id;
-  routerKey.value = item.id;
-  router.push({ name: item.id, params: { sessionId: sessionId } });
+const selectItem = (itemId) => {
+  selectedItem.value = itemId;
+  routerKey.value = itemId;
+  router.push({ name: itemId, params: { sessionId: sessionId } });
 }
 
 const toggleSettings = () => {
@@ -224,118 +251,5 @@ router.push({ name: 'comment', params: { sessionId: sessionId } });
 
 </script>
 <style scoped lang="less">
-  .main-container {
-    display: flex;
-  }
-  .main-sidebar, .main-session, .main-content {
-    /* 设置子元素的基本样式 */
-    height: 100%; /* 让子元素的高度与父容器一致 */
-  }
-
-  .main-sidebar {
-    width: 55px; /* 设置侧边栏的宽度 */
-    background-color: #2E2E2E;
-    display: flex;
-    flex-direction: column;
-    .sidebar-bottom {
-      width: 100%;
-      height: 40px;
-      .item-icon {
-        text-align: center;
-        font-size: 19px;
-        color: #999999;
-      }
-      .item-icon:hover {
-        cursor: pointer;
-      }
-    }
-  }
-  .main-right {
-
-  }
-  .main-settings-bar {
-    width: 100px;
-    background-color: #232323;
-    .settings-bar-ul {
-      .settings-bar-item {
-        font-size: 14px;
-        color: #999999;
-        padding: 10px 15px;
-      }
-      .settings-bar-item:hover {
-        cursor: pointer;
-        background-color: #2E2E2E;
-      }
-    }
-  }
-
-  .item-container {
-    flex-grow: 1;
-    .item {
-      margin-top: 16px;
-      text-align: center;
-      .u-header {
-        width: 40px;
-        height: 40px;
-        border-radius: 3px;
-      }
-      .item-icon {
-        font-size: 19px;
-        color: #999999;
-      }
-      .item-icon:hover {
-        cursor: pointer;
-      }
-      .item-icon-active {
-        color: #07C160!important;
-      }
-    }
-    .item:first-child {
-      margin-top: 30px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .main-container {
-      width: 100%;
-      height: 100%;
-      .setting-delete-session {
-        display: none;
-      }
-      .main-sidebar {
-        display: none;
-      }
-      .main-right {
-        width: 100%;
-      }
-    }
-
-  }
-
-  @media (min-width: 769px) and (max-width: 1024px) {
-    .main-container {
-      width: 100%;
-      height: 100%;
-      .main-right {
-        flex-grow: 1;
-      }
-    }
-  }
-
-  @media (min-width: 1025px) {
-    .main-container {
-      width: 1025px;
-      height: 850px;
-      max-height: 100vh; /* 限制最大高度为视口高度 */
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      border: 1px solid lightgray;
-      .main-right {
-        flex-grow: 1;
-      }
-    }
-  }
+@import "/src/style/main/main.less";
 </style>
