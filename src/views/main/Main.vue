@@ -158,6 +158,7 @@ headImage(store.getters.getCurrentWxId).then(resp => {
 });
 
 const selectItem = (itemId) => {
+  console.log('selectItem');
   selectedItem.value = itemId;
   routerKey.value = itemId;
   router.push({ name: itemId, params: { sessionId: sessionId } });

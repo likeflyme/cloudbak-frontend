@@ -121,30 +121,30 @@ const filterTypes = [
     width: '170px',
     icon: ['fas', 'image']
   }
-  // ,{
-  //   type: 3,
-  //   title: '链接',
-  //   width: '100px',
-  //   icon: ['fas', 'link']
-  // }
-  // ,{
-  //   type: 4,
-  //   title: '音乐与音频',
-  //   width: '170px',
-  //   icon: ['fas', 'volume-high']
-  // }
-  // ,{
-  //   type: 5,
-  //   title: '小程序',
-  //   width: '120px',
-  //   icon: ['fas', 'globe']
-  // }
-  // ,{
-  //   type: 6,
-  //   title: '视频号',
-  //   width: '120px',
-  //   icon: ['fas', 'video']
-  // }
+  ,{
+    type: 3,
+    title: '链接',
+    width: '100px',
+    icon: ['fas', 'link']
+  }
+  ,{
+    type: 4,
+    title: '音乐与音频',
+    width: '170px',
+    icon: ['fas', 'volume-high']
+  }
+  ,{
+    type: 5,
+    title: '小程序',
+    width: '120px',
+    icon: ['fas', 'globe']
+  }
+  ,{
+    type: 6,
+    title: '视频号',
+    width: '120px',
+    icon: ['fas', 'video']
+  }
   // ,{
   //   type: '8',
   //   title: '群成员',
@@ -213,6 +213,7 @@ const clearAndSearch = (showContext = false) => {
 // 单纯的加载数据函数
 const loadData = () => {
   if (!query.noMoreMsg && query.isLoading === false) {
+    console.log("loadData");
     query.isLoading = true;
     msgsFilter(query).then(resp => {
       query.isLoading = false;
@@ -249,6 +250,7 @@ const loadData = () => {
 // 反向加载数据函数
 const loadDataReverse = () => {
   if (!queryReverse.noMoreMsg && queryReverse.isLoading === false) {
+    console.log("loadDataReverse");
     queryReverse.isLoading = true;
     msgsFilter(queryReverse).then(resp => {
       queryReverse.isLoading = false;
@@ -293,6 +295,7 @@ const loadDataReverse = () => {
 // 消息定位查询
 const loadDataByLocalId = () => {
   if (!queryLocalId.noMoreMsg && queryLocalId.isLoading === false) {
+    console.log("loadDataByLocalId");
     queryLocalId.isLoading = true;
     isQueryByLocalId.value = true;
     queryLocalId.page = queryLocalId.page + 1;
@@ -331,6 +334,7 @@ const loadDataByLocalId = () => {
 // 消息定位反向查询
 const loadDataByLocalIdReverse = () => {
   if (!queryLocalIdReverse.noMoreMsg && queryLocalIdReverse.isLoading === false) {
+    console.log("loadDataByLocalIdReverse");
     queryLocalIdReverse.isLoading = true;
     isQueryByLocalId.value = true;
     queryLocalIdReverse.page = queryLocalIdReverse.page + 1;
@@ -449,9 +453,10 @@ const onWheel = (event) => {
 };
 
 const onMove = () => {
-  console.log('on move');
-  if (chatContainer.value.scrollTop + chatContainer.value.clientHeight === chatContainer.value.scrollHeight) {
-    console.log('loadMore')
+  // 避免手机端误差
+  const sub  = chatContainer.value.scrollHeight - chatContainer.value.scrollTop - chatContainer.value.clientHeight;
+  if (Math.abs(sub) < 2) {
+    // window.alert('loadMore');
     loadMore();
   }
   if (chatContainer.value.scrollTop === 0) {
@@ -552,7 +557,6 @@ const displayName = (m) => {
             </VueDatePicker>
           </li>
         </ul>
-
       </div>
     </div>
     <div class="msg-body"
