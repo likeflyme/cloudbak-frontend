@@ -16,17 +16,12 @@
       line-height: 4.5rem;
     }
   }
-  .main-back {
-    color: gray;
-    padding-right: 0.714rem;
-  }
   .info-msg {
     flex-grow: 1;
     overflow-y: scroll;
     .users-container {
       display: flex;
       flex-wrap: wrap;
-      width: 50rem;
       margin: 1.429rem auto;
       .user {
         margin-left: 1.429rem;
@@ -82,5 +77,21 @@
   /* 鼠标悬停在滚动条拇指上时的样式 */
   .info-msg:hover::-webkit-scrollbar-thumb:hover {
     background-color: #b0b0b0; /* 鼠标悬停时滚动条拇指背景颜色 */
+  }
+}
+@media (max-width: 768px) {
+  .info-top {
+    .main-back {
+      color: gray;
+      padding-right: 0.714rem;
+    }
+  }
+
+}
+@media (min-width: 769px) {
+  .info-top {
+    .main-back {
+      display: none;
+    }
   }
 }
