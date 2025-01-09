@@ -18,6 +18,8 @@ import VueViewer from 'v-viewer'
 import DialogPlugin from './plugins/dialog/index.js';
 // toast
 import ToastPlugin from './plugins/toast/toast.js';
+// popup
+import PopupPlugin from './plugins/popup/index.js';
 
 // 将所需图标添加到库中
 library.add(fas, far)
@@ -33,4 +35,5 @@ app.use(router)
     .use(VueViewer)
     .use(DialogPlugin)
     .use(ToastPlugin)
+    .use(PopupPlugin)
     .mount('#app');

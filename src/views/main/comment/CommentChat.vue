@@ -1,17 +1,16 @@
 <script setup>
 import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
-import {msgs, session as getSession, chatroomInfo, msgBySvrId, chatroom} from "@/api/msg.js"
+import {msgs, session as getSession, msgBySvrId, chatroom, ghMsgs} from "@/api/msg.js"
 import {useStore} from "vuex";
-import {parseXml, getReferFileName, getThumbFromStringContent, getVoiceLength, formatMsgDate, fileSize, fromXmlToJson} from "@/utils/common.js";
-import {get_msg_desc} from "@/utils/msgtp.js";
+import {parseXml, formatMsgDate} from "@/utils/common.js";
 import defaultImage from '@/assets/default-head.svg';
-import cleanedImage from '@/assets/cleaned.jpeg';
-import unknownFile from '@/assets/filetypeicon/unknown.svg';
-import AudioPlayer from "../../../components/AudioPlayer.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import MsgFilter from "../../../components/MsgFilter.vue";
 import {shortenCharts} from "../../../utils/common.js";
+import MsgSysMsg from "../../../components/msg/MsgSysMsg.vue";
+import MsgHeadTemplate from "../../../components/msg/MsgHeadTemplate.vue";
+import MsgNotice from "../../../components/msg/MsgNotice.vue";
 
 const store = useStore();
 const route = useRoute();
@@ -109,6 +108,18 @@ const parseImg = (data) => {
 const loadData = () => {
   if (!noMoreMsg.value) {
     isLoading.value = true;
+    // 公众号聊天查询
+    if (id.startsWith('gh_')) {
+      ghMsgs(query).then(resp => {
+        isLoading.value = false;
+        if (resp.msgs.length < query.size) {
+          noMoreMsg.value = true;
+        }
+        msg_list.push(...resp.msgs);
+      });
+      return;
+    }
+    // 其他按照对话处理
     msgs(query).then(resp => {
       isLoading.value = false;
       if (resp.msgs.length < query.size) {
@@ -154,7 +165,6 @@ const loadData = () => {
     });
   }
 }
-
 
 
 // 加载数据
@@ -217,58 +227,6 @@ const shouldDisplayTimestamp = (currentTimestamp, index) => {
   return (currentTimestamp - last.CreateTime) > 600;
 }
 
-const setDefaultImage = (event) => {
-  event.target.src = defaultImage;
-}
-const getOriMsgBySvrId = (svrId, DbNo) => {
-  let msg = chatMapBySvrId[svrId];
-  // 本地不存在，则到服务端查找
-  if (!msg) {
-    msgBySvrId(svrId, DbNo).then(data => {
-      chatMapBySvrId[svrId] = data;
-    });
-  }
-};
-
-const convertSysMsg = (strContent) => {
-  return strContent.replace(/<\/?revokemsg>/g, '');
-}
-
-const download = (path) => {
-  if (path) {
-    path = path.replace('\\', '/');
-    const fileName = path.split('/').pop();
-    let sessionId = store.getters.getCurrentSessionId;
-    let url = `/file?path=${encodeURIComponent(path)}&session_id=${sessionId}`;
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    // 将<a>元素添加到DOM
-    document.body.appendChild(link);
-    // 触发点击事件
-    link.click();
-    // 移除<a>元素
-    document.body.removeChild(link);
-  }
-}
-
-/**
- * 有备注先用备注，其次群备注，最后昵称
- * @param m
- * @returns {*}
- */
-const displayName = (m) => {
-  if (m.Remark) {
-    return m.Remark;
-  }
-  let chatName = chatRoomNameMap[m.WxId];
-  if (chatName) {
-    return chatName;
-  } else {
-    return m.NickName;
-  }
-}
-
 const closeFilter = () => {
   showFilter.value = false;
 }
@@ -307,113 +265,20 @@ const titleShorten = (title) => {
             {{ formatMsgDate(m.CreateTime) }}
           </p>
         </div>
-        <!-- 系统通知类消息 -->
-        <div class="tips" v-if="m.Type === 10000">
-          <p class="tips-content" v-html="convertSysMsg(m.StrContent)"></p>
-        </div>
-        <div v-else class="chat" :class="{'right': m.IsSender === 1, 'left': m.IsSender === 0}" >
-          <div class="chat-header">
-            <img :src="m.smallHeadImgUrl?m.smallHeadImgUrl:defaultImage" @error="setDefaultImage" alt="" class="exclude"/>
-          </div>
-          <div class="chat-info">
-            <div class="chat-nickname" v-if="isChatRoom">
-              <p v-if="isChatRoom && m.IsSender === 0"> {{ displayName(m) }} </p>
-            </div>
-            <!-- 文本消息 -->
-            <div v-if="m.Type === 1" class="chat-text">
-              <p>
-                {{ m.StrContent }}
-              </p>
-            </div>
-            <!-- 图片消息 -->
-            <div v-else-if="m.Type === 3 && m.SubType ===0" class="chat-img">
-              <img
-                  :src="'/image?img_path=' + m.Thumb + '&session_id=' + store.getters.getCurrentSessionId"
-                  :data-original="m.Image ? '/image?img_path=' + m.Image + '&session_id=' + store.getters.getCurrentSessionId : cleanedImage"
-                  alt=""/>
-            </div>
-            <!-- 语音消息 -->
-            <div v-else-if="m.Type === 34 && m.SubType ===0" class="chat-media">
-              <AudioPlayer
-                :src="`/api/msg/media?MsgSvrID=${m.MsgSvrIDStr}&session_id=${store.getters.getCurrentSessionId}&db_no=${m.DbNo}`"
-                :text="m.StrContent"
-                :right="m.IsSender === 1"/>
-            </div>
-            <!-- 视频消息 -->
-            <div v-else-if="m.Type === 43 && m.SubType ===0" class="chat-img exclude">
-              <video controls width="250" :poster="`/image?img_path=${m.Thumb}&session_id=${store.getters.getCurrentSessionId}`">
-                <source v-if="m.Image" :src="`/video?video_path=${m.Image}&session_id=${store.getters.getCurrentSessionId}`" type="video/mp4" />
-              </video>
-            </div>
-            <!-- 用户图片表情 -->
-            <div v-else-if="m.Type === 47 && m.SubType === 0" class="chat-img">
-              <img class="exclude"
-                  :src="getThumbFromStringContent(m.StrContent)"
-                  :data-original="'/image?img_path=' + (m.Image ? m.Image : m.Thumb) + '&session_id=' + store.getters.getCurrentSessionId"
-                  alt=""/>
-            </div>
-            <!-- 引用消息 -->
-            <div v-else-if="m.Type === 49 && m.SubType === 57" class="chat-text">
-              <p>
-                {{ m.compress_content.msg.appmsg.title }}
-              </p>
-            </div>
-            <!-- 文件消息 -->
-            <div v-else-if="m.Type === 49 && m.SubType === 6" class="chat-file" @click="download(m.Image)">
-              <div class="chat-file-top">
-                <div class="chat-file-left">
-                  <p class="chat-file-title">{{ m.compress_content.msg.appmsg.title }}</p>
-                  <p class="chat-file-content">{{ fileSize(m.compress_content.msg.appmsg.appattach.totallen)}}</p>
-                </div>
-                <div class="chat-file-icon">
-                  <img class="item-icon" :src="unknownFile" alt=""/>
-                </div>
-              </div>
-              <div class="chat-file-bottom">
-                <p v-if="m.Image" class="chat-file-app-info">
-                  <p v-if="m.compress_content.msg.appinfo" class="chat-file-app-info">{{ m.compress_content.msg.appinfo.appname }}</p>
-                </p>
-                <p v-else class="chat-file-app-info">
-                  未下载的文件
-                </p>
-              </div>
-<!--              <p>-->
-<!--                {{ m.compress_content.msg.appmsg.title }}-->
-<!--              </p>-->
-            </div>
-            <div v-else class="refer-msg">
-              <p class="refer-text">
-                暂不支持的消息类型：{{ get_msg_desc(m.Type, m.SubType) }}
-              </p>
-            </div>
-            <!-- 引用消息 -->
-            <div class="refer-msg" v-if="m.Type === 49 && m.SubType === 57">
-              <!-- 引用文本消息 -->
-              <p class="refer-text" v-if="m.compress_content.msg.appmsg.refermsg.type === '1'">
-                {{ m.compress_content.msg.appmsg.refermsg.displayname }}: {{ m.compress_content.msg.appmsg.refermsg.content }}
-              </p>
-              <!-- 引用文件消息 -->
-              <p class="refer-text" v-else-if="m.compress_content.msg.appmsg.refermsg.type === '49'">
-                {{ m.compress_content.msg.appmsg.refermsg.displayname }}: {{ getReferFileName(m.compress_content.msg.appmsg.refermsg.content) }}
-                <font-awesome-icon class="icon-file" :icon="['fas', 'file']" title="文件"/>
-              </p>
-              <!-- 引用图片消息 -->
-              <div class="refer-img" v-else-if="m.compress_content.msg.appmsg.refermsg.type === '3'">
-                {{ getOriMsgBySvrId(m.compress_content.msg.appmsg.refermsg.svrid, m.DbNo) }}
-                <p v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]" class="refer-img-title">{{ m.compress_content.msg.appmsg.refermsg.displayname }}: </p>
-                <img v-if="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid]"
-                    :src="'/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Thumb + '&session_id=' + store.getters.getCurrentSessionId"
-                    :data-original="chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image ? '/image?img_path=' + chatMapBySvrId[m.compress_content.msg.appmsg.refermsg.svrid].Image + '&session_id=' + store.getters.getCurrentSessionId : cleanedImage"
-                    alt=""/>
-              </div>
-              <!-- 引用其他消息 -->
-              <p class="refer-text" v-else>
-                暂不支持的引用消息类型 refermsg.type = {{ m.compress_content.msg.appmsg.refermsg.type }}
-              </p>
-            </div>
-
-          </div>
-        </div>
+        <!-- 系统消息 -->
+        <MsgSysMsg
+            v-if="m.Type === 10000"
+            :msg="m"></MsgSysMsg>
+        <!-- 通知消息，支持公众号类型与服务通知的通知类消息，主要支持微信支付与服务通知 -->
+        <MsgNotice
+            v-else-if="m.Type === 49 && m.SubType === 5 && (id.startsWith('gh_') || id === 'notifymessage')"
+            :msg="m"></MsgNotice>
+        <MsgHeadTemplate
+            v-else
+            :msg="m"
+            :chatRoomNameMap="chatRoomNameMap"
+            :isChatRoom="isChatRoom"
+        ></MsgHeadTemplate>
       </div>
       <div class="load-more">
         <a v-if="!noMoreMsg" href="javascript:void(0)" @click="loadMore">
