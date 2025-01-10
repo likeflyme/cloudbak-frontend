@@ -85,7 +85,7 @@ const getOriMsgBySvrId = (svrId, DbNo) => {
 };
 
 const openTransferDetail = (msg) => {
-  proxy.$popup.open(MsgTransferDetail, { msg: props.msg }, { width: '500px', height: '400px' });
+  proxy.$popup.open(MsgTransferDetail, { msg: props.msg }, { title: '聊天记录', width: '650px', height: '600px' });
 }
 
 </script>
@@ -165,7 +165,7 @@ const openTransferDetail = (msg) => {
         <!--                {{ props.msg.compress_content.msg.appmsg.title }}-->
         <!--              </p>-->
       </div>
-      <div v-else-if="props.msg.Type === 49 && props.msg.SubType === 19">
+      <div class="chat-transfer" v-else-if="props.msg.Type === 49 && props.msg.SubType === 19">
         <MsgTransfer :msg="props.msg" @click="openTransferDetail(props.msg)"/>
       </div>
       <div v-else class="refer-msg">

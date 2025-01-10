@@ -6,6 +6,7 @@ const props = defineProps({
   }
 });
 const noticeType = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['@type'];
+const count = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['@count'];
 
 </script>
 
@@ -28,6 +29,31 @@ const noticeType = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['
         <div class="n-body-trans-desc" v-for="line in props.msg.compress_content?.msg?.appmsg?.mmreader?.template_detail?.line_content.lines.line">
           <p class="n-body-trans-desc-label">{{ line.key?.word }}</p>
           <p class="n-body-trans-desc-value">{{ line.value?.word }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="n-box" v-else-if="noticeType === '20'">
+      <div class="n-card-single" v-if="count === '1'">
+        <div class="n-card-single-img">
+          <img alt="" src="https://mmbiz.qpic.cn/mmbiz_jpg/CJnR1F7icJkoUmKTwMTsguQSaNta2ejicFMibl0mBrWMEE9DqPZVHNZcmHt3FUgUSF84icBj7QlZ57mI6cTUQDqia3Q/640?wxtype=jpeg&amp;wxfrom=0"/>
+        </div>
+        <div class="n-card-single-desc">
+          <p class="n-card-single-desc-title">不知火舞参战！拳皇联动今日上线，来成为最强格斗家吧！</p>
+        </div>
+      </div>
+
+      <div class="n-card-multi" v-else>
+        <div class="n-card-multi-img">
+          <img alt="" src="https://mmbiz.qpic.cn/mmbiz_jpg/CJnR1F7icJkoUmKTwMTsguQSaNta2ejicFMibl0mBrWMEE9DqPZVHNZcmHt3FUgUSF84icBj7QlZ57mI6cTUQDqia3Q/640?wxtype=jpeg&amp;wxfrom=0"/>
+        </div>
+        <div class="n-card-multi-item">
+          不知火舞参战！拳皇联动今日上线，来成为最强格斗家吧！
+        </div>
+        <div class="n-card-multi-item">
+          不知火舞参战！拳皇联动今日上线，来成为最强格斗家吧！
+        </div>
+        <div class="n-card-multi-item">
+          不知火舞参战！拳皇联动今日上线，来成为最强格斗家吧！
         </div>
       </div>
     </div>
@@ -104,6 +130,31 @@ const noticeType = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['
   .no-support {
     padding: 10px;
     color: #888888
+  }
+
+  .n-box .n-card-single {
+    .n-card-single-desc {
+      padding: 15px;
+      .n-card-single-desc-title {
+        color: gray;
+        padding-bottom: 10px;
+      }
+      .n-card-single-desc-detail {
+        padding-top: 10px;
+      }
+    }
+  }
+  .n-box .n-card-single:hover {
+    cursor: pointer;
+  }
+
+  .n-box .n-card-multi {
+    .n-card-multi-item {
+      padding: 15px;
+    }
+  }
+  .n-card-multi .n-card-multi-item:not(:first-child) {
+    border-top: 1px solid #ccc; /* 你可以根据需要调整边框的颜色和样式 */
   }
 }
 </style>

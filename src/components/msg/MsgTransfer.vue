@@ -31,12 +31,15 @@ const replaceBreak = (str) => {
   border-radius: 3px;
   padding: 10px;
   direction: ltr;
+  min-width: 250px;
   .transfer-title {
 
   }
   .transfer-desc {
     font-size: 11px;
     color: #797979;
+    height: 55px;
+    overflow-y: hidden;
   }
   .transfer-footer {
     padding-top: 5px;

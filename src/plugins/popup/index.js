@@ -1,98 +1,65 @@
 // src/plugins/popup-plugin.js
-import { reactive, h, createVNode } from 'vue';
+import {createVNode, reactive, render} from 'vue';
+import Popup from "./Popup.vue";
 
-let popupCount = 0; // 记录打开的窗口数量
+let popupCount = 0; // 记录打开过的窗口数量
 
 const popupState = reactive({
     windows: []
 });
+let prev = null;
 
 export default {
     install(app) {
+
         app.config.globalProperties.$popup = {
             open(Component, props = {}, options = {}) {
-                console.log("open popup");
                 popupCount++;
+                const slotVNode = createVNode(Component, props);
 
                 // 设置窗口的默认配置
                 const { width = '400px', height = '300px' } = options;
 
-                const id = `popup-${popupCount}`;
-                const popupProps = {
-                    id,
-                    component: Component,
-                    props,
-                    width,
-                    height,
-                };
+                options['top'] = (window.innerHeight - parseInt(height)) / 2 + 'px';
+                options['left'] = (window.innerWidth - parseInt(width)) / 2 + 'px';
+                options['id'] = `popup-${popupCount}`;
+                options['zIndex'] = 1000 + popupCount;
 
-                // 计算居中位置
-                const left = (window.innerWidth - parseInt(width)) / 2 + 'px';
-                const top = (window.innerHeight - parseInt(height)) / 2 + 'px';
 
-                // 向窗口数组中添加一个新窗口
-                popupState.windows.push({
-                    id,
-                    Component,
-                    props,
-                    width,
-                    height,
-                    left,
-                    top
+                const windowVNode = createVNode(Popup, {
+                    ...options, // 传递options中的所有参数
+                    close: () => {
+                        this.closeOnPopup(options['id']); // 调用插件中的关闭函数
+                    }
+                }, {
+                    default: () => slotVNode  // 将 slotVNode 传递给默认插槽
                 });
+                windowVNode['id'] = options['id'];
+                if (prev !== null) {
+                    console.log('is same:', prev === windowVNode);
+                }
+                prev = windowVNode;
+                console.log('createVNode', windowVNode);
 
-                return id;
+                const container = document.createElement('div');
+                container['id'] = options['id'];
+                popupState.windows.push(container);
+                document.body.appendChild(container);
+                render(windowVNode, container);
+                console.log('opened', popupState.windows)
             },
-            close(id) {
+            closeOnPopup(id) {
+                console.log("plugin close:", id);
                 const index = popupState.windows.findIndex(win => win.id === id);
                 if (index !== -1) {
-                    popupState.windows.splice(index, 1);
+                    const container = popupState.windows.splice(index, 1);
+                    render(null, container);
                 }
+                console.log('closed', popupState.windows)
             }
         };
 
-        app.component('PopupWindow', {
-            props: {
-                id: String,
-                component: Object,
-                props: Object,
-                width: String,
-                height: String,
-                left: String,
-                top: String
-            },
-            setup(props) {
-                return () =>
-                    h(
-                        'div',
-                        {
-                            class: 'popup-window',
-                            style: {
-                                position: 'fixed',
-                                width: props.width,
-                                height: props.height,
-                                top: 0,
-                                left: 0,
-                                background: 'white',
-                                border: '1px solid #ccc',
-                                zIndex: 10000 + popupCount,
-                                borderRadius: '8px',
-                                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        [
-                            h(props.component, props.props),
-                            h('button', {
-                                class: 'popup-close-btn',
-                                onClick: () => {
-                                    this.$popup.close(props.id);
-                                }
-                            }, 'Close')
-                        ]
-                    );
-            }
-        });
 
-        app.provide('popupState', popupState); // 将popupState提供给全局
+
     }
 };
