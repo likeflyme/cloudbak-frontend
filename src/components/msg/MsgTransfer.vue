@@ -40,6 +40,10 @@ const replaceBreak = (str) => {
     color: #797979;
     height: 55px;
     overflow-y: hidden;
+    width: 200px;
+    white-space: nowrap;        /* 防止文字换行 */
+    overflow-x: hidden;         /* 隐藏超出容器宽度的文字 */
+    text-overflow: ellipsis;    /* 超出部分用省略号代替 */
   }
   .transfer-footer {
     padding-top: 5px;

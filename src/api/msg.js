@@ -1,4 +1,5 @@
 import service from "../utils/request";
+import {toBase64} from "js-base64";
 
 export const session = (strUsrName) => {
     return service.get("/api/msg/session?strUsrName=" + strUsrName);
@@ -10,6 +11,10 @@ export const sessions = (page, size) => {
 
 export const msgBySvrId = (svrId, DbNo) => {
     return service.get(`/api/msg/msg_by_svr_id?svr_id=${svrId}&db_no=${DbNo}`);
+};
+
+export const msgsAll = (query) => {
+    return service.get(`/api/msg/msgs-all?strUsrName=${query.strUsrName}&page=${query.page}&size=${query.size}&start=${query.start}&dbNo=${query.dbNo}&filterType=${query.filterType}&filterText=${query.filterText}&filterDay=${query.filterDay}&filterUser=${query.filterUser}`);
 };
 
 export const msgs = (query) => {

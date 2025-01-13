@@ -17,6 +17,9 @@ const store = useStore();
 const { proxy } = getCurrentInstance();
 
 const props = defineProps({
+  roomId: {
+    type: String
+  },
   msg: {
     type: Object,
     required: true
@@ -106,21 +109,21 @@ const openTransferDetail = (msg) => {
         </p>
       </div>
       <!-- 图片消息 -->
-      <div v-else-if="props.msg.Type === 3 && props.msg.SubType ===0" class="chat-img">
+      <div v-else-if="props.msg.Type === 3" class="chat-img">
         <img
             :src="'/image?img_path=' + props.msg.Thumb + '&session_id=' + store.getters.getCurrentSessionId"
             :data-original="props.msg.Image ? '/image?img_path=' + props.msg.Image + '&session_id=' + store.getters.getCurrentSessionId : cleanedImage"
             alt=""/>
       </div>
       <!-- 语音消息 -->
-      <div v-else-if="props.msg.Type === 34 && props.msg.SubType ===0" class="chat-media">
+      <div v-else-if="props.msg.Type === 34" class="chat-media">
         <AudioPlayer
-            :src="`/api/msg/media?MsgSvrID=${props.msg.MsgSvrIDStr}&session_id=${store.getters.getCurrentSessionId}&db_no=${props.msg.DbNo}`"
+            :src="`/api/msg/media?strUsrName=${props.roomId}&MsgSvrID=${props.msg.MsgSvrIDStr}&session_id=${store.getters.getCurrentSessionId}&db_no=${props.msg.DbNo}`"
             :text="props.msg.StrContent"
             :right="props.msg.IsSender === 1"/>
       </div>
       <!-- 视频消息 -->
-      <div v-else-if="props.msg.Type === 43 && props.msg.SubType ===0" class="chat-img exclude">
+      <div v-else-if="props.msg.Type === 43" class="chat-img exclude">
         <video controls width="250" :poster="`/image?img_path=${props.msg.Thumb}&session_id=${store.getters.getCurrentSessionId}`">
           <source v-if="props.msg.Image" :src="`/video?video_path=${props.msg.Image}&session_id=${store.getters.getCurrentSessionId}`" type="video/mp4" />
         </video>

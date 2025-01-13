@@ -1,7 +1,7 @@
 <script setup>
 import {reactive, ref} from "vue";
 import {useRoute} from "vue-router";
-import {msgs, session as getSession, msgBySvrId, chatroom, ghMsgs} from "@/api/msg.js"
+import {msgs, msgsAll, session as getSession, msgBySvrId, chatroom, ghMsgs} from "@/api/msg.js"
 import {useStore} from "vuex";
 import {parseXml, formatMsgDate} from "@/utils/common.js";
 import defaultImage from '@/assets/default-head.svg';
@@ -16,6 +16,7 @@ const store = useStore();
 const route = useRoute();
 
 const id = route.params.id
+console.log(id);
 const isChatRoom = id.includes('@chatroom');
 const userLength = ref(0);
 const chatMapBySvrId = reactive({});
@@ -109,18 +110,18 @@ const loadData = () => {
   if (!noMoreMsg.value) {
     isLoading.value = true;
     // 公众号聊天查询
-    if (id.startsWith('gh_')) {
-      ghMsgs(query).then(resp => {
-        isLoading.value = false;
-        if (resp.msgs.length < query.size) {
-          noMoreMsg.value = true;
-        }
-        msg_list.push(...resp.msgs);
-      });
-      return;
-    }
+    // if (id.startsWith('gh_') || id.endsWith("@openim")) {
+    //   ghMsgs(query).then(resp => {
+    //     isLoading.value = false;
+    //     if (resp.msgs.length < query.size) {
+    //       noMoreMsg.value = true;
+    //     }
+    //     msg_list.push(...resp.msgs);
+    //   });
+    //   return;
+    // }
     // 其他按照对话处理
-    msgs(query).then(resp => {
+    msgsAll(query).then(resp => {
       isLoading.value = false;
       if (resp.msgs.length < query.size) {
         noMoreMsg.value = true;
@@ -275,6 +276,7 @@ const titleShorten = (title) => {
             :msg="m"></MsgNotice>
         <MsgHeadTemplate
             v-else
+            :roomId="route.params.id"
             :msg="m"
             :chatRoomNameMap="chatRoomNameMap"
             :isChatRoom="isChatRoom"

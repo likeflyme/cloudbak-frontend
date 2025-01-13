@@ -1,4 +1,6 @@
 <script setup>
+import {toBase64} from "js-base64";
+
 const props = defineProps({
   msg: {
     type: Object,
@@ -7,7 +9,11 @@ const props = defineProps({
 });
 const noticeType = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['@type'];
 const count = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['@count'];
+const appmsg = props.msg.compress_content?.msg?.appmsg;
 
+const openLink = (url) => {
+  window.open(url);
+}
 </script>
 
 <template>
@@ -20,11 +26,11 @@ const count = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['@coun
       </div>
       <div class="n-row n-body">
         <div class="n-body-trans-type">
-          {{ props.msg.compress_content?.msg?.appmsg?.mmreader?.template_header?.title }}
+          {{ appmsg?.mmreader?.template_header?.title }}
         </div>
         <div class="n-body-trans">
-          <p class="n-body-trans-title">{{ props.msg.compress_content?.msg?.appmsg?.mmreader?.template_detail?.line_content?.topline?.key?.word }}</p>
-          <p class="n-body-trans-amt">{{ props.msg.compress_content?.msg?.appmsg?.mmreader?.template_detail?.line_content?.topline?.value?.word }}</p>
+          <p class="n-body-trans-title">{{ appmsg?.mmreader?.template_detail?.line_content?.topline?.key?.word }}</p>
+          <p class="n-body-trans-amt">{{ appmsg?.mmreader?.template_detail?.line_content?.topline?.value?.word }}</p>
         </div>
         <div class="n-body-trans-desc" v-for="line in props.msg.compress_content?.msg?.appmsg?.mmreader?.template_detail?.line_content.lines.line">
           <p class="n-body-trans-desc-label">{{ line.key?.word }}</p>
@@ -33,27 +39,29 @@ const count = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['@coun
       </div>
     </div>
     <div class="n-box" v-else-if="noticeType === '20'">
-      <div class="n-card-single" v-if="count === '1'">
-        <div class="n-card-single-img">
-          <img alt="" src="https://mmbiz.qpic.cn/mmbiz_jpg/CJnR1F7icJkoUmKTwMTsguQSaNta2ejicFMibl0mBrWMEE9DqPZVHNZcmHt3FUgUSF84icBj7QlZ57mI6cTUQDqia3Q/640?wxtype=jpeg&amp;wxfrom=0"/>
+      <div class="n-card n-card-single" v-if="count === '1'" @click="openLink(appmsg?.mmreader?.category?.item?.url)">
+        <div class="n-card-img-container n-card-single-img">
+          <img class="n-img exclude" alt="" :src="'/api/msg/image-proxy?encoded_url=' + toBase64(appmsg?.mmreader?.category?.item?.cover)"/>
+          <div class="n-card-img-title">
+            {{ appmsg?.mmreader?.category?.item?.title }}
+          </div>
         </div>
         <div class="n-card-single-desc">
-          <p class="n-card-single-desc-title">不知火舞参战！拳皇联动今日上线，来成为最强格斗家吧！</p>
+          <p class="n-card-single-desc-title">{{ props.msg.compress_content?.msg?.appmsg?.mmreader?.category?.item?.title }}</p>
         </div>
       </div>
 
       <div class="n-card-multi" v-else>
-        <div class="n-card-multi-img">
-          <img alt="" src="https://mmbiz.qpic.cn/mmbiz_jpg/CJnR1F7icJkoUmKTwMTsguQSaNta2ejicFMibl0mBrWMEE9DqPZVHNZcmHt3FUgUSF84icBj7QlZ57mI6cTUQDqia3Q/640?wxtype=jpeg&amp;wxfrom=0"/>
-        </div>
-        <div class="n-card-multi-item">
-          不知火舞参战！拳皇联动今日上线，来成为最强格斗家吧！
-        </div>
-        <div class="n-card-multi-item">
-          不知火舞参战！拳皇联动今日上线，来成为最强格斗家吧！
-        </div>
-        <div class="n-card-multi-item">
-          不知火舞参战！拳皇联动今日上线，来成为最强格斗家吧！
+        <div v-for="(item, index) in appmsg.mmreader.category.item">
+          <div class="n-card-img-container n-card-multi-img" v-if="index === 0" @click="openLink(item.url)">
+            <img class="n-img exclude" alt="" :src="'/api/msg/image-proxy?encoded_url=' + toBase64(item.cover)"/>
+            <div class="n-card-img-title">
+              {{ item.title }}
+            </div>
+          </div>
+          <div class="n-card-multi-item" @click="openLink(item.url)" v-else>
+            {{ item.title }}
+          </div>
         </div>
       </div>
     </div>
@@ -148,13 +156,40 @@ const count = props.msg.compress_content?.msg?.appmsg?.mmreader?.category['@coun
     cursor: pointer;
   }
 
-  .n-box .n-card-multi {
-    .n-card-multi-item {
-      padding: 15px;
+  .n-box  {
+    .n-card-multi {
+      .n-card-multi-img:hover {
+        cursor: pointer;
+      }
+      .n-card-multi-item {
+        padding: 15px;
+      }
+      .n-card-multi-item:hover {
+        cursor: pointer;
+      }
+    }
+  }
+  .n-box {
+    .n-card-img-container {
+      position: relative;
+      width: 100%;
+      .n-card-img-title {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 5px 0;
+        text-indent: 10px;
+      }
     }
   }
   .n-card-multi .n-card-multi-item:not(:first-child) {
     border-top: 1px solid #ccc; /* 你可以根据需要调整边框的颜色和样式 */
+  }
+  .n-img {
+    width: 100%;
   }
 }
 </style>
